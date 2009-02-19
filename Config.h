@@ -4,6 +4,7 @@
 
 struct Config
 {
+	/*** Lowlevel configuration ***/
 	enum BaudRate
 	{
 		B150,	B200,
@@ -31,6 +32,13 @@ struct Config
 		CS8, CS5
 	};
 
+	/* Serial configuration */
+	static enum BaudRate BaudRate;
+	static enum Parity Parity;
+	static enum StopBits StopBits;
+	static enum CharSize CharSize;
+
+	/*** Middle level configuration ***/
 	enum Protocol
 	{
 		MODBUS_ASCII,
@@ -38,11 +46,18 @@ struct Config
 		TERMINATED
 	};
 
-	static enum BaudRate BaudRate;
-	static enum Parity Parity;
-	static enum StopBits StopBits;
-	static enum CharSize CharSize;
+	enum Role
+	{
+		MASTER,
+		SLAVE
+	};
+
+	/* Current protocol */
 	static enum Protocol Protocol;
+	/* Modbus slave address */
+	static unsigned char Address;
+	/* Modbus role */
+	static enum Role Role;
 };
 
 #endif

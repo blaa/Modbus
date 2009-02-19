@@ -20,7 +20,9 @@ void Fun(int a, int b)
 
 Jednoliterówki (i, a, b) mog± byæ ma³e.
 
-Wciêcia jednoznakowe znakiem tab '\t'.
+Wciêcia jednoznakowe znakiem tab '\t'. D³ugo¶æ linii nie przekraczaj±ca 
+75 znaków kiedy to tylko mo¿liwe do ³adnego po³amania, a w najgorszym wypadku 
+nie wiêksze od 85 znaków.
 
 
 W kodzie komentarze ang., zmienne po ang.
