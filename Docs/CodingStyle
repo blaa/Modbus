@@ -1,0 +1,29 @@
+Nazewnictwo zmiennych (CamelCase):
+ZmiennaPubliczna
+zmiennaPrywatna
+
+Odpowiednio te¿ funkcje/metody.
+
+if ()
+{
+	Code;
+}
+else
+{
+	Code;
+}
+
+void Fun(int a, int b)
+{
+	Code;
+}
+
+Jednoliterówki (i, a, b) mog± byæ ma³e.
+
+Wciêcia jednoznakowe znakiem tab '\t'.
+
+
+W kodzie komentarze ang., zmienne po ang.
+Nie wiem jak z dokumentacj±... 
+
+Trzyma³bym siê UTF, ale jako, ¿e to dos to pewnie cp852. Micha³ robi interfejs to ustali.
