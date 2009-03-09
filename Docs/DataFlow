@@ -1,0 +1,55 @@
+
+
+|-----------------------|
+| Interface layer       |
+| Directory: Interface/ |-----\
+|                       |      \   "up" (Receiving)
+|-----------------------|      	\
+           |  	       		 \
+           |  	       		  \
+           |  "Down"   	       	   |------------------------------ |
+           |  (Sending)		   | Protocol layer callback     |
+           |   	       	       	   | Implemented by higher layer |
+           |  	       	   	   |-----------------------------|
+           |  	   	       	  /
+|----------------------------------|
+| Protocol layer                   |
+|----------------------------------|
+           |   	       	       	 \      "up"
+           |  	   		  \
+	   |  	   		|-----------------------------------|
+	   |  	   		| Lowlevel callback implementation  |
+	   | "Down"		| Done in protocol layer and passed |
+	   |   	       	       	| down to lowlevel                  |
+	   |  			|-----------------------------------|
+	   |  			    |
+	   |  			    |
+	   |  			    |
+|---------------------------------------------|
+| Lowlevel layer                              |
+| Interrupts etc are defined  here.           |
+| Each time we get some data we call function |
+| from the callback class supplied during     |
+| initialization.                             |
+|---------------------------------------------|
+	    /\
+	    ||
+	    \/
+|---------------------------------|
+| System API for accessing Serial |
+|---------------------------------|
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@
 
 #include <string>
 
-/* Interface of all low-level communication methods 
+/** Interface of all low-level communication methods 
  * - most obviously the interface of a serial.
  *
  * Implementation must be interrupt/signal based. Because of this
@@ -11,33 +11,33 @@
  * As a callback we will define an abstract class which will be 
  * implemented by higher layer and passed to the initializer of our class.
  *
- *
  */
 class Lowlevel {
 public:
-	/* Callback interface declaration */
+
+	/** Callback interface declaration */
 	class Callback
 	{
 	public:
-		/* Called when we receive a single byte */
+		/** Called when we receive a single byte. */
 		virtual void ByteReceived(char Byte) = 0;
-		/* Called on any error; to be defined */
+		/** Called on any error; to be defined */
 		virtual void Error(int Errno) = 0;
 	};
 
-	virtual void RegisterCallback(Callback &C);
+	virtual void RegisterCallback(Callback &CB) = 0;
 
 	/*** Low-level interface ***/
-	/* Function initializes transmission of a single byte.
+	/** Function initializes transmission of a single byte.
 	 * It might block until the send buffer is empty */
 	virtual void SendByte(char Byte) = 0;
 
-	/* If there's a byte waiting in a queue - return it, 
+	/** If there's a byte waiting in a queue - return it, 
 	 * otherwise returns -1. */
 	virtual int GetByte() = 0;
 
 	/*** High-level interface ***/
-	/* Non-Blocking function which initializes transmission of 
+	/** Non-Blocking function which initializes transmission of 
 	 * the data stored in passed buffer. Buffer must continue
 	 * to exist until all data is sent.
 	 *
@@ -48,6 +48,5 @@ public:
 	 * even char* + size or our own class, as you wish. */
 	virtual void SendString(const std::string Buffer) = 0;
 };
-
 
 #endif
