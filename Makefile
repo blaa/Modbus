@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-O0 -Wall -ggdb
+CFLAGS=-O0 -Wall -ggdb -I.
 
 EXE=Comm
 

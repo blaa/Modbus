@@ -1,16 +1,16 @@
 #include "Modbus.h"
 
-Modbus(Callback &CB) : C(CB)
+Modbus::Modbus(Callback &CB, Lowlevel &LL) : C(CB), L(LL)
 {
 }
 
-void RegisterCallback(Callback &C)
+void Modbus::RegisterCallback(Callback &C)
 {
 	this->C = C;
 }
 
 
-void Modbus::SendMessage(const std::string &Msg, int Address = 0)
+void Modbus::SendMessage(const std::string &Msg, int Address)
 {
 	/* Form new buffer with modbus thingies and pass to serial */
 }

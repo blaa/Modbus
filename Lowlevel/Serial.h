@@ -7,19 +7,17 @@
 class Serial : public Lowlevel
 {
 protected:
-	Lowlevel::Callback &C;
+	Lowlevel::Callback *C;
 
 public:
-	Serial(Callback &CB /*, ... Shall take configuration parameters
+	Serial(Callback *CB = NULL /*, ... Shall take configuration parameters
 			      and initialize serial port */);
 
 	virtual void SendByte(char Byte);
 
 	virtual int GetByte();
 	virtual void SendString(const std::string Buffer);
-
-
-	virtual void RegisterCallback(Callback &C);
+	virtual void RegisterCallback(Callback *C);
 };
 
 

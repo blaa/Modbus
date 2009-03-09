@@ -7,6 +7,8 @@
 class Protocol
 {
 public:
+	/** Callback class which should be implemented by 
+	 * user interface and configured in protocol object. */
 	class Callback
 	{
 		/** For single bytes; for showing all transmitted data */
@@ -14,6 +16,7 @@ public:
 		virtual void ReceivedMessage(const std::string &Msg, int Address = 0) = 0;
 	};
 
+	/** Function registering a callback */
 	virtual void RegisterCallback(Callback &C) = 0;
 
 	/** Blocking function formatting a buffer to send via lowlevel.

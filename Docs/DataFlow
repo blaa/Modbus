@@ -1,4 +1,17 @@
 
+* Initialization
+** Initialization begins in a GUI/interface classes.
+   
+   1. Interface class creates instance of a Lowlevel class (e.g. Serial)
+   2. Creates instance of Protocol::Callback and finally
+   3. Creates Protocol instance passing it the callback and lowlevel.
+
+** Protocol part
+   Protocol (e.g. modbus) creates instance of it's LowLevel::Callback
+   and registers it in the lowlevel object it got from the interface.
+
+
+* Dataflow
 
 |-----------------------|
 | Interface layer       |
@@ -7,8 +20,8 @@
 |-----------------------|      	\
            |  	       		 \
            |  	       		  \
-           |  "Down"   	       	   |------------------------------ |
-           |  (Sending)		   | Protocol layer callback     |
+           |  "Down"   	       	   |-----------------------------|
+           |  (Sending)		   | Protocol layer callback     | (A)
            |   	       	       	   | Implemented by higher layer |
            |  	       	   	   |-----------------------------|
            |  	   	       	  /
@@ -19,7 +32,7 @@
            |  	   		  \
 	   |  	   		|-----------------------------------|
 	   |  	   		| Lowlevel callback implementation  |
-	   | "Down"		| Done in protocol layer and passed |
+	   | "Down"		| Done in protocol layer and passed | (B)
 	   |   	       	       	| down to lowlevel                  |
 	   |  			|-----------------------------------|
 	   |  			    |
