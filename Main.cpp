@@ -19,7 +19,7 @@ namespace Testcase {
 		virtual void SendByte(char Byte)
 		{
 			std::cout << "Serial transmit '"
-				  << std::hex << Byte << std::dec << "'"
+				  << std::hex << (int)Byte << std::dec << "'"
 				  << std::endl;
 		}
 
@@ -39,10 +39,10 @@ namespace Testcase {
 
 		/* Simulation functions */
 		/* Simulate incoming byte */
-		void InterruptIncomming(char Byte)
+		void InterruptIncoming(unsigned char Byte)
 		{
 			std::cout << "Serial receive inter '"
-				  << std::hex << Byte << std::dec << "'"
+				  << std::hex << (int)Byte << std::dec << "'"
 				  << std::endl;
 			
 			if (this->CB) {
@@ -97,6 +97,13 @@ namespace Testcase {
 		SimuSerial LowlevelLayer;
 		Modbus(&InterfaceCallback, LowlevelLayer);
 		
+		char CorrectFrame[] = ":\x00\x00\x00\x01\x48\x45\x4c\x4c\x4f\xFF\xFF\r\n";
+		/* TODO: Substitute \xFF\xFF with CRC */
+
+		/* Simulate incoming frame */
+		for (unsigned int i=0; i<sizeof(CorrectFrame)-1; i++) {
+			LowlevelLayer.InterruptIncoming(CorrectFrame[i]);
+		}
 	}
 
 

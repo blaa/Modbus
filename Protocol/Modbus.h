@@ -8,6 +8,8 @@
 /** Implements modbus ascii protocol */
 class Modbus : public Protocol
 {
+private:
+	std::string Buffer;
 protected:
 	/** Callback passed to Modbus from interface 
 	 * we will inform user about new messages 

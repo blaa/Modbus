@@ -24,6 +24,7 @@ void Modbus::SendMessage(const std::string &Msg, int Address)
 
 void Modbus::ByteReceived(char Byte)
 {
+	int 
 }
 
 
