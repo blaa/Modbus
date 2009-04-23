@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include "Config.h"
-
+#include "Utils/Timeout.h"
 #include "Lowlevel/Lowlevel.h"
 #include "Protocol/Modbus.h"
 
@@ -159,12 +159,45 @@ namespace Testcase {
 		}
 
 	}
+
+
+	class TestTimeout : public Timeout::Callback {
+	public:
+		volatile char TimeoutDone;
+
+		TestTimeout()
+		{
+			TimeoutDone = 0;
+		}
+
+		void Run() 
+		{
+			std::cerr << "Running!\n" << std::endl;
+			TimeoutDone = 1;
+		}
+	};
+
+	void Timeout()
+	{
+		TestTimeout TT;
+		std::cerr << "Registering callback" << std::endl;
+		Timeout::Register(&TT, 1, 500);
+		std::cerr << "Waiting..." << std::endl;
+		while (!TT.TimeoutDone);
+		std::cerr << "Timeout testcase finished!\n" << std::endl;
+	}
 };
 
 
 int main(void)
 {
+	/* Initialize timeout interrupt/signal */
+	Timeout::Init();
+
 	/* Test middle-level protocol */
-	Testcase::Middle();
+//	Testcase::Middle();
+
+	/* Test timeout */
+	Testcase::Timeout();
 	return 0;
 }

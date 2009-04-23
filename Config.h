@@ -1,7 +1,11 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-/** Structure holding all convifuration variables */
+/* Select one operating system */
+#define SYS_LINUX	1
+#define SYS_DOS		0
+
+/** Structure holding all configuration variables */
 struct Config
 {
 	/*** Lowlevel configuration ***/

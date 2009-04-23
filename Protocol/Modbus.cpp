@@ -96,7 +96,7 @@ void Modbus::ByteReceived(char Byte)
 		LRC::Hash_t ReceivedLRC = Buffer[Buffer.length()-1];
 		Buffer.erase(Buffer.length()-1); /* TODO: optimize this, it runs in O(n) */
 		
-		for (int i = 0; i<Buffer.length(); i++) {
+		for (unsigned int i = 0; i<Buffer.length(); i++) {
 			Hash.Update(Buffer[i]);
 		}
 

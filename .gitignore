@@ -1,0 +1,10 @@
+Docs/html
+Docs/latex
+*.d
+*.d.*
+*.o
+*~
+Comm
+tags
+TAGS
+.*
