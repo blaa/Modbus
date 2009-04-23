@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Utils/Error.h"
-#include "Utils/CRC.h"
+#include "Utils/Hash.h"
 #include "Modbus.h"
 
 /************************************

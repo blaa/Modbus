@@ -42,17 +42,15 @@ docs:
 # Helper targets
 ##
 
-%.o: %.cpp %.h
-	$(CC) -c $(CFLAGS) -o $@ $<
-
-%.o: %.cpp 
+%.o: %.cpp
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -f $(OBJECTS) $(EXE)
 
 distclean: clean
-	rm -f $(DEPS) Docs/html Docs/latex
+	rm -f $(DEPS) 
+	rm -rf Docs/html Docs/latex
 
 # Building dependencies
 %.d: %.cpp

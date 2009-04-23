@@ -1,7 +1,7 @@
 #ifndef _MODBUS_H_
 #define _MODBUS_H_
 
-#include "Utils/CRC.h"
+#include "Utils/Hash.h"
 #include "Protocol.h"
 #include "Lowlevel/Lowlevel.h"
 
