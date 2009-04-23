@@ -4,7 +4,7 @@
 namespace Error {
 	enum Type {
 		OK = 0,		/* No error */
-		CRC,		/* CRC error */
+		HASH,		/* Hash error = CRC/LRC */
 
 		/* Frame error - e.g. not beginning with ':' 
 		 * Or not ending with CR LF in MODBUS ASCII */

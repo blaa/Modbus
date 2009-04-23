@@ -30,22 +30,9 @@ private:
 	unsigned char Function;
 
 	/** CRC calculation */
-	LRC CRC;
+	LRC Hash;
 
 protected:
-	/** Callback passed to Modbus from interface 
-	 * we will inform user about new messages 
-	 * by calling it's methods.
-	 */
-	Protocol::Callback *C;
-
-	/** Function raising an error */
-	void RaiseError(int Errno);
-
-	/** Lowlevel class created and configured in Interface
-	 * We store it, and pass it our callback. */
-	Lowlevel &L;
-
 	/** Lowlevel callback implementation */
 	class LowlevelCallback : public Lowlevel::Callback
 	{
@@ -61,16 +48,39 @@ protected:
 		virtual void ByteReceived(char Byte);
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno);
+
+		friend class Modbus;
 	};
 
-	/** This collects bytes into frames */
+	/** Callback passed to Modbus from interface 
+	 * we will inform user about new messages 
+	 * by calling it's methods.
+	 */
+	Protocol::Callback *C;
+
+	/** Function raising an error */
+	void RaiseError(int Errno, const char *Additional = NULL) const;
+
+	/** Lowlevel class created and configured in Interface
+	 * We store it, and pass it our callback. */
+	Lowlevel &L;
+
+	/** Instance of callback which will be passed down */
+	LowlevelCallback LCB;
+
+	/** This collects bytes into frames; called by callback */
 	void ByteReceived(char Byte);
 
+	/** Helper for converting ASCII hex into byte */
+	static unsigned char AAHexConvert(unsigned char A, unsigned  char B);
 
 public:
 	/** Initialize modbus middle-layer with callback to interface (CB)
 	 * and with some Lowlevel implementation */
 	Modbus(Callback *CB, Lowlevel &LL);
+
+	/** Deregisters modbus protocol in lowlevel layer */
+	~Modbus();
 	
 	/** Register new callback to higher interface */
 	virtual void RegisterCallback(Callback *C);
@@ -78,6 +88,8 @@ public:
 	/** Invoked by interface; creates modbus frame and sends it */
 	virtual void SendMessage(const std::string &Msg, int Address = 0);
 
+	/** Resets receiver */
+	void Reset();
 };
 
 #endif

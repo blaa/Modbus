@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include "Config.h"
 
 #include "Lowlevel/Lowlevel.h"
@@ -16,22 +17,36 @@ namespace Testcase {
 		{
 			CB = NULL;
 		}
+
+		void ShowByte(unsigned char Byte)
+		{
+			if (Byte != '\n' && Byte != '\r') {
+				std::cout << "'" << Byte << "'"
+					  << " (0x" << std::hex
+					  << (unsigned int)Byte << ")" << std::dec;
+			} else {
+				if (Byte == '\n')
+					std::cout << "'\\n'";
+				else
+					std::cout << "'\\r'";
+			}
+		}
 		
 		/** Shows what would be sent */
 		virtual void SendByte(char Byte)
 		{
-			std::cout << "Serial transmit '"
-				  << std::hex << (int)Byte << std::dec << "'"
-				  << std::endl;
+			std::cout << "Serial transmit ";
+			ShowByte(Byte);
+			std::cout << std::endl;
 		}
 	       
 		/** Simulate retrieval of single byte; returns always 'X' */
 		virtual int GetByte()
 		{
 			int a = 'X';
-			std::cout << "Serial receive norm '"
-				  << std::hex << a << std::dec << "'"
-				  << std::endl;
+			std::cout << "Serial receive norm ";
+			ShowByte(a);
+			std::cout << std::endl;
 			return a;
 		}
 
@@ -45,10 +60,10 @@ namespace Testcase {
 		/** Simulate incoming byte */
 		void InterruptIncoming(unsigned char Byte)
 		{
-			std::cout << "Serial receive inter '"
-				  << std::hex << (int)Byte << std::dec << "'"
-				  << std::endl;
-			
+			std::cout << "Serial receive inter ";
+			ShowByte(Byte);
+			std::cout << std::endl;
+
 			if (this->CB) {
 				CB->ByteReceived(Byte);
 			}
@@ -74,9 +89,12 @@ namespace Testcase {
 				  << std::endl;
 		}
 
-		virtual void ReceivedMessage(const std::string &Msg, int Address = 0)
+		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg)
 		{
-			std::cout << "Interface got correct frame from middle" 
+			std::cout << "Interface got correct frame from middle. Addr=" 
+				  << Address
+				  << " Func="
+				  << Function
 				  << std::endl;
 			std::cout << std::hex;
 			for (std::string::const_iterator i = Msg.begin();
@@ -100,42 +118,47 @@ namespace Testcase {
 		/* Simulate what should interface do */
 		InterfaceCallback InterfaceCallback;
 		SimuSerial LowlevelLayer;
-		Modbus(&InterfaceCallback, LowlevelLayer);
+		Modbus M(&InterfaceCallback, LowlevelLayer);
 		
-		char CorrectFrame[] = ":\x00\x00\x00\x01\x48\x45\x4c\x4c\x4f\xFF\xFF\r\n";
+		const char *CorrectFrames[] = {
+			":000148454C4C4FAF\r\n",
+			NULL
+		};
+
+		const char *IncorrectFrames[] = {
+			"4FFFFF\r\n", /* Wrong start */
+			":AAAABBBB\nFFFF\r\n", /* Wrong LF inside */
+			":AAAABBBB\rFFFF\r\n", /* Wrong CR inside */
+			":0000000148454C4C4FFFFF\r\n", /* Wrong CRC */
+			NULL
+		};
+
 		/* TODO: Substitute \xFF\xFF with CRC */
 
-		/* Simulate incoming frame */
-		for (unsigned int i=0; i<sizeof(CorrectFrame)-1; i++) {
-			LowlevelLayer.InterruptIncoming(CorrectFrame[i]);
+		/* Simulate incoming correct frames */
+		for (unsigned int y=0; CorrectFrames[y] != NULL; y++) {
+			const char *Frame = CorrectFrames[y];
+			std::cout << "Simulating correct frame " << y << std::endl;
+			M.Reset();
+			for (unsigned int i=0; i<strlen(Frame); i++) {
+				LowlevelLayer.InterruptIncoming(Frame[i]);
+			}
 		}
+		
+		/* Simulate incoming correct frames */
+		for (unsigned int y=0; IncorrectFrames[y] != NULL; y++) {
+			const char *Frame = IncorrectFrames[y];
+			std::cout 
+				<< std::endl
+				<< std::endl
+				<< "Simulating incorrect frame " << y << std::endl;
+			M.Reset();
+			for (unsigned int i=0; i<strlen(Frame); i++) {
+				LowlevelLayer.InterruptIncoming(Frame[i]);
+			}
+		}
+
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 };
 
 

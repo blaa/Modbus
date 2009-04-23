@@ -6,7 +6,7 @@
 #define CRC_LO8(x) ((unsigned char)(x&0x00FF))
 #define CRC_HI8(x) (CRC_LO8(x>>8))
 
-template<typename T, T InitValue>
+template<typename T, T InitValue = T()>
 class Hash {
 public:
 	/** Type used for hash */
@@ -31,6 +31,14 @@ public:
 	T Get()
 	{
 		return State;
+	}
+
+	/** Ask if calculated hash is correct (equal zero) */
+	bool IsCorrect()
+	{
+		if (State == Hash_t())
+			return true;
+		return false;
 	}
 };
 

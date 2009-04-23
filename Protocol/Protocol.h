@@ -16,7 +16,7 @@ public:
 		virtual void ReceivedByte(char Byte) = 0;
 
 		/** Informs about new arrived message */
-		virtual void ReceivedMessage(const std::string &Msg, int Address = 0) = 0;
+		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg) = 0;
 
 		/** Error which happened lower */
 		virtual void Error(int Errno) = 0;
