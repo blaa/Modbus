@@ -16,17 +16,28 @@ protected:
 	Protocol::Callback *C;
 
 	/** Lowlevel class created and configured in Interface
-	 * We store it, and pass it a callback. */
+	 * We store it, and pass it our callback. */
 	Lowlevel &L;
 
 	/* Lowlevel callback implementation */
 	class LowlevelCallback : public Lowlevel::Callback
 	{
+		Modbus &M;
+	public:
+		LowlevelCallback(Modbus &MM);
+
+		/** Called when we receive a single byte. */
+		virtual void ByteReceived(char Byte);
+		/** Called on any error; to be defined */
+		virtual void Error(int Errno);
 	};
 
+	void ByteReceived(char Byte);
+
+
 public:
-	Modbus(Callback *C, Lowlevel &LL);
-	virtual void RegisterCallback(Callback &C);
+	Modbus(Callback *CB, Lowlevel &LL);
+	virtual void RegisterCallback(Callback *C);
 	virtual void SendMessage(const std::string &Msg, int Address = 0);
 
 };

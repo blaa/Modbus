@@ -11,9 +11,13 @@ public:
 	 * user interface and configured in protocol object. */
 	class Callback
 	{
+	public:
 		/** For single bytes; for showing all transmitted data */
 		virtual void ReceivedByte(char Byte) = 0;
 		virtual void ReceivedMessage(const std::string &Msg, int Address = 0) = 0;
+
+		/* Error which happened lower */
+		virtual void Error(int Errno) = 0;
 	};
 
 	/** Function registering a callback */

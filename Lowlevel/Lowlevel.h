@@ -24,7 +24,8 @@ public:
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno) = 0;
 	};
-
+	
+	/** Registers middle-level callback */
 	virtual void RegisterCallback(Callback *CB) = 0;
 
 	/*** Low-level interface ***/
