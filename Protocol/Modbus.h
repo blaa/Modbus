@@ -30,7 +30,7 @@ private:
 	unsigned char Function;
 
 	/** CRC calculation */
-	CRC8 CRC;
+	LRC CRC;
 
 protected:
 	/** Callback passed to Modbus from interface 

@@ -6,73 +6,65 @@
 #define CRC_LO8(x) ((unsigned char)(x&0x00FF))
 #define CRC_HI8(x) (CRC_LO8(x>>8))
 
-/** CRC16 CCITT implementation */
-class CRC16 {
+template<typename T, T InitValue>
+class Hash {
 public:
-	/** CRC16 type **/
-	typedef uint16_t CRC_t;
+	/** Type used for hash */
+	typedef T Hash_t;
 
-	/** CRC state - should be read after calculation */
-	CRC_t State;
+	/** Hash function internal state */
+	Hash_t State;
 
-	/** Initialize CRC state */
+	/** Initialize hash function */
 	inline void Init()
 	{
-		State = 0xFFFF;
+		State = InitValue;
 	}
 
-	CRC16()
+	/** Initialize hash algorithm */
+	Hash()
 	{
 		this->Init();
 	}
 
-	/** Update CRC state with a single byte */
-	inline void Update(unsigned char data)
+	/** Return final value */
+	T Get()
 	{
-		data ^= CRC_LO8(State);
-		data ^= data << 4;
-
-		State = (
-				( ((CRC_t)data << 8) | CRC_HI8(State) )
-				^ (unsigned char)(data >> 4)
-				^ ((CRC_t)data << 3)
-		);
+		return State;
 	}
 };
 
-/** CRC8 CCITT implementation */
-class CRC8 {
+
+/** CRC16 implementation */
+class CRC16 : public Hash<uint16_t, 0xFFFF> {
 public:
-	/** CRC16 type **/
-	typedef uint8_t CRC_t;
-
-	/** CRC state - should be read after calculation */
-	CRC_t State;
-
-	/** Initialize CRC state */
-	inline void Init()
-	{
-		State = 0x00;
-	}
-
-	CRC8()
-	{
-		this->Init();
-	}
-
 	/** Update CRC state with a single byte */
 	inline void Update(unsigned char data)
 	{
-		uint8_t i;
-
-		State = State ^ data;
-		for (i = 0; i<8; i++)
+		State ^= data;
+		for (int i = 0; i < 8; ++i)
 		{
-			if (State & 0x01)
-				State = (State >> 1) ^ 0x8C;
+			if (State & 1)
+				State = (State >> 1) ^ 0xA001;
 			else
-				State >>= 1;
+				State = (State >> 1);
 		}
+	}
+};
+
+/** LRC implementation for MODBUS ASCII */
+class LRC : public Hash<uint8_t, 0x00> {
+public:
+	/** Update CRC state with a single byte */
+	inline void Update(unsigned char data)
+	{
+		State += data;
+	}
+
+	/** Override function - we return twos complement of state */
+	Hash_t Get()
+	{
+		return (Hash_t)(-((int8_t)State));
 	}
 
 };

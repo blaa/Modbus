@@ -2,11 +2,10 @@
 #include "Utils/Error.h"
 #include "Utils/CRC.h"
 #include "Modbus.h"
+
 /************************************
  * Main modbus ascii class implementation 
  ************************************/
-
-
 Modbus::Modbus(Callback *CB, Lowlevel &LL) : C(CB), L(LL)
 {
 }
@@ -25,13 +24,14 @@ void Modbus::SendMessage(const std::string &Msg, int Address)
 
 void Modbus::ByteReceived(char Byte)
 {
-	if (0 == this->Buffer.length()) {
+	if (0 == Received) {
 		/* Buffer is empty; byte must equal ':' */
 		if (Byte != ':') {
 			/* Frame error */
 			RaiseError(Error::FRAME);
 			return;
 		}
+		Received++;
 	}
 }
 
