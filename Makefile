@@ -4,7 +4,7 @@ CFLAGS=-O0 -Wall -ggdb -I.
 EXE=Comm
 
 OBJECTS=Main.cpp Config.cpp Protocol/Modbus.cpp Protocol/Terminated.cpp \
-	Lowlevel/Serial.cpp Interface/Interface.cpp
+	Lowlevel/Lowlevel.cpp Lowlevel/Serial.cpp Interface/Interface.cpp
 HEADERS=Config.h Protocol/Protocol.h Protocol/Modbus.h \
 	Protocol/Terminated.h \
 	Lowlevel/Serial.h Lowlevel/Lowlevel.h Interface/Interface.h

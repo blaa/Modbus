@@ -16,7 +16,7 @@
 
 ;; Buffer section -- buffers listed in same order as in buffer list:
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Main.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Main.cpp"
   "Main.cpp"
   'c++-mode
   '(abbrev-mode)
@@ -27,7 +27,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Protocol/Modbus.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Modbus.cpp"
   "Modbus.cpp"
   'c++-mode
   '(abbrev-mode)
@@ -38,7 +38,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Protocol/Terminated.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Terminated.h"
   "Terminated.h"
   'c++-mode
   '(abbrev-mode)
@@ -49,7 +49,7 @@
   nil)
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Protocol/Terminated.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Terminated.cpp"
   "Terminated.cpp"
   'c++-mode
   '(abbrev-mode)
@@ -60,7 +60,7 @@
   nil)
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Protocol/Protocol.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Protocol.h"
   "Protocol.h"
   'c++-mode
   '(abbrev-mode)
@@ -71,7 +71,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Protocol/Modbus.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Modbus.h"
   "Modbus.h"
   'c++-mode
   '(abbrev-mode)
@@ -82,7 +82,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Lowlevel/Serial.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Serial.cpp"
   "Serial.cpp"
   'c++-mode
   '(abbrev-mode)
@@ -93,7 +93,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Lowlevel/Lowlevel.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Lowlevel.h"
   "Lowlevel.h"
   'c++-mode
   '(abbrev-mode)
@@ -104,7 +104,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Interface/Interface.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Interface/Interface.h"
   "Interface.h"
   'c++-mode
   '(abbrev-mode)
@@ -115,7 +115,7 @@
   nil)
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Interface/Interface.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Interface/Interface.cpp"
   "Interface.cpp"
   'c++-mode
   '(abbrev-mode)
@@ -126,7 +126,7 @@
   nil)
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Config.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Config.h"
   "Config.h"
   'c++-mode
   '(abbrev-mode)
@@ -137,7 +137,7 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/UZK1/trunk/Config.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Config.cpp"
   "Config.cpp"
   'c++-mode
   '(abbrev-mode)

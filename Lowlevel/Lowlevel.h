@@ -47,7 +47,7 @@ public:
 	 *
 	 * We can use std::vector instead of std::string; or 
 	 * even char* + size or our own class, as you wish. */
-	virtual void SendString(const std::string Buffer) = 0;
+	virtual void SendString(const std::string &Buffer);
 };
 
 #endif

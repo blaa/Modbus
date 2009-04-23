@@ -32,6 +32,7 @@ protected:
 		virtual void Error(int Errno);
 	};
 
+	/** This collects bytes into frames */
 	void ByteReceived(char Byte);
 
 

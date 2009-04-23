@@ -1,6 +1,11 @@
 #include <iostream>
 #include "Modbus.h"
 
+/************************************
+ * Main modbus ascii class implementation 
+ ************************************/
+
+
 Modbus::Modbus(Callback *CB, Lowlevel &LL) : C(CB), L(LL)
 {
 }
@@ -17,11 +22,17 @@ void Modbus::SendMessage(const std::string &Msg, int Address)
 }
 
 
-Modbus::LowlevelCallback::LowlevelCallback(Modbus &MM) : M(MM)
+void Modbus::ByteReceived(char Byte)
 {
 }
 
 
+/************************************
+ * Callback for lowlevel interface
+ ************************************/
+Modbus::LowlevelCallback::LowlevelCallback(Modbus &MM) : M(MM)
+{
+}
 
 void Modbus::LowlevelCallback::ByteReceived(char Byte)
 {
