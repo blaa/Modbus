@@ -3,13 +3,14 @@ CFLAGS=-O0 -Wall -ggdb -I.
 
 EXE=Comm
 
-OBJECTS=Main.cpp Config.cpp Protocol/Modbus.cpp Protocol/Terminated.cpp \
+OBJECTS=Main.cpp Config.cpp Utils/Error.cpp Protocol/Modbus.cpp Protocol/Terminated.cpp \
 	Lowlevel/Lowlevel.cpp Lowlevel/Serial.cpp Interface/Interface.cpp
 HEADERS=Config.h Protocol/Protocol.h Protocol/Modbus.h \
 	Protocol/Terminated.h \
-	Lowlevel/Serial.h Lowlevel/Lowlevel.h Interface/Interface.h
+	Lowlevel/Serial.h Lowlevel/Lowlevel.h Interface/Interface.h Utils/Error.h \
+	Utils/CRC.h
 
-.PHONY: clean
+.PHONY: clean docs
 
 $(EXE): $(OBJECTS:.cpp=.o) $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS:.cpp=.o)
@@ -23,4 +24,6 @@ $(EXE): $(OBJECTS:.cpp=.o) $(HEADERS)
 clean:
 	rm -f $(OBJECTS:.cpp=.o) $(EXE)
 
-
+docs:
+	doxygen
+	

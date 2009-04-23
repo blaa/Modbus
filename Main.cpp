@@ -5,9 +5,11 @@
 #include "Protocol/Modbus.h"
 
 namespace Testcase {
-
+	/** Class simulating a working lowlevel implementation 
+	 * for testing middle and interface layers */
 	class SimuSerial : public Lowlevel {
 	protected:
+		/** Middle-layer callback */
 		Callback *CB;
 	public:
 		SimuSerial()
@@ -15,14 +17,15 @@ namespace Testcase {
 			CB = NULL;
 		}
 		
-		/* Normal functions */
+		/** Shows what would be sent */
 		virtual void SendByte(char Byte)
 		{
 			std::cout << "Serial transmit '"
 				  << std::hex << (int)Byte << std::dec << "'"
 				  << std::endl;
 		}
-
+	       
+		/** Simulate retrieval of single byte; returns always 'X' */
 		virtual int GetByte()
 		{
 			int a = 'X';
@@ -32,13 +35,14 @@ namespace Testcase {
 			return a;
 		}
 
+		/** Register new middle-layer callback */
 		virtual void RegisterCallback(Callback *CB) 
 		{
 			this->CB = CB;
 		}
 
 		/* Simulation functions */
-		/* Simulate incoming byte */
+		/** Simulate incoming byte */
 		void InterruptIncoming(unsigned char Byte)
 		{
 			std::cout << "Serial receive inter '"
@@ -50,6 +54,7 @@ namespace Testcase {
 			}
 		}
 
+		/** Simulate error */
 		void SimuError(int Errno)
 		{
 			if (this->CB) {
@@ -59,7 +64,7 @@ namespace Testcase {
 
 	};
 
-	/* This is what should interface implement */
+	/** This is what should interface implement */
 	class InterfaceCallback : public Protocol::Callback
 	{
 		virtual void ReceivedByte(char Byte)

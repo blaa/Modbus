@@ -21,7 +21,3 @@ int Serial::GetByte()
 	return 0;
 }
 
-void Serial::SendString(const std::string Buffer)
-{
-
-}

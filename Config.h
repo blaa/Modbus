@@ -1,10 +1,11 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-
+/** Structure holding all convifuration variables */
 struct Config
 {
 	/*** Lowlevel configuration ***/
+	/** Possible baudrates */
 	enum BaudRate
 	{
 		B150,	B200,

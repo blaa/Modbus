@@ -14,9 +14,11 @@ public:
 	public:
 		/** For single bytes; for showing all transmitted data */
 		virtual void ReceivedByte(char Byte) = 0;
+
+		/** Informs about new arrived message */
 		virtual void ReceivedMessage(const std::string &Msg, int Address = 0) = 0;
 
-		/* Error which happened lower */
+		/** Error which happened lower */
 		virtual void Error(int Errno) = 0;
 	};
 

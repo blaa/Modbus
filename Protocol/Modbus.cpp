@@ -1,6 +1,7 @@
 #include <iostream>
+#include "Utils/Error.h"
+#include "Utils/CRC.h"
 #include "Modbus.h"
-
 /************************************
  * Main modbus ascii class implementation 
  ************************************/
@@ -18,13 +19,36 @@ void Modbus::RegisterCallback(Callback *C)
 
 void Modbus::SendMessage(const std::string &Msg, int Address)
 {
-	/* Form new buffer with modbus thingies and pass to serial */
+	/* Form new buffer with modbus thingies and pass to lowlevel */
 }
 
 
 void Modbus::ByteReceived(char Byte)
 {
-	int 
+	if (0 == this->Buffer.length()) {
+		/* Buffer is empty; byte must equal ':' */
+		if (Byte != ':') {
+			/* Frame error */
+			RaiseError(Error::FRAME);
+			return;
+		}
+	}
+}
+
+
+void Modbus::RaiseError(int Errno)
+{
+	/* TODO: Turn this debug off finally */
+	std::cerr << "MODBUS Error: "
+		  << Errno 
+		  << " : "
+		  << Error::StrError(Errno)
+		  << std::endl;
+
+	if (C) {
+		C->Error(Error::FRAME);
+		return;
+	}
 }
 
 

@@ -7,16 +7,22 @@
 class Serial : public Lowlevel
 {
 protected:
+	/** Callback to middle-layer */
 	Lowlevel::Callback *C;
 
 public:
+	/** Initialize serial interface with following middle-layer 
+	 * callback and specified serial configuration */
 	Serial(Callback *CB = NULL /*, ... Shall take configuration parameters
 			      and initialize serial port */);
-
+	
+	/** Send a single byte over RS232 */
 	virtual void SendByte(char Byte);
 
+	/** Block until a single byte might be read */
 	virtual int GetByte();
-	virtual void SendString(const std::string Buffer);
+
+	/** Register new callback to middle-layer */
 	virtual void RegisterCallback(Callback *C);
 };
 
