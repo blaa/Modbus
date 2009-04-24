@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip> /* std::setw std::setfill*/
+#include <sstream>
 #include <cctype>
 #include "Utils/Error.h"
 #include "Utils/Hash.h"
@@ -28,10 +30,33 @@ void Modbus::RegisterCallback(Callback *C)
 	this->C = C;
 }
 
-
-void Modbus::SendMessage(const std::string &Msg, int Address)
+void Modbus::SendMessage(const std::string &Msg, int Address, int Function)
 {
-	/* Form new buffer with modbus thingies and pass to lowlevel */
+	LRC Hash;
+	std::ostringstream Frame;
+	Hash.Init();
+	Frame << std::hex << std::setfill('0') << std::uppercase;
+	Frame << ":" 
+	      << std::setw(2) << Address 
+	      << std::setw(2) << Function;
+	Hash.Update(Address);
+	Hash.Update(Function);
+	for (std::string::const_iterator i = Msg.begin();
+	     i != Msg.end();
+	     i++) {
+		Hash.Update(*i);
+		Frame << std::setw(2) << (unsigned int)(unsigned char) *i;
+	}
+	Frame << (unsigned int)(unsigned char)Hash.Get();
+	Frame << "\r\n";
+
+	std::cerr << "DEBUG, SendMessage: "
+		  << Frame.str() << std::endl;
+
+	/* TODO: We can send this data completely with
+	 * interrupts but this would make Serial a bit 
+	 * harder to write */
+	L.SendString(Frame.str());
 }
 
 void Modbus::Reset()

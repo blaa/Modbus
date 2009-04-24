@@ -185,6 +185,13 @@ namespace Testcase {
 			while (InterfaceCallback.Timeout == 0);
 		}
 
+		M.Reset();
+		std::cout 
+			<< std::endl
+			<< std::endl
+			<< "Simulating send message (adr=0, fun=1, 'HELLO')" << std::endl;
+		M.SendMessage("HELLO", 0, 1);
+		
 	}
 
 

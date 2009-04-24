@@ -112,8 +112,7 @@ public:
 	virtual void RegisterCallback(Callback *C);
 
 	/** Invoked by interface; creates modbus frame and sends it */
-	virtual void SendMessage(const std::string &Msg, int Address = 0);
-
+	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 	/** Resets receiver */
 	void Reset();
 };

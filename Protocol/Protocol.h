@@ -31,7 +31,9 @@ public:
 	 * In protocols supporting Address it's used for 
 	 * determining message destination 
 	 */
-	virtual void SendMessage(const std::string &Msg, int Address = 0) = 0;
+	virtual void SendMessage(const std::string &Msg,
+				 int Address = 0,
+				 int Function = 0) = 0;
 };
 
 #endif
