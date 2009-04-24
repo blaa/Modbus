@@ -2,6 +2,7 @@
 #include <cstring>
 #include "Config.h"
 #include "Utils/Timeout.h"
+#include "Utils/Error.h"
 #include "Lowlevel/Lowlevel.h"
 #include "Protocol/Modbus.h"
 
@@ -82,6 +83,9 @@ namespace Testcase {
 	/** This is what should interface implement */
 	class InterfaceCallback : public Protocol::Callback
 	{
+	public:
+		volatile unsigned char Timeout;
+
 		virtual void ReceivedByte(char Byte)
 		{
 			std::cout << "Interface got byte from middle '"
@@ -100,16 +104,22 @@ namespace Testcase {
 			for (std::string::const_iterator i = Msg.begin();
 			     i != Msg.end();
 			     i++) {
-				std::cout << "0x" << *i << " ";
+				std::cout << "0x" << (unsigned int)(unsigned char)*i << " ";
 			}
-			std::cout << std::dec << std::endl;
+			std::cout << "== '" << Msg << "'" << std::endl;
+			std::cout << std::endl;
 		}
 		
 		virtual void Error(int Errno)
 		{
-			std::cout << "Interface received error " 
-				  << Errno << std::endl;
+			std::cout << "Interface received error no " 
+				  << Errno
+				  << " =>'" << Error::StrError(Errno) << "'"
+				  << std::endl;
 
+			/* Warn about timeout error */
+			if (Errno == Error::TIMEOUT)
+				Timeout = 1;
 		}
 	};
 
@@ -121,7 +131,7 @@ namespace Testcase {
 		Modbus M(&InterfaceCallback, LowlevelLayer);
 		
 		const char *CorrectFrames[] = {
-			":000148454C4C4FAF\r\n",
+			":000148454C4C4F8B\r\n",
 			NULL
 		};
 
@@ -145,7 +155,7 @@ namespace Testcase {
 			}
 		}
 		
-		/* Simulate incoming correct frames */
+		/* Simulate incoming incorrect frames */
 		for (unsigned int y=0; IncorrectFrames[y] != NULL; y++) {
 			const char *Frame = IncorrectFrames[y];
 			std::cout 
@@ -156,6 +166,23 @@ namespace Testcase {
 			for (unsigned int i=0; i<strlen(Frame); i++) {
 				LowlevelLayer.InterruptIncoming(Frame[i]);
 			}
+		}
+
+		/* Will cause hang without working TIMEOUT 
+		 * Enable for DOS only when writting dos timeout */
+		if (SYS_LINUX) {
+			std::cout 
+				<< std::endl
+				<< std::endl
+				<< "Simulating timeout problem" << std::endl;
+			
+			/* Simulate timeout problem */ 
+			const char *Frame = CorrectFrames[0];
+			for (unsigned int i=0; i<strlen(Frame)/2; i++) {
+				LowlevelLayer.InterruptIncoming(Frame[i]);
+			}
+			InterfaceCallback.Timeout = 0;
+			while (InterfaceCallback.Timeout == 0);
 		}
 
 	}
@@ -195,9 +222,9 @@ int main(void)
 	Timeout::Init();
 
 	/* Test middle-level protocol */
-//	Testcase::Middle();
+	Testcase::Middle();
 
 	/* Test timeout */
-	Testcase::Timeout();
+//	Testcase::Timeout();
 	return 0;
 }

@@ -2,6 +2,7 @@
 #define _MODBUS_H_
 
 #include "Utils/Hash.h"
+#include "Utils/Timeout.h"
 #include "Protocol.h"
 #include "Lowlevel/Lowlevel.h"
 
@@ -32,6 +33,9 @@ private:
 	/** CRC calculation */
 	LRC Hash;
 
+	/* Store here bytes we can't convert yet */
+	char HalfByte;
+
 protected:
 	/** Lowlevel callback implementation */
 	class LowlevelCallback : public Lowlevel::Callback
@@ -52,6 +56,22 @@ protected:
 		friend class Modbus;
 	};
 
+	class TimeoutCallback : public Timeout::Callback
+	{
+		/** Modbus instance which needs to be informed */
+		Modbus &M;
+
+		/** Set to 1 after timeout */
+		volatile unsigned char Notice;
+
+		/* Private constructor like with LL callback */
+		TimeoutCallback(Modbus &M);
+	public:
+		virtual void Run();
+
+		friend class Modbus;
+	};
+
 	/** Callback passed to Modbus from interface 
 	 * we will inform user about new messages 
 	 * by calling it's methods.
@@ -68,6 +88,12 @@ protected:
 	/** Instance of callback which will be passed down */
 	LowlevelCallback LCB;
 
+	/** Instance of timeout callback */
+	TimeoutCallback TCB;
+
+	/** Timeout after which we will reset receiver */
+	int Timeout;
+
 	/** This collects bytes into frames; called by callback */
 	void ByteReceived(char Byte);
 
@@ -77,7 +103,7 @@ protected:
 public:
 	/** Initialize modbus middle-layer with callback to interface (CB)
 	 * and with some Lowlevel implementation */
-	Modbus(Callback *CB, Lowlevel &LL);
+	Modbus(Callback *CB, Lowlevel &LL, int Timeout = 2);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~Modbus();

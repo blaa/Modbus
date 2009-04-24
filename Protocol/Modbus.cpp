@@ -7,10 +7,13 @@
 /************************************
  * Main modbus ascii class implementation 
  ************************************/
-Modbus::Modbus(Callback *CB, Lowlevel &LL) : C(CB), L(LL), LCB(*this)
+Modbus::Modbus(Callback *CB, Lowlevel &LL, int Timeout) 
+  : C(CB), L(LL), LCB(*this), TCB(*this)
 {
 	/* Register us in Lowlevel interface */
 	LL.RegisterCallback(&LCB);
+
+	this->Timeout = Timeout;
 }
 
 Modbus::~Modbus()
@@ -33,6 +36,7 @@ void Modbus::SendMessage(const std::string &Msg, int Address)
 
 void Modbus::Reset()
 {
+	HalfByte = 0;
 	Received = 0;
 	Buffer.clear();
 	Hash.Init();
@@ -68,8 +72,11 @@ void Modbus::ByteReceived(char Byte)
 	 * from two characters into one.
 	 */
 
-	/* Store here bytes we can't convert yet */
-	static char HalfByte;
+
+	/* We've got some byte - reset timeout 
+	 * so we won't get Reset() during this function */
+	Timeout::Register(&this->TCB, this->Timeout, 0);
+
 	if (0 == Received) {
 		/* Buffer is empty; byte must equal ':' */
 		if (Byte != ':') {
@@ -93,7 +100,7 @@ void Modbus::ByteReceived(char Byte)
 		}
 		
 		/* Calculate LRC for message body */
-		LRC::Hash_t ReceivedLRC = Buffer[Buffer.length()-1];
+		const LRC::Hash_t ReceivedLRC = Buffer[Buffer.length()-1];
 		Buffer.erase(Buffer.length()-1); /* TODO: optimize this, it runs in O(n) */
 		
 		for (unsigned int i = 0; i<Buffer.length(); i++) {
@@ -101,7 +108,7 @@ void Modbus::ByteReceived(char Byte)
 		}
 
 		/* Real end of message - check Hash */
-		if (Hash.State == ReceivedLRC) {
+		if (Hash.Get() != ReceivedLRC) {
 			std::cerr << "Final Hash = " 
 				  << std::hex << (unsigned int)Hash.State
 				  << std::dec << std::endl;
@@ -111,15 +118,22 @@ void Modbus::ByteReceived(char Byte)
 		}
 		
 		/* Hash OK. */ 
-		/* FIXME: Check minimal size (address, function) */
+		/* FIXME: Check minimal size (address, function)
+		 * ^^ - should not be needed - LRC check will fail
+		 */
 		if (C) {
-			/* TODO: remove CRC */
 			C->ReceivedMessage(Address, Function, Buffer);
 			Reset();
 			return;
 		}
+
 		/* TODO: No callback installed, yet we've got message
 		 * Do something about it */
+	} else if (HalfByte == '\r') {
+		/* We don't get \n, yet we received \r previously - error */
+		Reset();
+		RaiseError(Error::FRAME, "CR without succeding LF");
+		return;
 	}
 
 	if (Byte == '\r') {
@@ -179,6 +193,10 @@ void Modbus::ByteReceived(char Byte)
 
 void Modbus::RaiseError(int Errno, const char *Additional) const
 {
+	/* Turn off timeout - no frame incoming */
+	Timeout::Register(NULL, this->Timeout, 0);
+
+
 	/* TODO: Turn this debug off finally */
 	std::cerr << "MODBUS Error: "
 		  << Errno 
@@ -190,14 +208,15 @@ void Modbus::RaiseError(int Errno, const char *Additional) const
 	}
 
 	if (C) {
-		C->Error(Error::FRAME);
+		C->Error(Errno);
 		return;
 	}
 }
 
 
 /************************************
- * Callback for lowlevel interface
+ * Callbacks for lowlevel interface
+ * and for timeout.
  ************************************/
 Modbus::LowlevelCallback::LowlevelCallback(Modbus &MM) : M(MM)
 {
@@ -217,4 +236,17 @@ void Modbus::LowlevelCallback::Error(int Errno)
 		/* Pass this error to interface with callback */
 		M.C->Error(Errno);
 	}
+}
+
+
+Modbus::TimeoutCallback::TimeoutCallback(Modbus &MM) : M(MM)
+{
+}
+
+void Modbus::TimeoutCallback::Run()
+{
+	Notice = 1;
+	/* Timeout! Reset receiver */
+	M.Reset();
+	M.RaiseError(Error::TIMEOUT);
 }

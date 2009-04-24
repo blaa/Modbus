@@ -5,7 +5,8 @@
  * which is to be called in a certain period of time
  * in future - OS dependant */
 namespace Timeout {
-	class Callback {
+	class Callback
+	{
 	public:
 		virtual void Run() = 0;
 	};
