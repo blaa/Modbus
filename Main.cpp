@@ -39,6 +39,9 @@ namespace Testcase {
 			std::cout << "Serial transmit ";
 			ShowByte(Byte);
 			std::cout << std::endl;
+
+			/* Loop output to input */
+			InterruptIncoming(Byte);
 		}
 	       
 		/** Simulate retrieval of single byte; returns always 'X' */
@@ -189,7 +192,9 @@ namespace Testcase {
 		std::cout 
 			<< std::endl
 			<< std::endl
-			<< "Simulating send message (adr=0, fun=1, 'HELLO')" << std::endl;
+			<< "Simulating a message sending with output looped back to"
+			<< " middle layer input (adr=0, fun=1, 'HELLO')" 
+			<< std::endl;
 		M.SendMessage("HELLO", 0, 1);
 		
 	}

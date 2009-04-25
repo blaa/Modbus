@@ -92,8 +92,11 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	 * harder to write */
 	L.SendString(Frame.str());
 
-	/* TODO: Set timeout which will make us wait 
-	 * for some time until previous frame finishes */
+	/* TODO: This should be done with a Register() 
+	 * so we will return immediately, but won't 
+	 * allow sending another frame before timeout.
+	 */
+	Timeout::Sleep(Timeout * 3.5);
 }
 
 
@@ -129,8 +132,8 @@ unsigned char ModbusGeneric<HashType, ASCII>::HexConvert(unsigned char A, unsign
 
 
 /** Modbus ASCII frame grabber */
-template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
+template<>
+void ModbusGeneric<LRC, true>::ByteReceived(char Byte)
 {
 	/* Modbus ASCII Frame:
 	 * :<ADDRESS><FUNCTION><DATA><LRC><CR><LF>
@@ -150,7 +153,6 @@ void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
 			RaiseError(Error::FRAME, "Frame does not start with a colon");
 			return;
 		}
-		this->Hash.Init();
 //		this->Hash.Update(Byte); /* FIXME: For sure include ':' in LRC? */
 		Received++;
 		return;
@@ -234,10 +236,6 @@ void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
 	HalfByte = HexConvert(HalfByte, Byte);
 	Received++;
 
-	std::cerr << "Converted = " 
-		  << std::hex << (unsigned int) (unsigned char) HalfByte << std::dec
-		  << std::endl;
-
 	switch (Received) {
 	case 3:
 		/* This is address byte */
@@ -255,6 +253,42 @@ void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
 		return;
 	}
 }
+
+/** Modbus RTU frame grabber */
+template<>
+void ModbusGeneric<CRC16, false>::ByteReceived(char Byte)
+{
+	/* Modbus ASCII Frame:
+	 * :<ADDRESS><FUNCTION><DATA><LRC><CR><LF>
+	 * Except for initial : and CRLF whole message must be converted
+	 * from two characters into one.
+	 */
+
+	/* Something happened - reset timeout. When it reaches us 
+	 * we can either be Reset() if CRC is incorrect or we can mark
+	 * the correct frame */
+	Timeout::Register(&this->TCB, this->Timeout * 1.5);
+
+	Received++;
+
+	this->Hash.Update(Byte);
+
+	switch (Received) {
+	case 1:
+		/* This is address byte */
+		Address = HalfByte;
+		return;
+	case 2:
+		/* This is function byte */
+		Function = HalfByte;
+		return;
+	default:
+		/* Message byte (+ 2 bytes of CRC which has to be stripped!) */
+		Buffer.push_back(HalfByte);
+		return;
+	}
+}
+
 
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
@@ -321,8 +355,24 @@ void ModbusGeneric<HashType, ASCII>::TimeoutCallback::Run()
 {
 	Notice = 1;
 	/* Timeout! Reset receiver */
-	M.Reset();
-	M.RaiseError(Error::TIMEOUT);
+	if (ASCII) {
+		M.Reset();
+		M.RaiseError(Error::TIMEOUT);
+	} else {
+		/* In RTU we either reset the receiver
+		 * if current frame is broken (CRC not correct)
+		 * Or we inform higher layer about correct frame 
+		 */
+		if (M.Hash.IsCorrect()) {
+		} else {
+			M.Reset();
+			if (M.Received < 4) 
+				M.RaiseError(Error::TIMEOUT, "RTU Timeout - too little read to check CRC");
+			else 
+				M.RaiseError(Error::HASH, "RTU CRC check failed after reading frame");
+
+		}
+	}
 }
 
 

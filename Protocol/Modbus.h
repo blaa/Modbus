@@ -103,8 +103,15 @@ protected:
 
 public:
 	/** Initialize modbus middle-layer with callback to interface (CB)
-	 * and with some Lowlevel implementation */
-	ModbusGeneric(Callback *CB, Lowlevel &LL, int Timeout = 2);
+	 * and with some Lowlevel implementation 
+	 * 
+	 * Timeout is time in miliseconds which meaning depends on protocol type.
+	 * In ASCII it is max time between two incoming characters before receiver
+	 * is reset.
+	 * In RTU max time between two incoming characters equals 1.5 * Timeout
+	 * whereas minimal time generated after sending a frame equals 3.5 * Timeout
+	 */
+	ModbusGeneric(Callback *CB, Lowlevel &LL, int Timeout = 1000);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~ModbusGeneric();

@@ -15,7 +15,9 @@ namespace Timeout {
 	/** Make the system call CB->Callback after MSec miliseconds */
 	void Register(Callback *CB, long MSec);
 	
-	/** Locked wait of certain time */
+	/** Locked wait of certain time 
+	 * This may remove registered timeout. 
+	 */
 	void Sleep(long MSec);
 
 	/** Initialize timeout */
