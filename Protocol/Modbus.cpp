@@ -9,7 +9,8 @@
 /************************************
  * Main modbus ascii class implementation 
  ************************************/
-Modbus::Modbus(Callback *CB, Lowlevel &LL, int Timeout) 
+template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::ModbusGeneric(Callback *CB, Lowlevel &LL, int Timeout) 
   : C(CB), L(LL), LCB(*this), TCB(*this)
 {
 	/* Register us in Lowlevel interface */
@@ -18,19 +19,22 @@ Modbus::Modbus(Callback *CB, Lowlevel &LL, int Timeout)
 	this->Timeout = Timeout;
 }
 
-Modbus::~Modbus()
+template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::~ModbusGeneric()
 {
 	/* Deregister our callback */
 	L.RegisterCallback(NULL);
 }
 
-
-void Modbus::RegisterCallback(Callback *C)
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::RegisterCallback(Callback *C)
 {
 	this->C = C;
 }
 
-void Modbus::SendMessage(const std::string &Msg, int Address, int Function)
+/* Partial specialization for Modbus ASCII */
+template<>
+void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, int Function)
 {
 	LRC Hash;
 	std::ostringstream Frame;
@@ -59,7 +63,40 @@ void Modbus::SendMessage(const std::string &Msg, int Address, int Function)
 	L.SendString(Frame.str());
 }
 
-void Modbus::Reset()
+/* Partial specialization for Modbus ASCII */
+template<>
+void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Address, int Function)
+{
+	LRC Hash;
+	std::ostringstream Frame;
+	Hash.Init();
+	Frame << std::hex << std::setfill('0') << std::uppercase;
+	Frame << ":" 
+	      << std::setw(2) << Address 
+	      << std::setw(2) << Function;
+	Hash.Update(Address);
+	Hash.Update(Function);
+	for (std::string::const_iterator i = Msg.begin();
+	     i != Msg.end();
+	     i++) {
+		Hash.Update(*i);
+		Frame << std::setw(2) << (unsigned int)(unsigned char) *i;
+	}
+	Frame << (unsigned int)(unsigned char)Hash.Get();
+	Frame << "\r\n";
+
+	std::cerr << "DEBUG, SendMessage: "
+		  << Frame.str() << std::endl;
+
+	/* TODO: We can send this data completely with
+	 * interrupts but this would make Serial a bit 
+	 * harder to write */
+	L.SendString(Frame.str());
+}
+
+
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::Reset()
 {
 	HalfByte = 0;
 	Received = 0;
@@ -67,7 +104,8 @@ void Modbus::Reset()
 	Hash.Init();
 }
 
-unsigned char Modbus::AAHexConvert(unsigned char A, unsigned char B)
+template<typename HashType, bool ASCII>
+unsigned char ModbusGeneric<HashType, ASCII>::AAHexConvert(unsigned char A, unsigned char B)
 {
 	unsigned char Result;
 	if (A >= '0' && A <= '9')
@@ -89,7 +127,8 @@ unsigned char Modbus::AAHexConvert(unsigned char A, unsigned char B)
 
 
 /** Modbus ASCII frame grabber */
-void Modbus::ByteReceived(char Byte)
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
 {
 	/* Modbus ASCII Frame:
 	 * :<ADDRESS><FUNCTION><DATA><LRC><CR><LF>
@@ -215,8 +254,8 @@ void Modbus::ByteReceived(char Byte)
 	}
 }
 
-
-void Modbus::RaiseError(int Errno, const char *Additional) const
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
 {
 	/* Turn off timeout - no frame incoming */
 	Timeout::Register(NULL, this->Timeout, 0);
@@ -243,16 +282,19 @@ void Modbus::RaiseError(int Errno, const char *Additional) const
  * Callbacks for lowlevel interface
  * and for timeout.
  ************************************/
-Modbus::LowlevelCallback::LowlevelCallback(Modbus &MM) : M(MM)
+template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::LowlevelCallback::LowlevelCallback(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
 {
 }
 
-void Modbus::LowlevelCallback::ByteReceived(char Byte)
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::LowlevelCallback::ByteReceived(char Byte)
 {
 	M.ByteReceived(Byte);
 }
 
-void Modbus::LowlevelCallback::Error(int Errno)
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::LowlevelCallback::Error(int Errno)
 {
 	std::cerr << "Got error from low layer: "
 		  << Errno 
@@ -263,15 +305,23 @@ void Modbus::LowlevelCallback::Error(int Errno)
 	}
 }
 
-
-Modbus::TimeoutCallback::TimeoutCallback(Modbus &MM) : M(MM)
+template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::TimeoutCallback::TimeoutCallback(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
 {
 }
 
-void Modbus::TimeoutCallback::Run()
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::TimeoutCallback::Run()
 {
 	Notice = 1;
 	/* Timeout! Reset receiver */
 	M.Reset();
 	M.RaiseError(Error::TIMEOUT);
 }
+
+
+
+/**@{ Explicit template specialization */
+template class ModbusGeneric<LRC, true>;
+template class ModbusGeneric<CRC16, false>;
+/*@}*/

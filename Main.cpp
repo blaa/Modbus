@@ -128,7 +128,7 @@ namespace Testcase {
 		/* Simulate what should interface do */
 		InterfaceCallback InterfaceCallback;
 		SimuSerial LowlevelLayer;
-		Modbus M(&InterfaceCallback, LowlevelLayer);
+		ModbusASCII M(&InterfaceCallback, LowlevelLayer);
 		
 		const char *CorrectFrames[] = {
 			":000148454C4C4F8B\r\n",

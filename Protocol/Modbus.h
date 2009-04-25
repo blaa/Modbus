@@ -15,7 +15,8 @@
  * RTU version.
  *
  */
-class Modbus : public Protocol
+template<typename HashType, bool ASCII>
+class ModbusGeneric : public Protocol
 {
 private:
 	/** How many bytes are received already? */
@@ -31,7 +32,7 @@ private:
 	unsigned char Function;
 
 	/** CRC calculation */
-	LRC Hash;
+	HashType Hash;
 
 	/** Store here bytes we can't convert yet */
 	char HalfByte;
@@ -41,11 +42,11 @@ protected:
 	class LowlevelCallback : public Lowlevel::Callback
 	{
 		/** Modbus instance which needs to be informed */
-		Modbus &M;
+		ModbusGeneric<HashType, ASCII> &M;
 
 		/** Private constructor; only Modbus class can create
 		 * an instance */
-		LowlevelCallback(Modbus &MM);
+		LowlevelCallback(ModbusGeneric<HashType, ASCII> &MM);
 	public:
 
 		/** Called when we receive a single byte. */
@@ -53,23 +54,23 @@ protected:
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno);
 
-		friend class Modbus;
+		friend class ModbusGeneric<HashType, ASCII>;
 	};
 
 	class TimeoutCallback : public Timeout::Callback
 	{
 		/** Modbus instance which needs to be informed */
-		Modbus &M;
+		ModbusGeneric<HashType, ASCII> &M;
 
 		/** Set to 1 after timeout */
 		volatile unsigned char Notice;
 
 		/* Private constructor like with LL callback */
-		TimeoutCallback(Modbus &M);
+		TimeoutCallback(ModbusGeneric &M);
 	public:
 		virtual void Run();
 
-		friend class Modbus;
+		friend class ModbusGeneric<HashType, ASCII>;
 	};
 
 	/** Callback passed to Modbus from interface 
@@ -103,10 +104,10 @@ protected:
 public:
 	/** Initialize modbus middle-layer with callback to interface (CB)
 	 * and with some Lowlevel implementation */
-	Modbus(Callback *CB, Lowlevel &LL, int Timeout = 2);
+	ModbusGeneric(Callback *CB, Lowlevel &LL, int Timeout = 2);
 
 	/** Deregisters modbus protocol in lowlevel layer */
-	~Modbus();
+	~ModbusGeneric();
 	
 	/** Register new callback to higher interface */
 	virtual void RegisterCallback(Callback *C);
@@ -116,5 +117,10 @@ public:
 	/** Resets receiver */
 	void Reset();
 };
+
+/* Explicit specializations of ModbusGeneric */
+/* Modbus ASCII */
+typedef ModbusGeneric<LRC, true> ModbusASCII;
+typedef ModbusGeneric<CRC16, false> ModbusRTU;
 
 #endif
