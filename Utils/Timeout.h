@@ -5,6 +5,7 @@
  * which is to be called in a certain period of time
  * in future - OS dependant */
 namespace Timeout {
+	/** Timeout callback class */
 	class Callback
 	{
 	public:

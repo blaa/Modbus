@@ -12,10 +12,12 @@
 
 namespace Timeout {
 
+	/** Callback which will be called */
 	Callback *CurrentCB;
 	
 #if SYS_LINUX
 	
+	/** Linux Signal handler */
 	void Handler(int Flag, siginfo_t *si, void *Arg)
 	{
 		Callback *CB = CurrentCB;
@@ -40,6 +42,7 @@ namespace Timeout {
 		/* Will deliver SIGALRM */
 	}
 
+	/** Initializes Linux signals for Timeout*/
 	void Init()
 	{
 		struct sigaction sa;

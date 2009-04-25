@@ -33,7 +33,7 @@ private:
 	/** CRC calculation */
 	LRC Hash;
 
-	/* Store here bytes we can't convert yet */
+	/** Store here bytes we can't convert yet */
 	char HalfByte;
 
 protected:
