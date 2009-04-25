@@ -9,6 +9,7 @@ namespace Timeout {
 	class Callback
 	{
 	public:
+		/** Called when timeout occurs */
 		virtual void Run() = 0;
 	};
 

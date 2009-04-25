@@ -26,12 +26,14 @@ namespace Timeout {
 	class MiliCallback : public Callback
 	{
 	public:
+		/** 'Ready' marker */
 		volatile unsigned char Set;
 
 		MiliCallback() : Set(0)
 		{
 		}
 
+		/** Just mark that it's ready */
 		virtual void Run()
 		{
 			Set = 1;
