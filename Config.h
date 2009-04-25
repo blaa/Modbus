@@ -12,14 +12,14 @@ struct Config
 	/** Possible baudrates */
 	enum BaudRate
 	{
-		B150,	B200,
-		B300,	B600,
-		B1200,	B1800,
-		B2400,	B4800,
-		B9600,	B19200,
-		B38400,	B57600,
-		B115200, 
-		B230400
+		BR150,		BR200,
+		BR300,		BR600,
+		BR1200,		BR1800,
+		BR2400,		BR4800,
+		BR9600,		BR19200,
+		BR38400,	BR57600,
+		BR115200, 
+		BR230400
 	};
 
 	enum Parity 
@@ -34,7 +34,7 @@ struct Config
 
 	enum CharSize 
 	{
-		CS8, CS5
+		CharSize8, CharSize5
 	};
 
 	/* Serial configuration */

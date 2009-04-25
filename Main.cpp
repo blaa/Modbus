@@ -4,7 +4,9 @@
 #include "Utils/Timeout.h"
 #include "Utils/Error.h"
 #include "Lowlevel/Lowlevel.h"
+#include "Lowlevel/Serial.h"
 #include "Protocol/Modbus.h"
+
 
 namespace Testcase {
 	/** Class simulating a working lowlevel implementation 
@@ -248,6 +250,19 @@ namespace Testcase {
 		std::cerr << "Timeout testcase finished!\n" << std::endl;
 
 	}
+
+	/** Lowlevel test */
+	void Lowlevel()
+	{
+#if SYS_LINUX
+		std::cout << "Initializing lowlevel" << std::endl;
+		Serial Lowlevel;
+		/* Check if we will get interrupts */
+		std::cout << "Waiting for interrupts" << std::endl;
+		for (;;) {}
+
+#endif /* SYS_LINUX */
+	}
 };
 
 
@@ -257,7 +272,9 @@ int main(void)
 	Timeout::Init();
 
 	/* Test middle-level protocol */
-	Testcase::Middle();
+//	Testcase::Middle();
+
+	Testcase::Lowlevel();
 
 	/* Test timeout */
 //	Testcase::Timeout();

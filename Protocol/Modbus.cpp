@@ -97,8 +97,11 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	 * so we will return immediately, but won't 
 	 * allow sending another frame before timeout.
 	 */
-	// TODO - uncheck this! */
-//	Timeout::Sleep(Timeout * 3.5);
+
+	/* Enabling this timeout will cause testcase to fail
+	 * with a looped output -> input */
+	while (Timeout::Notice == 0); /* FIXME: remove this, this just fixes testcases */
+	Timeout::Sleep(Timeout * 3.5);
 }
 
 
@@ -274,11 +277,6 @@ void ModbusGeneric<CRC16, false>::ByteReceived(char Byte)
 	Received++;
 
 	this->Hash.Update(Byte);
-	std::cout << std::hex << std::setfill('0')
-		  << "Recv got=" << Byte 
-		  << " Hash calc = "
-		  << std::setw(4) << Hash.State << std::endl;
-
 	
 	switch (Received) {
 	case 1:
@@ -370,9 +368,6 @@ void ModbusGeneric<HashType, ASCII>::TimeoutCallback::Run()
 		 * if current frame is broken (CRC not correct)
 		 * Or we inform higher layer about correct frame 
 		 */
-		std::cout << "Hash = " << std::hex << std::setfill('0')
-			  << std::setw(4) << M.Hash.State << std::endl;
-
 		if (M.Hash.IsCorrect()) {
 			M.Buffer.erase(M.Buffer.length()-2, M.Buffer.length()-1);
 			if (M.C) {

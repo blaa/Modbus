@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Sat Apr 25 23:19:28 2009
+;; Created Sun Apr 26 01:43:21 2009
 ;; Desktop file format version 206
 ;; Emacs version 22.3.1
 
@@ -10,17 +10,105 @@
 (setq desktop-missing-file-warning nil)
 (setq tags-file-name nil)
 (setq tags-table-list nil)
-(setq search-ring '("Send" "Conve" "AAHexConve" "friend" "Modbus" "Reset" "Raise" "got corr" "RaiseEr" "Interface" "B" "Time" "Call" "with co" "Hello" "ReceivedMes"))
+(setq search-ring '("getpid" "B1" "Sleep" "Reset" "SendMes" "fill" "f" "SendMess" "Hash.Init" "Reset" "Converted" "SendM" "Timeout" "Send" "Conve" "AAHexConve"))
 (setq regexp-search-ring nil)
 (setq register-alist nil)
 
 ;; Buffer section -- buffers listed in same order as in buffer list:
 (desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Utils/Hash.h"
-  "Hash.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Serial.h"
+  "Serial.h"
   'c++-mode
   '(abbrev-mode)
-  773
+  93
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Main.cpp"
+  "Main.cpp"
+  'c++-mode
+  '(abbrev-mode)
+  171
+  '(143 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (overwrite-mode)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/SerialDOS.h"
+  "SerialDOS.h"
+  'c++-mode
+  '(abbrev-mode)
+  788
+  '(45 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/SerialDOS.cpp"
+  "SerialDOS.cpp"
+  'c++-mode
+  '(abbrev-mode)
+  55
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/SerialLinux.h"
+  "SerialLinux.h"
+  'c++-mode
+  '(abbrev-mode)
+  1006
+  '(631 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (overwrite-mode)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/SerialLinux.cpp"
+  "SerialLinux.cpp"
+  'c++-mode
+  '(abbrev-mode)
+  164
+  '(2669 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (overwrite-mode)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Lowlevel.h"
+  "Lowlevel.h"
+  'c++-mode
+  '(abbrev-mode)
+  615
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Config.h"
+  "Config.h"
+  'c++-mode
+  '(abbrev-mode)
+  523
+  '(262 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix) (overwrite-mode)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Config.cpp"
+  "Config.cpp"
+  'c++-mode
+  '(abbrev-mode)
+  246
   '(nil nil)
   nil
   nil
@@ -31,66 +119,55 @@
   "Modbus.cpp"
   'c++-mode
   '(abbrev-mode)
-  2118
-  '(1 nil)
+  8890
+  '(2813 nil)
   nil
   nil
   '((buffer-file-coding-system . undecided-unix) (overwrite-mode)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Modbus.h"
-  "Modbus.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Utils/Hash.h"
+  "Hash.h"
   'c++-mode
   '(abbrev-mode)
-  3052
-  '(1618 nil)
+  646
+  '(nil nil)
   nil
   nil
   '((buffer-file-coding-system . undecided-unix)))
-
-(desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Main.cpp"
-  "Main.cpp"
-  'c++-mode
-  '(abbrev-mode)
-  2816
-  '(1344 nil)
-  nil
-  nil
-  '((buffer-file-coding-system . undecided-unix)))
-
-(desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Utils/Timeout.h"
-  "Timeout.h"
-  'c++-mode
-  '(abbrev-mode)
-  232
-  '(279 nil)
-  nil
-  nil
-  '((buffer-file-coding-system . iso-latin-2-unix)))
 
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Utils/Timeout.cpp"
   "Timeout.cpp"
   'c++-mode
   '(abbrev-mode)
-  280
-  '(569 nil)
+  330
+  '(311 nil)
   nil
   nil
-  '((buffer-file-coding-system . iso-8859-2) (overwrite-mode)))
+  '((buffer-file-coding-system . iso-latin-2-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Config.h"
-  "Config.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Utils/Timeout.h"
+  "Timeout.h"
   'c++-mode
-  '(overwrite-mode abbrev-mode)
-  64
-  '(nil nil)
+  '(abbrev-mode)
+  383
+  '(354 nil)
   nil
   nil
-  '((buffer-file-coding-system . undecided-unix) (overwrite-mode . overwrite-mode-textual)))
+  '((buffer-file-coding-system . iso-latin-2-unix) (overwrite-mode)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Modbus.h"
+  "Modbus.h"
+  'c++-mode
+  '(abbrev-mode)
+  2894
+  '(1618 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Utils/Error.h"
@@ -115,17 +192,6 @@
   '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Lowlevel.h"
-  "Lowlevel.h"
-  'c++-mode
-  '(abbrev-mode)
-  615
-  '(nil nil)
-  nil
-  nil
-  '((buffer-file-coding-system . undecided-unix)))
-
-(desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Protocol.h"
   "Protocol.h"
   'c++-mode
@@ -135,28 +201,6 @@
   nil
   nil
   '((buffer-file-coding-system . undecided-unix) (overwrite-mode)))
-
-(desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Serial.h"
-  "Serial.h"
-  'c++-mode
-  '(abbrev-mode)
-  525
-  '(658 nil)
-  nil
-  nil
-  '((buffer-file-coding-system . undecided-unix)))
-
-(desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Serial.cpp"
-  "Serial.cpp"
-  'c++-mode
-  '(abbrev-mode)
-  251
-  '(251 nil)
-  nil
-  nil
-  '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Lowlevel.cpp"
@@ -212,15 +256,4 @@
   nil
   nil
   nil)
-
-(desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Config.cpp"
-  "Config.cpp"
-  'c++-mode
-  '(abbrev-mode)
-  1
-  '(nil nil)
-  nil
-  nil
-  '((buffer-file-coding-system . undecided-unix)))
 

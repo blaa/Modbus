@@ -1,9 +1,14 @@
+#include "Config.h"
+
+#if SYS_DOS
+
 #include <iostream>
-#include "Serial.h"
+#include "SerialDOS.h"
 
 Serial::Serial(Callback *CB) : C(CB)
 {
 	/* Type here some stuff */
+	std::cerr << "Unimplemented" << std::endl;
 }
 
 void Serial::RegisterCallback(Callback *C)
@@ -21,3 +26,4 @@ int Serial::GetByte()
 	return 0;
 }
 
+#endif /* SYS_DOS */
