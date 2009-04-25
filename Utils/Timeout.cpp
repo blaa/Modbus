@@ -6,6 +6,7 @@
 #if SYS_LINUX
 #	include <cstdlib>
 #	include <cstring>
+#	include <unistd.h>
 #	include <signal.h>
 #	include <sys/time.h>
 #endif
@@ -17,6 +18,22 @@ namespace Timeout {
 	
 #if SYS_LINUX
 	
+	/** For a certain, locked x miliseconds wait time */
+	class MiliCallback : public Callback
+	{
+	public:
+		volatile unsigned char Set;
+
+		MiliCallback() : Set(0)
+		{
+		}
+
+		virtual void Run()
+		{
+			Set = 1;
+		}
+	};
+
 	/** Linux Signal handler */
 	void Handler(int Flag, siginfo_t *si, void *Arg)
 	{
@@ -28,12 +45,12 @@ namespace Timeout {
 
 
 	/** Function registers callback */
-	void Register(Callback *CB, long Sec, long MSec)
+	void Register(Callback *CB, long MSec)
 	{
 		struct itimerval itv;
 		memset(&itv, 0, sizeof(itv));
-		itv.it_value.tv_sec = Sec;
-		itv.it_value.tv_usec = MSec * 1000;
+		itv.it_value.tv_sec = MSec / 1000;
+		itv.it_value.tv_usec = (MSec % 1000) * 1000;
 		CurrentCB = CB;
 		if (setitimer(ITIMER_REAL, &itv, NULL) != 0) {
 			perror("setitimer");
@@ -58,7 +75,13 @@ namespace Timeout {
 			perror("sigaction");
 			exit(-1);
 		}
+	}
 
+	void Sleep(long MSec)
+	{
+		MiliCallback MCB;
+		Register(&MCB, MSec);
+		while (!MCB.Set);
 	}
 #endif
 

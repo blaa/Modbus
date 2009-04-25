@@ -12,9 +12,12 @@ namespace Timeout {
 		virtual void Run() = 0;
 	};
 
-	/** Make the system call CB->Callback after Sec seconds and MSec miliseconds */
-	void Register(Callback *CB, long Sec, long MSec);
+	/** Make the system call CB->Callback after MSec miliseconds */
+	void Register(Callback *CB, long MSec);
 	
+	/** Locked wait of certain time */
+	void Sleep(long MSec);
+
 	/** Initialize timeout */
 	void Init();
 };

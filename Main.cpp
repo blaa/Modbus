@@ -215,10 +215,13 @@ namespace Testcase {
 	{
 		TestTimeout TT;
 		std::cerr << "Registering callback" << std::endl;
-		Timeout::Register(&TT, 1, 500);
+		Timeout::Register(&TT, 1500);
 		std::cerr << "Waiting..." << std::endl;
 		while (!TT.TimeoutDone);
+		std::cerr << "One..." << std::endl;
+		Timeout::Sleep(1500);
 		std::cerr << "Timeout testcase finished!\n" << std::endl;
+
 	}
 };
 

@@ -99,7 +99,7 @@ protected:
 	void ByteReceived(char Byte);
 
 	/** Helper for converting ASCII hex into byte */
-	static unsigned char AAHexConvert(unsigned char A, unsigned  char B);
+	static unsigned char HexConvert(unsigned char A, unsigned  char B);
 
 public:
 	/** Initialize modbus middle-layer with callback to interface (CB)

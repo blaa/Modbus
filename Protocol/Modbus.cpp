@@ -54,7 +54,7 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 	Frame << (unsigned int)(unsigned char)Hash.Get();
 	Frame << "\r\n";
 
-	std::cerr << "DEBUG, SendMessage: "
+	std::cerr << "DEBUG, SendMessage ASCII: "
 		  << Frame.str() << std::endl;
 
 	/* TODO: We can send this data completely with
@@ -63,35 +63,37 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 	L.SendString(Frame.str());
 }
 
-/* Partial specialization for Modbus ASCII */
+/* Partial specialization for Modbus RTU */
 template<>
 void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Address, int Function)
 {
-	LRC Hash;
+	CRC16 Hash;
 	std::ostringstream Frame;
 	Hash.Init();
-	Frame << std::hex << std::setfill('0') << std::uppercase;
-	Frame << ":" 
-	      << std::setw(2) << Address 
-	      << std::setw(2) << Function;
+	Frame << Address << Function;
 	Hash.Update(Address);
 	Hash.Update(Function);
 	for (std::string::const_iterator i = Msg.begin();
 	     i != Msg.end();
 	     i++) {
 		Hash.Update(*i);
-		Frame << std::setw(2) << (unsigned int)(unsigned char) *i;
+		Frame << *i;
 	}
-	Frame << (unsigned int)(unsigned char)Hash.Get();
-	Frame << "\r\n";
 
-	std::cerr << "DEBUG, SendMessage: "
+	CRC16::Hash_t CRC = Hash.Get();
+	Frame << (unsigned char)(CRC>>8);
+	Frame << (unsigned char)(CRC & 0x00FF);
+
+	std::cerr << "DEBUG, SendMessage RTU: "
 		  << Frame.str() << std::endl;
 
 	/* TODO: We can send this data completely with
 	 * interrupts but this would make Serial a bit 
 	 * harder to write */
 	L.SendString(Frame.str());
+
+	/* TODO: Set timeout which will make us wait 
+	 * for some time until previous frame finishes */
 }
 
 
@@ -105,7 +107,7 @@ void ModbusGeneric<HashType, ASCII>::Reset()
 }
 
 template<typename HashType, bool ASCII>
-unsigned char ModbusGeneric<HashType, ASCII>::AAHexConvert(unsigned char A, unsigned char B)
+unsigned char ModbusGeneric<HashType, ASCII>::HexConvert(unsigned char A, unsigned char B)
 {
 	unsigned char Result;
 	if (A >= '0' && A <= '9')
@@ -139,7 +141,7 @@ void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
 
 	/* We've got some byte - reset timeout 
 	 * so we won't get Reset() during this function */
-	Timeout::Register(&this->TCB, this->Timeout, 0);
+	Timeout::Register(&this->TCB, this->Timeout);
 
 	if (0 == Received) {
 		/* Buffer is empty; byte must equal ':' */
@@ -229,7 +231,7 @@ void ModbusGeneric<HashType, ASCII>::ByteReceived(char Byte)
 	} 
 
 	/* Convert */
-	HalfByte = AAHexConvert(HalfByte, Byte);
+	HalfByte = HexConvert(HalfByte, Byte);
 	Received++;
 
 	std::cerr << "Converted = " 
@@ -258,12 +260,16 @@ template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
 {
 	/* Turn off timeout - no frame incoming */
-	Timeout::Register(NULL, this->Timeout, 0);
+	Timeout::Register(NULL, this->Timeout);
 
 
 	/* TODO: Turn this debug off finally */
-	std::cerr << "MODBUS Error: "
-		  << Errno 
+	if (ASCII) 
+		std::cerr << "MODBUS ASCII Error: ";
+	else 
+		std::cerr << "MODBUS RTU Error: ";
+
+	std::cerr << Errno 
 		  << " : "
 		  << Error::StrError(Errno)
 		  << std::endl;
