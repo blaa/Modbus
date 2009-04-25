@@ -15,6 +15,10 @@ namespace Timeout {
 
 	/** Callback which will be called */
 	Callback *CurrentCB;
+
+	/** Definition of notice variable */
+	volatile unsigned char Notice;
+
 	
 #if SYS_LINUX
 	
@@ -41,6 +45,7 @@ namespace Timeout {
 		if (CB)
 			CB->Run();
 		CurrentCB = 0;
+		Notice = 1;
 	}
 
 
@@ -48,6 +53,7 @@ namespace Timeout {
 	void Register(Callback *CB, long MSec)
 	{
 		struct itimerval itv;
+		Notice = 0;
 		memset(&itv, 0, sizeof(itv));
 		itv.it_value.tv_sec = MSec / 1000;
 		itv.it_value.tv_usec = (MSec % 1000) * 1000;

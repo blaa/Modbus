@@ -12,6 +12,9 @@ namespace Timeout {
 		virtual void Run() = 0;
 	};
 
+	/** Set to 1 on each timeout, and cleared with Register() */
+	extern volatile unsigned char Notice;
+
 	/** Make the system call CB->Callback after MSec miliseconds */
 	void Register(Callback *CB, long MSec);
 	

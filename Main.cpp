@@ -162,8 +162,7 @@ namespace Testcase {
 		for (unsigned int y=0; IncorrectFrames[y] != NULL; y++) {
 			const char *Frame = IncorrectFrames[y];
 			std::cout 
-				<< std::endl
-				<< std::endl
+				<< std::endl << std::endl
 				<< "Simulating incorrect frame " << y << std::endl;
 			M.Reset();
 			for (unsigned int i=0; i<strlen(Frame); i++) {
@@ -175,8 +174,7 @@ namespace Testcase {
 		 * Enable for DOS only when writting dos timeout */
 		if (SYS_LINUX) {
 			std::cout 
-				<< std::endl
-				<< std::endl
+				<< std::endl << std::endl
 				<< "Simulating timeout problem" << std::endl;
 			
 			/* Simulate timeout problem */ 
@@ -190,13 +188,35 @@ namespace Testcase {
 
 		M.Reset();
 		std::cout 
-			<< std::endl
-			<< std::endl
+			<< std::endl << std::endl
 			<< "Simulating a message sending with output looped back to"
 			<< " middle layer input (adr=0, fun=1, 'HELLO')" 
 			<< std::endl;
 		M.SendMessage("HELLO", 0, 1);
-		
+
+
+		/*** MODBUS RTU testcases */
+		/* Register another callback in lowlayer */
+		std::cout
+			<< std::endl << std::endl
+			<< "Modbus RTU testcases" << std::endl
+			<< "Sending with looped output" << std::endl;
+		ModbusRTU MR(&InterfaceCallback, LowlevelLayer, 200);
+
+		MR.SendMessage("HELLO", 0, 1);
+
+		/* Wait for answer */
+		while (Timeout::Notice == 0);
+
+		/* Second testcase - timeout */
+		std::cout
+			<< std::endl << std::endl
+			<< "Timeout test - or wrong CRC RTU check" << std::endl;
+
+		LowlevelLayer.SendString("HELLO");
+
+		/* Wait for answer */
+		while (Timeout::Notice == 0);
 	}
 
 

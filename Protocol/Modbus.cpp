@@ -15,8 +15,8 @@ ModbusGeneric<HashType, ASCII>::ModbusGeneric(Callback *CB, Lowlevel &LL, int Ti
 {
 	/* Register us in Lowlevel interface */
 	LL.RegisterCallback(&LCB);
-
 	this->Timeout = Timeout;
+	Reset();
 }
 
 template<typename HashType, bool ASCII>
@@ -70,9 +70,10 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	CRC16 Hash;
 	std::ostringstream Frame;
 	Hash.Init();
-	Frame << Address << Function;
+	Frame << (unsigned char)Address << (unsigned char)Function;
 	Hash.Update(Address);
 	Hash.Update(Function);
+
 	for (std::string::const_iterator i = Msg.begin();
 	     i != Msg.end();
 	     i++) {
@@ -81,8 +82,8 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	}
 
 	CRC16::Hash_t CRC = Hash.Get();
-	Frame << (unsigned char)(CRC>>8);
 	Frame << (unsigned char)(CRC & 0x00FF);
+	Frame << (unsigned char)(CRC>>8);
 
 	std::cerr << "DEBUG, SendMessage RTU: "
 		  << Frame.str() << std::endl;
@@ -96,7 +97,8 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	 * so we will return immediately, but won't 
 	 * allow sending another frame before timeout.
 	 */
-	Timeout::Sleep(Timeout * 3.5);
+	// TODO - uncheck this! */
+//	Timeout::Sleep(Timeout * 3.5);
 }
 
 
@@ -272,19 +274,24 @@ void ModbusGeneric<CRC16, false>::ByteReceived(char Byte)
 	Received++;
 
 	this->Hash.Update(Byte);
+	std::cout << std::hex << std::setfill('0')
+		  << "Recv got=" << Byte 
+		  << " Hash calc = "
+		  << std::setw(4) << Hash.State << std::endl;
 
+	
 	switch (Received) {
 	case 1:
 		/* This is address byte */
-		Address = HalfByte;
+		Address = Byte;
 		return;
 	case 2:
 		/* This is function byte */
-		Function = HalfByte;
+		Function = Byte;
 		return;
 	default:
 		/* Message byte (+ 2 bytes of CRC which has to be stripped!) */
-		Buffer.push_back(HalfByte);
+		Buffer.push_back(Byte);
 		return;
 	}
 }
@@ -363,18 +370,24 @@ void ModbusGeneric<HashType, ASCII>::TimeoutCallback::Run()
 		 * if current frame is broken (CRC not correct)
 		 * Or we inform higher layer about correct frame 
 		 */
+		std::cout << "Hash = " << std::hex << std::setfill('0')
+			  << std::setw(4) << M.Hash.State << std::endl;
+
 		if (M.Hash.IsCorrect()) {
+			M.Buffer.erase(M.Buffer.length()-2, M.Buffer.length()-1);
+			if (M.C) {
+				M.C->ReceivedMessage(M.Address, M.Function, M.Buffer);
+			}
 		} else {
-			M.Reset();
 			if (M.Received < 4) 
 				M.RaiseError(Error::TIMEOUT, "RTU Timeout - too little read to check CRC");
 			else 
 				M.RaiseError(Error::HASH, "RTU CRC check failed after reading frame");
-
 		}
+		M.Reset();
+		return;
 	}
 }
-
 
 
 /**@{ Explicit template specialization */
