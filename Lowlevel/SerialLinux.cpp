@@ -29,7 +29,7 @@ namespace {
 
 		while (1 == read(fd, &Ch, 1)) {
 			if (CurrentCB) {
-				CurrentCB->ByteReceived(Ch);
+				CurrentCB->ReceivedByte(Ch);
 			}
 		}
 	}

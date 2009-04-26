@@ -11,12 +11,12 @@ class Serial : public Lowlevel
 {
 protected:
 	/** Callback to middle-layer */
-	Lowlevel::Callback *C;
+	Lowlevel::Callback *HigherCB;
 
 public:
 	/** Initialize serial interface with following middle-layer 
 	 * callback and specified serial configuration */
-	Serial(Callback *CB = NULL /*, ... Shall take configuration parameters
+	Serial(Callback *HigherCB = NULL /*, ... Shall take configuration parameters
 			      and initialize serial port */);
 	
 	/** Send a single byte over RS232 */
@@ -26,7 +26,7 @@ public:
 	virtual int GetByte();
 
 	/** Register new callback to middle-layer */
-	virtual void RegisterCallback(Callback *C);
+	virtual void RegisterCallback(Callback *HigherCB);
 };
 
 

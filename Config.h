@@ -1,9 +1,12 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-/* Select one operating system */
+/** Compile Linux-only extensions? */
 #define SYS_LINUX	1
+/** Compile Dos-only extensions? */
 #define SYS_DOS		0
+/** Compile network lowlevel? (BSD Sockets) */
+#define NETWORK		1
 
 /** Structure holding all configuration variables */
 struct Config

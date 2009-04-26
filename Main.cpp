@@ -5,6 +5,7 @@
 #include "Utils/Error.h"
 #include "Lowlevel/Lowlevel.h"
 #include "Lowlevel/Serial.h"
+#include "Lowlevel/Network.h"
 #include "Protocol/Modbus.h"
 
 
@@ -293,6 +294,38 @@ namespace Testcase {
 		}
 #endif /* SYS_LINUX */
 	}
+
+	/** Lowlevel test */
+	void Network()
+	{
+#if NETWORK
+		std::cout << "Initializing NetworkServer lowlevel" << std::endl;
+		NetworkServer LowlevelLayer;
+
+		std::cout << "Creating middle and higher layer" << std::endl;
+		InterfaceCallback InterfaceCallback;
+		if (1) { /* ASCII */
+			ModbusASCII M(&InterfaceCallback, LowlevelLayer);
+			
+			std::cout << "Waiting for ascii frames" << std::endl;
+			
+			for (;;) {
+				/* Here is some interface loop waiting for keypresses */
+				M.SendMessage("Hej", 'A', 'F');
+
+			}
+		} else { /* RTU */
+			ModbusRTU M(&InterfaceCallback, LowlevelLayer, 200);
+			
+			std::cout << "Waiting for rtu frames" << std::endl;
+			for (;;) {
+				/* Here is some interface loop waiting for keypresses */
+			}
+
+		}
+#endif /* NETWORK */
+	}
+
 };
 
 
@@ -302,9 +335,10 @@ int main(int argc, char **argv)
 	Timeout::Init();
 
 	/* Test middle-level protocol */
-	Testcase::Middle();
+//	Testcase::Middle();
 
 //	Testcase::Lowlevel();
+	Testcase::Network();
 
 	/* Test timeout */
 //	Testcase::Timeout();
