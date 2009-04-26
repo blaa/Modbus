@@ -23,7 +23,7 @@ public:
 	};
 
 	/** Function registering a callback */
-	virtual void RegisterCallback(Callback *C) = 0;
+	virtual void RegisterCallback(Callback *HigherCB) = 0;
 
 	/** Blocking function formatting a buffer to send via lowlevel.
 	 * It formats whole frame and passes to another layer, 

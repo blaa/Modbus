@@ -10,11 +10,12 @@
  * Main modbus ascii class implementation 
  ************************************/
 template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::ModbusGeneric(Callback *CB, Lowlevel &LL, int Timeout) 
-  : C(CB), L(LL), LCB(*this), TCB(*this)
+ModbusGeneric<HashType, ASCII>::ModbusGeneric(Callback *HigherCB, 
+					      Lowlevel &Lower, int Timeout)
+  : HigherCB(HigherCB), Lower(Lower), LowerCB(*this), TimeoutCB(*this)
 {
 	/* Register us in Lowlevel interface */
-	LL.RegisterCallback(&LCB);
+	Lower.RegisterCallback(&LowerCB);
 	this->Timeout = Timeout;
 	Reset();
 }
@@ -23,13 +24,13 @@ template<typename HashType, bool ASCII>
 ModbusGeneric<HashType, ASCII>::~ModbusGeneric()
 {
 	/* Deregister our callback */
-	L.RegisterCallback(NULL);
+	Lower.RegisterCallback(NULL);
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::RegisterCallback(Callback *C)
+void ModbusGeneric<HashType, ASCII>::RegisterCallback(Callback *HigherCB)
 {
-	this->C = C;
+	this->HigherCB = HigherCB;
 }
 
 /* Partial specialization for Modbus ASCII */
@@ -60,7 +61,7 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 	/* TODO: We can send this data completely with
 	 * interrupts but this would make Serial a bit 
 	 * harder to write */
-	L.SendString(Frame.str());
+	Lower.SendString(Frame.str());
 }
 
 /* Partial specialization for Modbus RTU */
@@ -91,7 +92,7 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	/* TODO: We can send this data completely with
 	 * interrupts but this would make Serial a bit 
 	 * harder to write */
-	L.SendString(Frame.str());
+	Lower.SendString(Frame.str());
 
 	/* TODO: This should be done with a Register() 
 	 * so we will return immediately, but won't 
@@ -150,7 +151,7 @@ void ModbusGeneric<LRC, true>::ByteReceived(char Byte)
 
 	/* We've got some byte - reset timeout 
 	 * so we won't get Reset() during this function */
-	Timeout::Register(&this->TCB, this->Timeout);
+	Timeout::Register(&this->TimeoutCB, this->Timeout);
 
 	if (0 == Received) {
 		/* Buffer is empty; byte must equal ':' */
@@ -192,8 +193,8 @@ void ModbusGeneric<LRC, true>::ByteReceived(char Byte)
 		/* FIXME: Check minimal size (address, function)
 		 * ^^ - should not be needed - LRC check will fail
 		 */
-		if (C) {
-			C->ReceivedMessage(Address, Function, Buffer);
+		if (HigherCB) {
+			HigherCB->ReceivedMessage(Address, Function, Buffer);
 			Reset();
 			return;
 		}
@@ -270,9 +271,7 @@ void ModbusGeneric<CRC16, false>::ByteReceived(char Byte)
 	/* Something happened - reset timeout. When it reaches us 
 	 * we can either be Reset() if CRC is incorrect or we can mark
 	 * the correct frame */
-	Timeout::Register(&this->TCB, this->Timeout * 1.5);
-	std::cerr << "RTU GOT " << std::hex << (unsigned int) (unsigned char)Byte
-		  << std::dec << "("<<Byte<<")" << std::endl;
+	Timeout::Register(&this->TimeoutCB, this->Timeout * 1.5);
 
 	Received++;
 
@@ -316,8 +315,8 @@ void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additiona
 		std::cerr << Additional << std::endl;
 	}
 
-	if (C) {
-		C->Error(Errno);
+	if (HigherCB) {
+		HigherCB->Error(Errno);
 		return;
 	}
 }
@@ -328,35 +327,35 @@ void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additiona
  * and for timeout.
  ************************************/
 template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::LowlevelCallback::LowlevelCallback(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
+ModbusGeneric<HashType, ASCII>::LowerCB::LowerCB(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
 {
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::LowlevelCallback::ByteReceived(char Byte)
+void ModbusGeneric<HashType, ASCII>::LowerCB::ByteReceived(char Byte)
 {
 	M.ByteReceived(Byte);
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::LowlevelCallback::Error(int Errno)
+void ModbusGeneric<HashType, ASCII>::LowerCB::Error(int Errno)
 {
 	std::cerr << "Got error from low layer: "
 		  << Errno 
 		  << std::endl;
-	if (M.C) {
+	if (M.HigherCB) {
 		/* Pass this error to interface with callback */
-		M.C->Error(Errno);
+		M.HigherCB->Error(Errno);
 	}
 }
 
 template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::TimeoutCallback::TimeoutCallback(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
+ModbusGeneric<HashType, ASCII>::TimeoutCB::TimeoutCB(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
 {
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::TimeoutCallback::Run()
+void ModbusGeneric<HashType, ASCII>::TimeoutCB::Run()
 {
 	Notice = 1;
 	/* Timeout! Reset receiver */
@@ -370,8 +369,8 @@ void ModbusGeneric<HashType, ASCII>::TimeoutCallback::Run()
 		 */
 		if (M.Hash.IsCorrect()) {
 			M.Buffer.erase(M.Buffer.length()-2, M.Buffer.length()-1);
-			if (M.C) {
-				M.C->ReceivedMessage(M.Address, M.Function, M.Buffer);
+			if (M.HigherCB) {
+				M.HigherCB->ReceivedMessage(M.Address, M.Function, M.Buffer);
 			}
 		} else {
 			if (M.Received < 4) 

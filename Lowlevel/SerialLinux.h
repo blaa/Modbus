@@ -10,7 +10,7 @@ class Serial : public Lowlevel
 {
 protected:
 	/** Callback to middle-layer */
-	Lowlevel::Callback *C;
+	Lowlevel::Callback *HigherCB;
 
 	/** Device descriptor */
 	int fd;
@@ -33,7 +33,7 @@ public:
 	virtual int GetByte();
 
 	/** Register new callback to middle-layer */
-	virtual void RegisterCallback(Callback *C);
+	virtual void RegisterCallback(Callback *HigherCB);
 };
 
 #endif /* SYS_LINUX */

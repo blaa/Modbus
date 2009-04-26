@@ -25,8 +25,8 @@ public:
 		virtual void Error(int Errno) = 0;
 	};
 	
-	/** Registers middle-level callback */
-	virtual void RegisterCallback(Callback *CB) = 0;
+	/** Registers higher-level (usually middle) callback */
+	virtual void RegisterCallback(Callback *HigherCB) = 0;
 
 	/*** Low-level interface ***/
 	/** Function initializes transmission of a single byte.

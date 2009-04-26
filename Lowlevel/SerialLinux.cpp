@@ -109,9 +109,8 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	
 	Unix::fcntl(this->fd, F_SETOWN, getpid());
 	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
-
 	
-	this->C = NULL;
+	this->HigherCB = NULL;
 	CurrentCB = NULL;
 }
 
@@ -120,10 +119,10 @@ Serial::~Serial()
 	close(this->fd);
 }
 
-void Serial::RegisterCallback(Callback *C)
+void Serial::RegisterCallback(Callback *HigherCB)
 {
-	this->C = C;
-	CurrentCB = C;
+	this->HigherCB = HigherCB;
+	CurrentCB = HigherCB;
 	::fd = this->fd;
 }
 

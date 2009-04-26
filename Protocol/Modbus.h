@@ -10,9 +10,11 @@
 /** Implements modbus ascii protocol 
  *
  * \brief
- * This class implements the MODBUS ASCII protocol
- * as defined by MODICON. In future it may also handle
- * RTU version.
+ * This template class implements MODBUS ASCII and RTU
+ * protocols as defined by MODICON.
+ *
+ * It's lower layer is a Lowlevel implementation while
+ * it's higher layer might be either MasterSlave or user interface.
  *
  */
 template<typename HashType, bool ASCII>
@@ -38,15 +40,15 @@ private:
 	char HalfByte;
 
 protected:
-	/** Lowlevel callback implementation */
-	class LowlevelCallback : public Lowlevel::Callback
+	/** Lower level callback implementation */
+	class LowerCB : public Lowlevel::Callback
 	{
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
 
 		/** Private constructor; only Modbus class can create
 		 * an instance */
-		LowlevelCallback(ModbusGeneric<HashType, ASCII> &MM);
+		LowerCB(ModbusGeneric<HashType, ASCII> &MM);
 	public:
 
 		/** Called when we receive a single byte. */
@@ -57,7 +59,7 @@ protected:
 		friend class ModbusGeneric<HashType, ASCII>;
 	};
 
-	class TimeoutCallback : public Timeout::Callback
+	class TimeoutCB : public Timeout::Callback
 	{
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
@@ -66,31 +68,31 @@ protected:
 		volatile unsigned char Notice;
 
 		/* Private constructor like with LL callback */
-		TimeoutCallback(ModbusGeneric &M);
+		TimeoutCB(ModbusGeneric &M);
 	public:
 		virtual void Run();
 
 		friend class ModbusGeneric<HashType, ASCII>;
 	};
 
-	/** Callback passed to Modbus from interface 
-	 * we will inform user about new messages 
+	/** Callback passed to Modbus from a higher layer.
+	 * We will inform user about new messages 
 	 * by calling it's methods.
 	 */
-	Protocol::Callback *C;
+	Protocol::Callback *HigherCB;
 
 	/** Function raising an error */
 	void RaiseError(int Errno, const char *Additional = NULL) const;
 
-	/** Lowlevel class created and configured in Interface
+	/** Lowlevel class created and configured in Interface.
 	 * We store it, and pass it our callback. */
-	Lowlevel &L;
+	Lowlevel &Lower;
 
 	/** Instance of callback which will be passed down */
-	LowlevelCallback LCB;
+	LowerCB LowerCB;
 
 	/** Instance of timeout callback */
-	TimeoutCallback TCB;
+	TimeoutCB TimeoutCB;
 
 	/** Timeout after which we will reset receiver */
 	int Timeout;
@@ -111,13 +113,13 @@ public:
 	 * In RTU max time between two incoming characters equals 1.5 * Timeout
 	 * whereas minimal time generated after sending a frame equals 3.5 * Timeout
 	 */
-	ModbusGeneric(Callback *CB, Lowlevel &LL, int Timeout = 1000);
+	ModbusGeneric(Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~ModbusGeneric();
 	
 	/** Register new callback to higher interface */
-	virtual void RegisterCallback(Callback *C);
+	virtual void RegisterCallback(Callback *HigherCB);
 
 	/** Invoked by interface; creates modbus frame and sends it */
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);

@@ -302,9 +302,9 @@ int main(int argc, char **argv)
 	Timeout::Init();
 
 	/* Test middle-level protocol */
-//	Testcase::Middle();
+	Testcase::Middle();
 
-	Testcase::Lowlevel();
+//	Testcase::Lowlevel();
 
 	/* Test timeout */
 //	Testcase::Timeout();
