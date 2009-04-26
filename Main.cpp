@@ -9,6 +9,10 @@
 
 
 namespace Testcase {
+	/** Excessive debug */
+	const bool ED = true;
+
+
 	/** Class simulating a working lowlevel implementation 
 	 * for testing middle and interface layers */
 	class SimuSerial : public Lowlevel {
@@ -38,9 +42,11 @@ namespace Testcase {
 		/** Shows what would be sent */
 		virtual void SendByte(char Byte)
 		{
-			std::cout << "Serial transmit ";
-			ShowByte(Byte);
-			std::cout << std::endl;
+			if (ED) {
+				std::cout << "Serial transmit ";
+				ShowByte(Byte);
+				std::cout << std::endl;
+			}
 
 			/* Loop output to input */
 			InterruptIncoming(Byte);
@@ -50,9 +56,11 @@ namespace Testcase {
 		virtual int GetByte()
 		{
 			int a = 'X';
-			std::cout << "Serial receive norm ";
-			ShowByte(a);
-			std::cout << std::endl;
+			if (ED) {
+				std::cout << "Serial receive norm ";
+				ShowByte(a);
+				std::cout << std::endl;
+			}
 			return a;
 		}
 
@@ -66,10 +74,12 @@ namespace Testcase {
 		/** Simulate incoming byte */
 		void InterruptIncoming(unsigned char Byte)
 		{
-			std::cout << "Serial receive inter ";
-			ShowByte(Byte);
-			std::cout << std::endl;
-
+			if (ED) {
+				std::cout << "Serial receive inter ";
+				ShowByte(Byte);
+				std::cout << std::endl;
+			}
+			
 			if (this->CB) {
 				CB->ByteReceived(Byte);
 			}
@@ -101,6 +111,7 @@ namespace Testcase {
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg)
 		{
 			std::cout << "Interface got correct frame from middle. Addr=" 
+				  << std::dec
 				  << Address
 				  << " Func="
 				  << Function
@@ -205,7 +216,7 @@ namespace Testcase {
 			<< "Sending with looped output" << std::endl;
 		ModbusRTU MR(&InterfaceCallback, LowlevelLayer, 200);
 
-		MR.SendMessage("HELLO", 0, 1);
+		MR.SendMessage("HELLO", 'A', 'F');
 
 		/* Wait for answer */
 		while (Timeout::Notice == 0);
@@ -263,21 +274,29 @@ namespace Testcase {
 
 		std::cout << "Creating middle and higher layer" << std::endl;
 		InterfaceCallback InterfaceCallback;
-		ModbusASCII M(&InterfaceCallback, LowlevelLayer);
+		if (0) { /* ASCII */
+			ModbusASCII M(&InterfaceCallback, LowlevelLayer);
+			
+			std::cout << "Waiting for ascii frames" << std::endl;
+			
+			for (;;) {
+				/* Here is some interface loop waiting for keypresses */
+			}
+		} else { /* RTU */
+			ModbusRTU M(&InterfaceCallback, LowlevelLayer, 200);
+			
+			std::cout << "Waiting for rtu frames" << std::endl;
+			for (;;) {
+				/* Here is some interface loop waiting for keypresses */
+			}
 
-		std::cout << "Waiting for frames" << std::endl;
-		
-		for (;;) {
-			/* Here is some interface loop */
 		}
-		
-
 #endif /* SYS_LINUX */
 	}
 };
 
 
-int main(void)
+int main(int argc, char **argv)
 {
 	/* Initialize timeout interrupt/signal */
 	Timeout::Init();

@@ -271,6 +271,8 @@ void ModbusGeneric<CRC16, false>::ByteReceived(char Byte)
 	 * we can either be Reset() if CRC is incorrect or we can mark
 	 * the correct frame */
 	Timeout::Register(&this->TCB, this->Timeout * 1.5);
+	std::cerr << "RTU GOT " << std::hex << (unsigned int) (unsigned char)Byte
+		  << std::dec << "("<<Byte<<")" << std::endl;
 
 	Received++;
 
