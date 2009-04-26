@@ -52,7 +52,7 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 		Hash.Update(*i);
 		Frame << std::setw(2) << (unsigned int)(unsigned char) *i;
 	}
-	Frame << (unsigned int)(unsigned char)Hash.Get();
+	Frame << std::setw(2) << (unsigned int)(unsigned char)Hash.Get();
 	Frame << "\r\n";
 
 	std::cerr << "DEBUG, SendMessage ASCII: "
@@ -185,6 +185,13 @@ void ModbusGeneric<LRC, true>::ReceivedByte(char Byte)
 		/* Real end of message - check Hash */
 		if (Hash.Get() != ReceivedLRC) {
 			Reset();
+			std::cerr << "LRC was supposed to equal "
+				  << std::hex
+				  << (unsigned int) (unsigned char) ReceivedLRC
+				  << "it equals "
+				  << (unsigned int) (unsigned char) Hash.Get()
+				  << std::dec
+				  << std::endl;
 			RaiseError(Error::HASH);
 			return;
 		}
@@ -334,6 +341,11 @@ ModbusGeneric<HashType, ASCII>::LowerCB::LowerCB(ModbusGeneric<HashType, ASCII> 
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::LowerCB::ReceivedByte(char Byte)
 {
+	/* Inform higher layer about this single byte */
+	if (M.HigherCB) {
+		M.HigherCB->ReceivedByte(Byte);
+	}
+
 	M.ReceivedByte(Byte);
 }
 

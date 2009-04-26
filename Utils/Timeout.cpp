@@ -93,7 +93,8 @@ namespace Timeout {
 	{
 		MiliCallback MCB;
 		Register(&MCB, MSec);
-		while (!MCB.Set);
+//		while (!MCB.Set);  /* If timeout gets changed we will hang; better check this:
+		while (CurrentCB == &MCB);
 	}
 #endif
 

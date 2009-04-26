@@ -12,7 +12,8 @@
  * implemented by higher layer and passed to the initializer of our class.
  *
  */
-class Lowlevel {
+class Lowlevel
+{
 public:
 
 	/** Callback interface declaration */

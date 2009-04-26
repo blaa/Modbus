@@ -3,9 +3,11 @@
 #include "Config.h"
 #include "Utils/Timeout.h"
 #include "Utils/Error.h"
+
 #include "Lowlevel/Lowlevel.h"
 #include "Lowlevel/Serial.h"
 #include "Lowlevel/Network.h"
+#include "Protocol/Protocol.h"
 #include "Protocol/Modbus.h"
 
 
@@ -100,13 +102,14 @@ namespace Testcase {
 	class InterfaceCallback : public Protocol::Callback
 	{
 	public:
+		volatile unsigned char Received;
 		volatile unsigned char Timeout;
 
 		virtual void ReceivedByte(char Byte)
 		{
-			std::cout << "Interface got byte from middle '"
-				  << std::hex << Byte << std::dec << "'"
-				  << std::endl;
+/*			std::cout << "Interface got byte from middle '"
+				  << std::hex << Byte << std::dec << "'" 
+				  << std::endl;*/
 		}
 
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg)
@@ -125,6 +128,7 @@ namespace Testcase {
 			}
 			std::cout << "== '" << Msg << "'" << std::endl;
 			std::cout << std::endl;
+			Received++;
 		}
 		
 		virtual void Error(int Errno)
@@ -267,6 +271,8 @@ namespace Testcase {
 	void Lowlevel()
 	{
 #if SYS_LINUX
+		const bool ASCII = true;
+
 		std::cout << "Initializing lowlevel" << std::endl;
 		Serial LowlevelLayer;
 		/* Check if we will get interrupts */
@@ -275,23 +281,20 @@ namespace Testcase {
 
 		std::cout << "Creating middle and higher layer" << std::endl;
 		InterfaceCallback InterfaceCallback;
-		if (0) { /* ASCII */
-			ModbusASCII M(&InterfaceCallback, LowlevelLayer);
-			
-			std::cout << "Waiting for ascii frames" << std::endl;
-			
-			for (;;) {
-				/* Here is some interface loop waiting for keypresses */
-			}
-		} else { /* RTU */
-			ModbusRTU M(&InterfaceCallback, LowlevelLayer, 200);
-			
-			std::cout << "Waiting for rtu frames" << std::endl;
-			for (;;) {
-				/* Here is some interface loop waiting for keypresses */
-			}
-
+		Protocol *P;
+		
+		if (ASCII) { /* ASCII */
+			P = new ModbusASCII(&InterfaceCallback, LowlevelLayer);
+		} else {
+			P = new ModbusRTU(&InterfaceCallback, LowlevelLayer, 200);
 		}
+			
+		std::cout << "Waiting for frames" << std::endl;
+		
+		for (;;) {
+			/* Here is some interface loop waiting for keypresses */
+		}
+
 #endif /* SYS_LINUX */
 	}
 
@@ -299,30 +302,51 @@ namespace Testcase {
 	void Network()
 	{
 #if NETWORK
-		std::cout << "Initializing NetworkServer lowlevel" << std::endl;
-		NetworkServer LowlevelLayer;
+		const bool Client = false ;
+		const bool ASCII = true;
 
-		std::cout << "Creating middle and higher layer" << std::endl;
-		InterfaceCallback InterfaceCallback;
-		if (1) { /* ASCII */
-			ModbusASCII M(&InterfaceCallback, LowlevelLayer);
-			
-			std::cout << "Waiting for ascii frames" << std::endl;
-			
-			for (;;) {
-				/* Here is some interface loop waiting for keypresses */
-				M.SendMessage("Hej", 'A', 'F');
+		InterfaceCallback InterfaceCB;
 
-			}
-		} else { /* RTU */
-			ModbusRTU M(&InterfaceCallback, LowlevelLayer, 200);
-			
-			std::cout << "Waiting for rtu frames" << std::endl;
-			for (;;) {
-				/* Here is some interface loop waiting for keypresses */
-			}
+		::Lowlevel *L = NULL;
+		Protocol *P = NULL;
 
+		std::cout << "Initializing Network lowlevel" << std::endl;
+		if (Client) {
+			L = new NetworkClient;
+		} else {
+			L = new NetworkServer;
 		}
+
+		std::cout << "Initializing modbus middlelevel" << std::endl;
+		if (ASCII) {
+			P = new ModbusASCII(&InterfaceCB, *L);
+		} else {
+			P = new ModbusRTU(&InterfaceCB, *L, 200);
+		}
+
+
+		if (Client) {
+			for (;;) {
+
+//				P->SendMessage(s, 'A', 'B');
+//				Timeout::Sleep(1000);
+				if (InterfaceCB.Received > 0) {
+					P->SendMessage("Client", 'B', 'X');
+					InterfaceCB.Received = 0;
+				}
+			}
+		} else {
+			for (;;) {
+/*				std::string s;
+				std::cin >> s;
+
+				P->SendMessage(s, 'A', 'F'); */
+				P->SendMessage("SERVER", 'A', 'F');
+
+				Timeout::Sleep(1000); /* Receiver will bug this */
+			}
+		}
+		
 #endif /* NETWORK */
 	}
 
