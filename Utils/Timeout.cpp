@@ -55,11 +55,15 @@ namespace Timeout {
 	void Register(Callback *CB, long MSec)
 	{
 		struct itimerval itv;
+		CurrentCB = CB;
 		Notice = 0;
+
+		if (MSec == 0)
+			return;
+
 		memset(&itv, 0, sizeof(itv));
 		itv.it_value.tv_sec = MSec / 1000;
 		itv.it_value.tv_usec = (MSec % 1000) * 1000;
-		CurrentCB = CB;
 		if (setitimer(ITIMER_REAL, &itv, NULL) != 0) {
 			perror("setitimer");
 			exit(-1);

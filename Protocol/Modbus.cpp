@@ -108,6 +108,7 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::Reset()
 {
+	Timeout::Register(NULL, 0); /* Disable our previous timeout */
 	HalfByte = 0;
 	Received = 0;
 	Buffer.clear();
@@ -182,9 +183,6 @@ void ModbusGeneric<LRC, true>::ByteReceived(char Byte)
 
 		/* Real end of message - check Hash */
 		if (Hash.Get() != ReceivedLRC) {
-			std::cerr << "Final Hash = " 
-				  << std::hex << (unsigned int)Hash.State
-				  << std::dec << std::endl;
 			Reset();
 			RaiseError(Error::HASH);
 			return;

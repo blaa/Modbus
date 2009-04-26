@@ -256,10 +256,21 @@ namespace Testcase {
 	{
 #if SYS_LINUX
 		std::cout << "Initializing lowlevel" << std::endl;
-		Serial Lowlevel;
+		Serial LowlevelLayer;
 		/* Check if we will get interrupts */
-		std::cout << "Waiting for interrupts" << std::endl;
-		for (;;) {}
+/*		std::cout << "Waiting for interrupts" << std::endl;
+		for (;;) {} */
+
+		std::cout << "Creating middle and higher layer" << std::endl;
+		InterfaceCallback InterfaceCallback;
+		ModbusASCII M(&InterfaceCallback, LowlevelLayer);
+
+		std::cout << "Waiting for frames" << std::endl;
+		
+		for (;;) {
+			/* Here is some interface loop */
+		}
+		
 
 #endif /* SYS_LINUX */
 	}
@@ -272,9 +283,9 @@ int main(void)
 	Timeout::Init();
 
 	/* Test middle-level protocol */
-	Testcase::Middle();
+//	Testcase::Middle();
 
-//	Testcase::Lowlevel();
+	Testcase::Lowlevel();
 
 	/* Test timeout */
 //	Testcase::Timeout();

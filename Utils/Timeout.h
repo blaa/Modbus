@@ -16,7 +16,8 @@ namespace Timeout {
 	/** Set to 1 on each timeout, and cleared with Register() */
 	extern volatile unsigned char Notice;
 
-	/** Make the system call CB->Callback after MSec miliseconds */
+	/** Make the system call CB->Callback after MSec miliseconds.
+	 * MSec = 0 disables previous timeout */
 	void Register(Callback *CB, long MSec);
 	
 	/** Locked wait of certain time 

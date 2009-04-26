@@ -26,15 +26,11 @@ namespace {
 	void SerialLinuxReceive(int a)
 	{
 		char Ch;
-		int Cnt = read(fd, &Ch, 1);
-		/* Debug */
-		std::cerr << "Serial irq. Cnt=" << Cnt
-			  << " Ch=" << Ch 
-			  << std::endl;
 
-		/* Real work */
-		if (CurrentCB && Cnt == 1) {
-			CurrentCB->ByteReceived(Ch);
+		while (1 == read(fd, &Ch, 1)) {
+			if (CurrentCB) {
+				CurrentCB->ByteReceived(Ch);
+			}
 		}
 	}
 }
