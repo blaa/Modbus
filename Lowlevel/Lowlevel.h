@@ -20,7 +20,7 @@ public:
 	{
 	public:
 		/** Called when we receive a single byte. */
-		virtual void ByteReceived(char Byte) = 0;
+		virtual void ReceivedByte(char Byte) = 0;
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno) = 0;
 	};

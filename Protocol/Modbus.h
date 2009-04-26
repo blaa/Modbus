@@ -52,7 +52,7 @@ protected:
 	public:
 
 		/** Called when we receive a single byte. */
-		virtual void ByteReceived(char Byte);
+		virtual void ReceivedByte(char Byte);
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno);
 
@@ -98,7 +98,7 @@ protected:
 	int Timeout;
 
 	/** This collects bytes into frames; called by callback */
-	void ByteReceived(char Byte);
+	void ReceivedByte(char Byte);
 
 	/** Helper for converting ASCII hex into byte */
 	static unsigned char HexConvert(unsigned char A, unsigned  char B);

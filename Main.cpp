@@ -81,7 +81,7 @@ namespace Testcase {
 			}
 			
 			if (this->CB) {
-				CB->ByteReceived(Byte);
+				CB->ReceivedByte(Byte);
 			}
 		}
 

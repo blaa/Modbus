@@ -140,7 +140,7 @@ unsigned char ModbusGeneric<HashType, ASCII>::HexConvert(unsigned char A, unsign
 
 /** Modbus ASCII frame grabber */
 template<>
-void ModbusGeneric<LRC, true>::ByteReceived(char Byte)
+void ModbusGeneric<LRC, true>::ReceivedByte(char Byte)
 {
 	/* Modbus ASCII Frame:
 	 * :<ADDRESS><FUNCTION><DATA><LRC><CR><LF>
@@ -260,7 +260,7 @@ void ModbusGeneric<LRC, true>::ByteReceived(char Byte)
 
 /** Modbus RTU frame grabber */
 template<>
-void ModbusGeneric<CRC16, false>::ByteReceived(char Byte)
+void ModbusGeneric<CRC16, false>::ReceivedByte(char Byte)
 {
 	/* Modbus ASCII Frame:
 	 * :<ADDRESS><FUNCTION><DATA><LRC><CR><LF>
@@ -332,9 +332,9 @@ ModbusGeneric<HashType, ASCII>::LowerCB::LowerCB(ModbusGeneric<HashType, ASCII> 
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::LowerCB::ByteReceived(char Byte)
+void ModbusGeneric<HashType, ASCII>::LowerCB::ReceivedByte(char Byte)
 {
-	M.ByteReceived(Byte);
+	M.ReceivedByte(Byte);
 }
 
 template<typename HashType, bool ASCII>
