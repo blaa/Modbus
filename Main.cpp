@@ -336,7 +336,6 @@ namespace Testcase {
 			}
 		} else {
 			for (;;) {
-				P->SendMessage(s, 'A', 'F');
 				P->SendMessage("SERVER", 'A', 'F');
 
 				Timeout::Sleep(1000); /* Receiver will bug this */
