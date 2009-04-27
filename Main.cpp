@@ -302,7 +302,7 @@ namespace Testcase {
 	void Network()
 	{
 #if NETWORK
-		const bool Client = false ;
+		const bool Client = true ;
 		const bool ASCII = true;
 
 		InterfaceCallback InterfaceCB;
@@ -327,19 +327,15 @@ namespace Testcase {
 
 		if (Client) {
 			for (;;) {
-
 //				P->SendMessage(s, 'A', 'B');
 //				Timeout::Sleep(1000);
-				if (InterfaceCB.Received > 0) {
+				if (InterfaceCB.Received > 10) {
 					P->SendMessage("Client", 'B', 'X');
 					InterfaceCB.Received = 0;
 				}
 			}
 		} else {
 			for (;;) {
-/*				std::string s;
-				std::cin >> s;
-
 				P->SendMessage(s, 'A', 'F'); */
 				P->SendMessage("SERVER", 'A', 'F');
 
