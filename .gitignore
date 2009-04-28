@@ -8,3 +8,4 @@ Comm
 tags
 TAGS
 .*
+moc_*.cpp

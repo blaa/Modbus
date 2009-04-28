@@ -15,7 +15,7 @@ struct Config
 	/** Possible baudrates */
 	enum BaudRate
 	{
-		BR150,		BR200,
+		BR150=0,	BR200,
 		BR300,		BR600,
 		BR1200,		BR1800,
 		BR2400,		BR4800,

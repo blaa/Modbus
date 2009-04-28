@@ -216,6 +216,7 @@ NetworkClient::NetworkClient(const char *Host, int Port)
 		if (!HostData) {
 			std::cerr << "NetworkClient, gethostbyname: " << strerror(errno)
 				  << std::endl;
+			std::cerr << "While resolving " << Host << std::endl;
 			throw -1;
 		}
 

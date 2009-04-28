@@ -16,7 +16,7 @@ namespace Testcase {
 	const bool ED = true;
 
 
-	/** Class simulating a working lowlevel implementation 
+	/** Class simulating a working lowlevel implementation
 	 * for testing middle and interface layers */
 	class SimuSerial : public Lowlevel {
 	protected:
@@ -41,7 +41,7 @@ namespace Testcase {
 					std::cout << "'\\r'";
 			}
 		}
-		
+
 		/** Shows what would be sent */
 		virtual void SendByte(char Byte)
 		{
@@ -54,7 +54,7 @@ namespace Testcase {
 			/* Loop output to input */
 			InterruptIncoming(Byte);
 		}
-	       
+
 		/** Simulate retrieval of single byte; returns always 'X' */
 		virtual int GetByte()
 		{
@@ -68,7 +68,7 @@ namespace Testcase {
 		}
 
 		/** Register new middle-layer callback */
-		virtual void RegisterCallback(Callback *CB) 
+		virtual void RegisterCallback(Callback *CB)
 		{
 			this->CB = CB;
 		}
@@ -82,7 +82,7 @@ namespace Testcase {
 				ShowByte(Byte);
 				std::cout << std::endl;
 			}
-			
+
 			if (this->CB) {
 				CB->ReceivedByte(Byte);
 			}
@@ -108,13 +108,13 @@ namespace Testcase {
 		virtual void ReceivedByte(char Byte)
 		{
 /*			std::cout << "Interface got byte from middle '"
-				  << std::hex << Byte << std::dec << "'" 
+				  << std::hex << Byte << std::dec << "'"
 				  << std::endl;*/
 		}
 
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg)
 		{
-			std::cout << "Interface got correct frame from middle. Addr=" 
+			std::cout << "Interface got correct frame from middle. Addr="
 				  << std::dec
 				  << Address
 				  << " Func="
@@ -130,10 +130,10 @@ namespace Testcase {
 			std::cout << std::endl;
 			Received++;
 		}
-		
+
 		virtual void Error(int Errno)
 		{
-			std::cout << "Interface received error no " 
+			std::cout << "Interface received error no "
 				  << Errno
 				  << " =>'" << Error::StrError(Errno) << "'"
 				  << std::endl;
@@ -150,7 +150,7 @@ namespace Testcase {
 		InterfaceCallback InterfaceCallback;
 		SimuSerial LowlevelLayer;
 		ModbusASCII M(&InterfaceCallback, LowlevelLayer);
-		
+
 		const char *CorrectFrames[] = {
 			":000148454C4C4F8B\r\n",
 			NULL
@@ -175,11 +175,11 @@ namespace Testcase {
 				LowlevelLayer.InterruptIncoming(Frame[i]);
 			}
 		}
-		
+
 		/* Simulate incoming incorrect frames */
 		for (unsigned int y=0; IncorrectFrames[y] != NULL; y++) {
 			const char *Frame = IncorrectFrames[y];
-			std::cout 
+			std::cout
 				<< std::endl << std::endl
 				<< "Simulating incorrect frame " << y << std::endl;
 			M.Reset();
@@ -188,14 +188,14 @@ namespace Testcase {
 			}
 		}
 
-		/* Will cause hang without working TIMEOUT 
+		/* Will cause hang without working TIMEOUT
 		 * Enable for DOS only when writting dos timeout */
 		if (SYS_LINUX) {
-			std::cout 
+			std::cout
 				<< std::endl << std::endl
 				<< "Simulating timeout problem" << std::endl;
-			
-			/* Simulate timeout problem */ 
+
+			/* Simulate timeout problem */
 			const char *Frame = CorrectFrames[0];
 			for (unsigned int i=0; i<strlen(Frame)/2; i++) {
 				LowlevelLayer.InterruptIncoming(Frame[i]);
@@ -205,10 +205,10 @@ namespace Testcase {
 		}
 
 		M.Reset();
-		std::cout 
+		std::cout
 			<< std::endl << std::endl
 			<< "Simulating a message sending with output looped back to"
-			<< " middle layer input (adr=0, fun=1, 'HELLO')" 
+			<< " middle layer input (adr=0, fun=1, 'HELLO')"
 			<< std::endl;
 		M.SendMessage("HELLO", 0, 1);
 
@@ -247,7 +247,7 @@ namespace Testcase {
 			TimeoutDone = 0;
 		}
 
-		void Run() 
+		void Run()
 		{
 			std::cerr << "Running!\n" << std::endl;
 			TimeoutDone = 1;
@@ -282,15 +282,15 @@ namespace Testcase {
 		std::cout << "Creating middle and higher layer" << std::endl;
 		InterfaceCallback InterfaceCallback;
 		Protocol *P;
-		
+
 		if (ASCII) { /* ASCII */
 			P = new ModbusASCII(&InterfaceCallback, LowlevelLayer);
 		} else {
 			P = new ModbusRTU(&InterfaceCallback, LowlevelLayer, 200);
 		}
-			
+
 		std::cout << "Waiting for frames" << std::endl;
-		
+
 		for (;;) {
 			/* Here is some interface loop waiting for keypresses */
 		}
@@ -341,12 +341,29 @@ namespace Testcase {
 				Timeout::Sleep(1000); /* Receiver will bug this */
 			}
 		}
-		
+
 #endif /* NETWORK */
 	}
 
 };
 
+
+#ifdef QT_INTERFACE
+#include <QtGui/QApplication>
+#include "Interface/QT/ModbusFrame.h"
+
+void QTInterface(int argc, char **argv)
+{
+	using namespace Qt;
+
+	QApplication app(argc, argv);
+	ModbusFrame *dialog = new ModbusFrame;
+
+	dialog->show();
+	app.exec();
+}
+
+#endif
 
 int main(int argc, char **argv)
 {
@@ -354,12 +371,17 @@ int main(int argc, char **argv)
 	Timeout::Init();
 
 	/* Test middle-level protocol */
-	Testcase::Middle();
+//	Testcase::Middle();
 
 //	Testcase::Lowlevel();
 //	Testcase::Network();
 
 	/* Test timeout */
 //	Testcase::Timeout();
+
+#ifdef QT_INTERFACE
+	QTInterface(argc, argv);
+#endif
+
 	return 0;
 }
