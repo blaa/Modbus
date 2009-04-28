@@ -28,11 +28,17 @@ protected:
 		/** For single bytes; for showing all transmitted data */
 		virtual void ReceivedByte(char Byte);
 
+		/** For single bytes; for showing all transmitted data */
+		virtual void SentByte(char Byte);
+
 		/** Informs about new arrived message */
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg);
 
+		/** Informs about new sent message */
+		virtual void SentMessage(int Address, int Function, const std::string &Msg);
+
 		/** Error which happened lower */
-		virtual void Error(int Errno);
+		virtual void Error(int Errno, const char *Description);
 
 		friend class MasterSlave<Master>;
 	};

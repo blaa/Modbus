@@ -63,7 +63,7 @@ void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
 	}
 
 	if (HigherCB) {
-		HigherCB->Error(Errno);
+		HigherCB->Error(Errno, Additional);
 		return;
 	}
 }
@@ -95,21 +95,39 @@ void MasterSlave<Master>::LowerCB::ReceivedByte(char Byte)
 }
 
 template<bool Master>
-void MasterSlave<Master>::LowerCB::ReceivedMessage(int Address, int Function, const std::string &Msg)
+void MasterSlave<Master>::LowerCB::SentByte(char Byte)
 {
-	std::cerr << "Not implemented" << std::endl;
+	if (M.HigherCB)
+		M.HigherCB->SentByte(Byte);
 }
 
 
 template<bool Master>
-void MasterSlave<Master>::LowerCB::Error(int Errno)
+void MasterSlave<Master>::LowerCB::SentMessage(int Address, int Function, const std::string &Msg)
+{
+	std::cerr << "Not implemented" << std::endl;
+	if (M.HigherCB)
+		M.HigherCB->SentMessage(Address, Function, Msg);
+}
+
+template<bool Master>
+void MasterSlave<Master>::LowerCB::ReceivedMessage(int Address, int Function, const std::string &Msg)
+{
+	std::cerr << "Not implemented" << std::endl;
+	if (M.HigherCB)
+		M.HigherCB->ReceivedMessage(Address, Function, Msg);
+}
+
+
+template<bool Master>
+void MasterSlave<Master>::LowerCB::Error(int Errno, const char *Description)
 {
 	std::cerr << "Got error from lower layer: "
 		  << Errno 
 		  << std::endl;
 	if (M.HigherCB) {
 		/* Pass this error to interface with callback */
-		M.HigherCB->Error(Errno);
+		M.HigherCB->Error(Errno, Description);
 	}
 }
 
