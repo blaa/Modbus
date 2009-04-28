@@ -1,3 +1,14 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
 #ifndef _MODBUS_FRAME_H_
 #define _MODBUS_FRAME_H_
 
@@ -53,7 +64,8 @@ private slots:
 	void LowSend();
 	/** Send a ping using modbus (predefined function) */
 	void MiddlePing();
-
+	/** Cleanup and close the window */
+	void Finish();
 private:
 	Ui::ModbusFrame ui;
 };

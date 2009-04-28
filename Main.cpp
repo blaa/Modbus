@@ -1,3 +1,14 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
 #include <iostream>
 #include <cstring>
 #include "Config.h"
@@ -367,7 +378,7 @@ namespace Testcase {
 	void NetworkUDP()
 	{
 #if NETWORK
-		const bool Client = false;
+		const bool Client = true;
 		const bool ASCII = true;
 
 		InterfaceCallback InterfaceCB;
@@ -392,10 +403,11 @@ namespace Testcase {
 
 		if (Client) {
 			for (;;) {
-				if (InterfaceCB.Received > 10) {
+				//		if (InterfaceCB.Received > 10) {
 					P->SendMessage("Client", 'B', 'X');
 					InterfaceCB.Received = 0;
-				}
+					//		}
+					Timeout::Sleep(500);
 			}
 		} else {
 			for (;;) {
@@ -442,10 +454,10 @@ int main(int argc, char **argv)
 	/* Test timeout */
 //	Testcase::Timeout();
 
-	Testcase::NetworkUDP();
+//	Testcase::NetworkUDP();
 
 #ifdef QT_INTERFACE
-//	QTInterface(argc, argv);
+	QTInterface(argc, argv);
 #endif
 
 	return 0;

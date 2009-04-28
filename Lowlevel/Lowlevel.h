@@ -1,3 +1,14 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
 #ifndef _LOWLEVEL_H_
 #define _LOWLEVEL_H_
 
@@ -29,6 +40,9 @@ public:
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno) = 0;
 	};
+
+	/* Must be virtual */
+	virtual ~Lowlevel();
 	
 	/** Registers higher-level (usually middle) callback */
 	virtual void RegisterCallback(Callback *HigherCB) = 0;

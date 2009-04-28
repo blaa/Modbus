@@ -57,6 +57,9 @@
              <property name="text">
               <string>Serial port</string>
              </property>
+             <property name="shortcut">
+              <string>Ctrl+S</string>
+             </property>
              <property name="checked">
               <bool>true</bool>
              </property>
@@ -223,9 +226,22 @@
             </layout>
            </item>
            <item>
-            <widget class="QRadioButton" name="NetworkSelected">
+            <widget class="QRadioButton" name="TCPSelected">
              <property name="text">
               <string>TCP/IP networking</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+T</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="UDPSelected">
+             <property name="text">
+              <string>UDP/IP networking</string>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+U</string>
              </property>
             </widget>
            </item>
@@ -452,6 +468,9 @@
             <property name="text">
              <string>Start</string>
             </property>
+            <property name="shortcut">
+             <string>Return</string>
+            </property>
            </widget>
           </item>
           <item>
@@ -474,6 +493,9 @@
            <widget class="QPushButton" name="pushButton">
             <property name="text">
              <string>Quit</string>
+            </property>
+            <property name="shortcut">
+             <string>Esc</string>
             </property>
            </widget>
           </item>
@@ -700,6 +722,13 @@
       </widget>
      </widget>
     </item>
+    <item>
+     <widget class="QLabel" name="Status">
+      <property name="text">
+       <string>Status line</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -720,7 +749,7 @@
   <tabstop>SerialSpeed</tabstop>
   <tabstop>SerialParity</tabstop>
   <tabstop>SerialStopbits</tabstop>
-  <tabstop>NetworkSelected</tabstop>
+  <tabstop>TCPSelected</tabstop>
   <tabstop>NetworkMode</tabstop>
   <tabstop>NetworkHost</tabstop>
   <tabstop>NetworkPort</tabstop>
@@ -743,9 +772,7 @@
   <tabstop>tabWidget</tabstop>
   <tabstop>ErrorLog</tabstop>
  </tabstops>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>LowSendData</sender>
@@ -754,12 +781,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>275</x>
-     <y>523</y>
+     <x>120</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>488</x>
-     <y>525</y>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -770,12 +797,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>523</y>
+     <x>312</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>488</x>
-     <y>525</y>
+     <y>519</y>
     </hint>
    </hints>
   </connection>
@@ -787,27 +814,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>558</y>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>378</x>
-     <y>416</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ModbusFrame</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>488</x>
-     <y>558</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>314</x>
-     <y>517</y>
+     <x>389</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>
@@ -818,8 +829,8 @@
    <slot>Start()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>558</y>
+     <x>143</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -835,7 +846,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>525</y>
+     <y>519</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
@@ -851,7 +862,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>525</y>
+     <y>519</y>
     </hint>
     <hint type="destinationlabel">
      <x>329</x>
@@ -902,8 +913,8 @@
      <y>98</y>
     </hint>
     <hint type="destinationlabel">
-     <x>355</x>
-     <y>122</y>
+     <x>371</x>
+     <y>148</y>
     </hint>
    </hints>
   </connection>
@@ -918,56 +929,56 @@
      <y>98</y>
     </hint>
     <hint type="destinationlabel">
-     <x>450</x>
-     <y>121</y>
+     <x>477</x>
+     <y>148</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>NetworkSelected</sender>
+   <sender>TCPSelected</sender>
    <signal>toggled(bool)</signal>
    <receiver>NetworkMode</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>155</y>
+     <x>103</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>83</x>
-     <y>177</y>
+     <x>151</x>
+     <y>238</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>NetworkSelected</sender>
+   <sender>TCPSelected</sender>
    <signal>toggled(bool)</signal>
    <receiver>NetworkHost</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>154</y>
+     <x>232</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>207</x>
-     <y>183</y>
+     <x>369</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>NetworkSelected</sender>
+   <sender>TCPSelected</sender>
    <signal>toggled(bool)</signal>
    <receiver>NetworkPort</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>442</x>
-     <y>151</y>
+     <x>464</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>430</x>
-     <y>178</y>
+     <x>477</x>
+     <y>239</y>
     </hint>
    </hints>
   </connection>
@@ -978,8 +989,8 @@
    <slot>MiddlePing()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>558</y>
+     <x>71</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
      <x>132</x>
@@ -994,12 +1005,12 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>455</x>
-     <y>546</y>
+     <x>488</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>290</x>
-     <y>440</y>
+     <x>301</x>
+     <y>350</y>
     </hint>
    </hints>
   </connection>
@@ -1010,12 +1021,12 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>546</y>
+     <x>488</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>244</x>
-     <y>233</y>
+     <x>255</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -1026,12 +1037,12 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>447</x>
-     <y>549</y>
+     <x>488</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>204</y>
+     <x>78</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -1042,12 +1053,92 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>478</x>
-     <y>542</y>
+     <x>488</x>
+     <y>555</y>
     </hint>
     <hint type="destinationlabel">
-     <x>158</x>
-     <y>341</y>
+     <x>169</x>
+     <y>350</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>TCPSelected</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>NetworkMode</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>127</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>132</x>
+     <y>228</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>UDPSelected</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>NetworkHost</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>304</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>303</x>
+     <y>225</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>UDPSelected</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>NetworkPort</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>436</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>438</x>
+     <y>231</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>UDPSelected</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>NetworkMode</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>91</x>
+     <y>229</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ModbusFrame</receiver>
+   <slot>Finish()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>352</x>
+     <y>533</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>569</y>
     </hint>
    </hints>
   </connection>
@@ -1057,5 +1148,6 @@
   <slot>MiddleSend()</slot>
   <slot>LowSend()</slot>
   <slot>MiddlePing()</slot>
+  <slot>Finish()</slot>
  </slots>
 </ui>

@@ -1,3 +1,15 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
+
 #include "Config.h"
 
 #if NETWORK
@@ -24,13 +36,8 @@ void NetworkUDPServer::SignalHandler(int Sock)
 	struct sockaddr_in sa;
 	socklen_t Length = sizeof(sa);
 	/* FIXME: Rewrite to use bigger buffer */
-	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, (struct sockaddr*)&sa, &Length)) > 0) {
-		if (HigherCB) {
-			for (int i=0; i<Cnt; i++)
-				HigherCB->ReceivedByte(Buff[i]);
-		}
-		Error = false;
-
+	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, 
+			       (struct sockaddr*)&sa, &Length)) > 0) {
 		/* Check if we remember this guy - if not store him */
 		bool Found = false;
 		for (std::vector<struct sockaddr_in>::iterator i = Clients.begin();
@@ -40,6 +47,7 @@ void NetworkUDPServer::SignalHandler(int Sock)
 				Found = true;
 				continue;
 			}
+
 			/* It's not him - echo current character there! */
 			struct sockaddr *send_sa = (struct sockaddr*) &(*i);
 			if (sendto(Socket, Buff, Cnt, 0, send_sa, sizeof(sa)) != 1) {
@@ -48,12 +56,24 @@ void NetworkUDPServer::SignalHandler(int Sock)
 					  << std::endl;
 			}
 		}
+
+		int i = 0;
 		if (!Found) {
 			Clients.push_back(sa);
+
+			/* Omit first byte sent by a new client if it's equal 0x00 */
+			if (Buff[0] == 0x00)
+				i++;
 		}
+
+		if (HigherCB) {
+			for (; i<Cnt; i++)
+				HigherCB->ReceivedByte(Buff[i]);
+		}
+		Error = false;
 	}
 	if (Error) {
-		std::cerr << "Got error " << strerror(errno) << std::endl;
+		std::cerr << "NetworkUDPServer, recvfrom: " << strerror(errno) << std::endl;
 	}
 }
 
@@ -88,6 +108,7 @@ NetworkUDPServer::NetworkUDPServer(int Port)
 
 NetworkUDPServer::~NetworkUDPServer()
 {
+	std::cout << "Closing port" << std::endl;
 	close(Socket);
 }
 
@@ -95,7 +116,6 @@ void NetworkUDPServer::SendByte(char Byte)
 {
 	for (std::vector<struct sockaddr_in>::iterator i = Clients.begin();
 	     i != Clients.end(); i++) {
-		int result;
 		const struct sockaddr *sa = (const sockaddr *) &(*i);
 		if (sendto(Socket, &Byte, 1, 0, sa, sizeof(struct sockaddr_in)) != 1) {
 			std::cerr << "NetworkUDPServer, sendto: "
@@ -106,6 +126,10 @@ void NetworkUDPServer::SendByte(char Byte)
 
 	if (HigherCB) {
 		HigherCB->SentByte(Byte);
+	} else {
+		std::cerr << "NetworkUDPClient, SendByte: No Higher callback installed."
+			  << strerror(errno)
+			  << std::endl;
 	}
 }
 
@@ -127,42 +151,37 @@ void NetworkUDPClient::SignalHandler(int Sock)
 
 	struct sockaddr_in sa;
 	socklen_t Length = sizeof(sa);
+	std::cerr << "GOT SIGNAL" << std::endl;
+
 	/* FIXME: Rewrite to use bigger buffer */
-	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, (struct sockaddr*)&sa, &Length)) > 0) {
+	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, 
+			       (struct sockaddr*)&sa, &Length)) > 0) {
 		/* Check if received from MASTER! */
-		if (Server.sin_addr.s_addr == sa.sin_addr.s_addr
-		    && Server.sin_port == sa.sin_port) {
-			std::cerr << "NetworkUDPClient, Got some data on socket not from master"
+		if (Server.sin_addr.s_addr != sa.sin_addr.s_addr
+		    || Server.sin_port != sa.sin_port) {
+			std::cerr << "NetworkUDPClient, Got some data on"
+				  << " socket not from master"
 				  << std::endl;
 			return;
-		}
+  		}
 		
 		if (HigherCB) {
-			for (int i=0; i<Cnt; i++)
+			for (int i=0; i<Cnt; i++) {
+				std::cerr << "GOT=" << Buff[i] << std::endl;
 				HigherCB->ReceivedByte(Buff[i]);
+			}
+		} else {
+			std::cerr << "NetworkUDPClient, Signal -"
+				  <<" but no higher callback - ignoring" << std::endl;
+		
 		}
 		Error = false;
+	}
 
-		/* Check if we remember this guy - if not store him */
-		bool Found = false;
-		for (std::vector<struct sockaddr_in>::iterator i = Clients.begin();
-		     i != Clients.end(); i++) {
-			/* It's not him - echo current character there! */
-			struct sockaddr *send_sa = (struct sockaddr*) &(*i);
-			if (sendto(Socket, Buff, Cnt, 0, send_sa, sizeof(sa)) != 1) {
-				std::cerr << "NetworkUDPServer, sendto, signalhandler: "
-					  << strerror(errno)
-					  << std::endl;
-			}
-		}
-		if (!Found) {
-			Clients.push_back(sa);
-		}
-	}
 	if (Error) {
-		std::cerr << "Got error " << strerror(errno) << std::endl;
+		/* This is rather ok */
+		std::cerr << "NetworkUDPClient, recvfrom: " << strerror(errno) << std::endl;
 	}
-}
 }
 
 NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
@@ -175,7 +194,6 @@ NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
 	}
 
 	{
-		struct sockaddr_in sa;
 		struct hostent *HostData;
 		HostData = gethostbyname(Host);
 		if (!HostData) {
@@ -185,24 +203,19 @@ NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
 			throw -1;
 		}
 
-		memset(&sa, 0, sizeof(sa));
-		sa.sin_family = AF_INET;
-		sa.sin_addr.s_addr = *(unsigned long *)HostData->h_addr_list[0];
-		sa.sin_port = htons(Port);
-		
-		if (connect(Socket, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
-			std::cerr << "NetworkUDPClient, connect: " << strerror(errno)
-				  << std::endl;
-			throw -1;		
-		}
+		memset(&Server, 0, sizeof(Server));
+		Server.sin_family = AF_INET;
+		Server.sin_addr.s_addr = *(unsigned long *)HostData->h_addr_list[0];
+		Server.sin_port = htons(Port);
 	}
 
 	/* Change to asynchronous */
 	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
 	fcntl(Socket, F_SETOWN, getpid());
 	fcntl(Socket, F_SETSIG, SIGRTMIN); /* Dont't send SIGIO, but SIGRTMIN */
-
-	Connected = true;
+	
+	/* This tells master that we are listening */
+	SendByte(0x00);
 }
 
 NetworkUDPClient::~NetworkUDPClient()
@@ -212,23 +225,21 @@ NetworkUDPClient::~NetworkUDPClient()
 
 void NetworkUDPClient::SendByte(char Byte)
 {
-	int result;
-	if (!Connected) 
-		return;
-	do {
-		result = write(Socket, &Byte, 1);
-		fsync(Socket);
-	} while (result != 1 && (errno == EAGAIN || errno == EWOULDBLOCK));
-	
-	if (result != 1) {
-		/* Error happened - disconnect us! */
-		close(Socket);
-		Connected = false;
-		throw -1;
+	struct sockaddr *send_sa = (struct sockaddr*) &Server;
+	if (sendto(Socket, &Byte, 1, 0, send_sa, sizeof(Server)) != 1) {
+		std::cerr << "NetworkUDPClient, sendto, signalhandler: "
+			  << strerror(errno)
+			  << std::endl;
 	}
+
+	fsync(Socket);
 
 	if (HigherCB) {
 		HigherCB->SentByte(Byte);
+	} else {
+		std::cerr << "NetworkUDPClient, SendByte: No Higher callback installed."
+			  << strerror(errno)
+			  << std::endl;
 	}
 }
 

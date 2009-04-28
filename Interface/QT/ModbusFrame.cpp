@@ -1,3 +1,15 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -30,6 +42,12 @@ void ModbusFrame::Stop()
 		delete CurrentLowlevel, CurrentLowlevel = NULL;
 }
 
+void ModbusFrame::Finish()
+{
+	this->Stop();
+	this->close();
+}
+
 void ModbusFrame::Start()
 {
 	std::cerr << "Start pressed" << std::endl;
@@ -38,27 +56,7 @@ void ModbusFrame::Start()
 	/* Gather configuration variables and create comm system */
 
 	/* TODO: How will it work with retranslate? */
-
-	if (ui.NetworkSelected->isEnabled()) {
-		/* Network */
-		const std::string Host = ui.NetworkHost->text().toStdString();
-		const int Port = ui.NetworkPort->value();
-
-		try {
-			if (this->ui.NetworkMode->currentText() == "Server") {
-				/* Server mode */
-				CurrentLowlevel = new NetworkTCPServer(Port);
-			} else {
-				/* Client mode */
-				CurrentLowlevel = new NetworkTCPClient(Host.c_str(), Port);
-			}
-		} catch (...) {
-			std::cerr << "Network connect failed!\n" << std::endl;
-			QMessageBox::information(this, "Error", "Unable to open network connection");
-			return;
-		}
-
-	} else {
+	if (ui.SerialSelected->isChecked()) {
 		/* Serial */
 		const char *Device = ui.SerialDevice->text().toStdString().c_str();
 		/* Ugly! */
@@ -83,16 +81,47 @@ void ModbusFrame::Start()
 		CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
 					     Config::CharSize8, Device);
 
+	} else {
+		
+		/* Network */
+		const std::string Host = ui.NetworkHost->text().toStdString();
+		const int Port = ui.NetworkPort->value();
+
+		try {
+			if (ui.TCPSelected->isChecked()) {
+				if (this->ui.NetworkMode->currentText() == "Server") {
+					/* Server mode */
+					CurrentLowlevel = new NetworkTCPServer(Port);
+				} else {
+					/* Client mode */
+					CurrentLowlevel = new NetworkTCPClient(Host.c_str(), Port);
+				}
+			} else {
+				/* UDP */
+				if (this->ui.NetworkMode->currentText() == "Server") {
+					/* Server mode */
+					CurrentLowlevel = new NetworkUDPServer(Port);
+				} else {
+					/* Client mode */
+					CurrentLowlevel = new NetworkUDPClient(Host.c_str(), Port);
+				}
+			}
+		} catch (...) {
+			std::cerr << "Network connect failed!\n" << std::endl;
+			QMessageBox::information(this, "Error", "Unable to open network connection");
+			return;
+		}
 	}
 
 	const int Timeout = ui.MiddleTimeout->value();
 	const int Address = ui.MiddleAddress->value();
 
-
 	if (ui.MiddleProtocol->currentText() == "Modbus ASCII") {
 		CurrentProtocol = new ModbusASCII(&LowerCB, *CurrentLowlevel, Timeout);
+		MF.ui.Status->setText("Modbus ASCII communication started");
 	} else {
 		CurrentProtocol = new ModbusRTU(&LowerCB, *CurrentLowlevel, Timeout);
+		MF.ui.Status->setText("Modbus RTU communication started");
 	}
 	std::cerr << "Creation done" << std::endl;
 }
@@ -145,6 +174,8 @@ void ModbusFrame::LowerCB::ReceivedMessage(int Address, int Function, const std:
 	   << "'"
 	   << std::endl;
 	MF.ui.MiddleInput->insertPlainText(ss.str().c_str());
+
+	MF.ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
 
 void ModbusFrame::LowerCB::SentMessage(int Address, int Function, const std::string &Msg)
@@ -159,20 +190,24 @@ void ModbusFrame::LowerCB::SentMessage(int Address, int Function, const std::str
 	   << "'"
 	   << std::endl;
 	MF.ui.MiddleOutput->insertPlainText(ss.str().c_str());
+
+	MF.ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 
 
 void ModbusFrame::LowerCB::Error(int Errno, const char *Description)
 {
+	std::ostringstream ss;
+	ss << Error::StrError(Errno);
 	if (Description) {
-		MF.ui.ErrorLog->insertPlainText(
-			QString(Error::StrError(Errno)) + "(" + Description + ")\n");
+		ss << " (" << Description << ")";
 	}
-	else {
-		MF.ui.ErrorLog->insertPlainText(
-			QString(Error::StrError(Errno)) + "\n");
 
-	}
+	MF.ui.Status->setText(ss.str().c_str());
+
+	ss << std::endl;
+
+	MF.ui.ErrorLog->insertPlainText(ss.str().c_str());
 }
 
 

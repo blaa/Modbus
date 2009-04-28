@@ -1,3 +1,15 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
+
 #include <iostream>
 #include <iomanip> /* std::setw std::setfill*/
 #include <sstream>
@@ -106,6 +118,10 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	 * with a looped output -> input */
 	while (Timeout::Notice == 0); /* FIXME: remove this, this just fixes testcases */
 	Timeout::Sleep(Timeout * 3.5);
+
+	if (HigherCB) {
+		HigherCB->SentMessage(Address, Function, Msg);
+	}
 }
 
 

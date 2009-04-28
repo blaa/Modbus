@@ -1,3 +1,14 @@
+/**********************************************************************
+ * Comm -- Connection framework
+ * (C) 2009 by Tomasz bla Fortuna <bla@thera.be>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * See Docs/LICENSE
+ *********************/
 
 #ifndef _NETWORKUDP_H_
 #define _NETWORKUDP_H_
@@ -24,9 +35,6 @@
 class NetworkUDPServer : public Network
 {
 protected:
-	/** Callback to middle-layer */
-	Lowlevel::Callback *HigherCB;
-
 	/**@{Network state variables */
 	int Socket;
 	std::vector<struct sockaddr_in> Clients;
@@ -51,13 +59,9 @@ public:
 class NetworkUDPClient : public Network
 {
 protected:
-	/** Callback to middle-layer */
-	Lowlevel::Callback *HigherCB;
-
 	/**@{Network state variables */
 	int Socket;
 	struct sockaddr_in Server;
-	bool Connected;
 	/*@}*/
 
 	virtual void SignalHandler(int Sock);
