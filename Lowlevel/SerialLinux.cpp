@@ -77,6 +77,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	case Config::BR38400: Speed = B38400; break;
 	case Config::BR57600: Speed = B57600; break;
 	case Config::BR115200: Speed = B115200; break;
+	case Config::BR230400: Speed = B230400; break;
 	default:
 		std::cerr << "Consult " << __FILE__ << ":" << __LINE__ 
 			  << std::endl;

@@ -142,8 +142,10 @@ void ModbusFrame::Start()
 		enum Config::Parity Parity;
 		if (ui.SerialParity->currentText() == "Even") {
 			Parity = Config::EVEN;
-		} else {
+		} else if (ui.SerialParity->currentText() == "Odd") {
 			Parity = Config::ODD;
+		} else {
+			Parity = Config::NONE;
 		}
 		
 		enum Config::StopBits StopBits;
