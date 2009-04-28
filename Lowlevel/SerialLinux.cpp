@@ -129,6 +129,8 @@ void Serial::RegisterCallback(Callback *HigherCB)
 void Serial::SendByte(char Byte)
 {
 	write(this->fd, &Byte, 1);
+	if (this->HigherCB)
+		this->HigherCB->SentByte(Byte);
 }
 
 int Serial::GetByte()

@@ -53,6 +53,12 @@ protected:
 
 		/** Called when we receive a single byte. */
 		virtual void ReceivedByte(char Byte);
+
+		/** Called when we send single byte.
+		 * Modbus passes it higher to interface
+		 * and ignores */
+		virtual void SentByte(char Byte);
+
 		/** Called on any error; to be defined */
 		virtual void Error(int Errno);
 

@@ -18,7 +18,8 @@ void Serial::RegisterCallback(Callback *HigherCB)
 
 void Serial::SendByte(char Byte)
 {
-
+/*	if (this->HigherCB)
+		this->HigherCB->SendByte(Byte); */
 }
 
 int Serial::GetByte()

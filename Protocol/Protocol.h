@@ -15,11 +15,17 @@ public:
 		/** For single bytes; for showing all transmitted data */
 		virtual void ReceivedByte(char Byte) = 0;
 
+		/** For single bytes; for showing all transmitted data */
+		virtual void SentByte(char Byte) = 0;
+
 		/** Informs about new arrived message */
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg) = 0;
 
+		/** Informs about sent message */
+		virtual void SentMessage(int Address, int Function, const std::string &Msg) = 0;
+
 		/** Error which happened lower */
-		virtual void Error(int Errno) = 0;
+		virtual void Error(int Errno, const char *Description) = 0;
 	};
 
 	/** Function registering a callback */

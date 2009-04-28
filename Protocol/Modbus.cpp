@@ -62,6 +62,9 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 	 * interrupts but this would make Serial a bit 
 	 * harder to write */
 	Lower.SendString(Frame.str());
+	if (HigherCB) {
+		HigherCB->SentMessage(Address, Function, Msg);
+	}
 }
 
 /* Partial specialization for Modbus RTU */
@@ -304,28 +307,25 @@ void ModbusGeneric<CRC16, false>::ReceivedByte(char Byte)
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
 {
+	std::ostringstream ss;
 	/* Turn off timeout - no frame incoming */
 	Timeout::Register(NULL, this->Timeout);
 
+	if (!HigherCB)
+		return;
+
 
 	/* TODO: Turn this debug off finally */
-	if (ASCII) 
-		std::cerr << "MODBUS ASCII Error: ";
+	if (ASCII && Additional) 
+		ss << "MODBUS ASCII Error: " << Additional;
 	else 
-		std::cerr << "MODBUS RTU Error: ";
+		ss << "MODBUS RTU Error: " << Additional;
 
-	std::cerr << Errno 
-		  << " : "
-		  << Error::StrError(Errno)
-		  << std::endl;
-	if (Additional) {
-		std::cerr << Additional << std::endl;
-	}
-
-	if (HigherCB) {
-		HigherCB->Error(Errno);
-		return;
-	}
+	if (Additional)
+		HigherCB->Error(Errno, ss.str().c_str());
+	else
+		HigherCB->Error(Errno, NULL);
+	return;
 }
 
 
@@ -350,6 +350,15 @@ void ModbusGeneric<HashType, ASCII>::LowerCB::ReceivedByte(char Byte)
 }
 
 template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::LowerCB::SentByte(char Byte)
+{
+	/* Inform higher layer about this single byte */
+	if (M.HigherCB) {
+		M.HigherCB->SentByte(Byte);
+	}
+}
+
+template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::LowerCB::Error(int Errno)
 {
 	std::cerr << "Got error from low layer: "
@@ -357,7 +366,7 @@ void ModbusGeneric<HashType, ASCII>::LowerCB::Error(int Errno)
 		  << std::endl;
 	if (M.HigherCB) {
 		/* Pass this error to interface with callback */
-		M.HigherCB->Error(Errno);
+		M.HigherCB->Error(Errno, "Error from lowlevel");
 	}
 }
 

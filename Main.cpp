@@ -112,6 +112,13 @@ namespace Testcase {
 				  << std::endl;*/
 		}
 
+		virtual void SentByte(char Byte)
+		{
+/*			std::cout << "Interface got send byte from middle '"
+				  << std::hex << Byte << std::dec << "'"
+				  << std::endl;*/
+		}
+
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg)
 		{
 			std::cout << "Interface got correct frame from middle. Addr="
@@ -131,12 +138,20 @@ namespace Testcase {
 			Received++;
 		}
 
-		virtual void Error(int Errno)
+		virtual void SentMessage(int Address, int Function, const std::string &Msg)
+		{
+		}
+
+
+		virtual void Error(int Errno, const char *Desc)
 		{
 			std::cout << "Interface received error no "
 				  << Errno
-				  << " =>'" << Error::StrError(Errno) << "'"
-				  << std::endl;
+				  << " =>'" << Error::StrError(Errno) << "'";
+			if (Desc)
+				std::cout << " (" << Desc << ")";
+
+			std::cout << std::endl;
 
 			/* Warn about timeout error */
 			if (Errno == Error::TIMEOUT)

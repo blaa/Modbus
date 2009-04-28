@@ -21,8 +21,10 @@ class ModbusFrame : public QMainWindow
 		LowerCB(ModbusFrame &MF);
 	public:
 		virtual void ReceivedByte(char Byte);
+		virtual void SentByte(char Byte);
 		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg);
-		virtual void Error(int Errno);
+		virtual void SentMessage(int Address, int Function, const std::string &Msg);
+		virtual void Error(int Errno, const char *Description);
 		friend class ModbusFrame;
 	};
 

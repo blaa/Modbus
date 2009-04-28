@@ -41,7 +41,7 @@ void ModbusFrame::Start()
 
 	if (ui.NetworkSelected->isEnabled()) {
 		/* Network */
-		const char *Host = ui.NetworkHost->text().toStdString().c_str();
+		const std::string Host = ui.NetworkHost->text().toStdString();
 		const int Port = ui.NetworkPort->value();
 
 		try {
@@ -50,7 +50,7 @@ void ModbusFrame::Start()
 				CurrentLowlevel = new NetworkServer(Port);
 			} else {
 				/* Client mode */
-				CurrentLowlevel = new NetworkClient(Host, Port);
+				CurrentLowlevel = new NetworkClient(Host.c_str(), Port);
 			}
 		} catch (...) {
 			std::cerr << "Network connect failed!\n" << std::endl;
@@ -125,7 +125,12 @@ ModbusFrame::LowerCB::LowerCB(ModbusFrame &MF) : MF(MF)
 
 void ModbusFrame::LowerCB::ReceivedByte(char Byte)
 {
-	MF.ui.LowlevelInput->appendPlainText(QString(Byte));
+	MF.ui.LowlevelInput->insertPlainText(QString(Byte));
+}
+
+void ModbusFrame::LowerCB::SentByte(char Byte)
+{
+	MF.ui.LowlevelOutput->insertPlainText(QString(Byte));
 }
 
 void ModbusFrame::LowerCB::ReceivedMessage(int Address, int Function, const std::string &Msg)
@@ -139,13 +144,35 @@ void ModbusFrame::LowerCB::ReceivedMessage(int Address, int Function, const std:
 	   << Msg
 	   << "'"
 	   << std::endl;
-	MF.ui.MiddleInput->appendPlainText(ss.str().c_str());
-
+	MF.ui.MiddleInput->insertPlainText(ss.str().c_str());
 }
 
-void ModbusFrame::LowerCB::Error(int Errno)
+void ModbusFrame::LowerCB::SentMessage(int Address, int Function, const std::string &Msg)
 {
-	MF.ui.ErrorLog->appendPlainText(Error::StrError(Errno));
+	std::ostringstream ss;
+	ss << "Addr="
+	   << Address
+	   << " Fun="
+	   << Function
+	   << " Data='"
+	   << Msg
+	   << "'"
+	   << std::endl;
+	MF.ui.MiddleOutput->insertPlainText(ss.str().c_str());
+}
+
+
+void ModbusFrame::LowerCB::Error(int Errno, const char *Description)
+{
+	if (Description) {
+		MF.ui.ErrorLog->insertPlainText(
+			QString(Error::StrError(Errno)) + "(" + Description + ")\n");
+	}
+	else {
+		MF.ui.ErrorLog->insertPlainText(
+			QString(Error::StrError(Errno)) + "\n");
+
+	}
 }
 
 

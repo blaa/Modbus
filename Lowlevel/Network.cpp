@@ -188,6 +188,10 @@ void NetworkServer::SendByte(char Byte)
 			i++;
 		}
 	}
+
+	if (HigherCB) {
+		HigherCB->SentByte(Byte);
+	}
 }
 
 int NetworkServer::GetByte()
@@ -298,6 +302,10 @@ void NetworkClient::SendByte(char Byte)
 		close(Socket);
 		Connected = false;
 		throw -1;
+	}
+
+	if (HigherCB) {
+		HigherCB->SentByte(Byte);
 	}
 }
 
