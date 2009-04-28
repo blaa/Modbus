@@ -1,3 +1,4 @@
+
 #ifndef _NETWORK_H_
 #define _NETWORK_H_
 
@@ -5,84 +6,33 @@
 #if NETWORK
 
 #include <vector>
+#include <signal.h> /* siginfo_t */
 
 #include "Lowlevel.h"
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-
-/* System dependent: */
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-
-
-/** Class implementing a lowlevel network interface - server side. */
-class NetworkServer : public Lowlevel
+/** Base class for implementing networking */
+class Network : public Lowlevel
 {
 protected:
-	/** Callback to middle-layer */
+
 	Lowlevel::Callback *HigherCB;
 
-	/**@{Network state variables */
-	int Socket;
-	std::vector<int> Clients;
-	/*@}*/
+	/** Handle system signals regarding network */
+	virtual void SignalHandler(int fd) = 0;
 
 public:
-	/** Initialize network with specified configuration */
-	NetworkServer(int Port = 5000);
+	/** Register signal handler */
+	Network();
 
-	/* Deregister us, and close sockets */
-	~NetworkServer();
+	/* Deregister signal handler */
+	~Network();
 
-	/** Send a single byte over RS232 */
-	virtual void SendByte(char Byte);
-
-	/** Block until a single byte might be read */
-	virtual int GetByte();
+	/* Will call HandleSignal() on signal... */
+	friend void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg);
 
 	/** Register new callback to middle-layer */
 	virtual void RegisterCallback(Callback *C);
-
-	friend void NetworkServerSignalHandler(int sig, siginfo_t *sigi, void *arg);
-
 };
-
-/** Class implementing a lowlevel network interface - client side. */
-class NetworkClient : public Lowlevel
-{
-protected:
-	/** Callback to middle-layer */
-	Lowlevel::Callback *HigherCB;
-
-	/**@{Network state variables */
-	int Socket;
-	bool Connected;
-	/*@}*/
-
-public:
-	/** Initialize network with specified configuration */
-	NetworkClient(const char *Host = "localhost", int Port = 5000);
-
-	/* Deregister us, and close sockets */
-	~NetworkClient();
-
-	/** Send a single byte over RS232 */
-	virtual void SendByte(char Byte);
-
-	/** Block until a single byte might be read */
-	virtual int GetByte();
-
-	/** Register new callback to middle-layer */
-	virtual void RegisterCallback(Callback *C);
-
-	friend void NetworkClientSignalHandler(int sig, siginfo_t *sigi, void *arg);
-
-};
-
-
 
 #endif /* NETWORK */
 #endif /* _NETWORK_H_ */

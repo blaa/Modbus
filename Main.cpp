@@ -6,7 +6,9 @@
 
 #include "Lowlevel/Lowlevel.h"
 #include "Lowlevel/Serial.h"
-#include "Lowlevel/Network.h"
+#include "Lowlevel/NetworkTCP.h"
+#include "Lowlevel/NetworkUDP.h"
+
 #include "Protocol/Protocol.h"
 #include "Protocol/Modbus.h"
 
@@ -327,9 +329,9 @@ namespace Testcase {
 
 		std::cout << "Initializing Network lowlevel" << std::endl;
 		if (Client) {
-			L = new NetworkClient;
+			L = new NetworkTCPClient;
 		} else {
-			L = new NetworkServer;
+			L = new NetworkTCPServer;
 		}
 
 		std::cout << "Initializing modbus middlelevel" << std::endl;

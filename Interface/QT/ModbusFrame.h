@@ -6,7 +6,9 @@
 
 #include "Protocol/Modbus.h"
 #include "Lowlevel/Serial.h"
-#include "Lowlevel/Network.h"
+#include "Lowlevel/NetworkTCP.h"
+#include "Lowlevel/NetworkUDP.h"
+
 
 #include "ui_ModbusFrame.h"
 

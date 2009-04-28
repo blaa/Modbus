@@ -12,23 +12,18 @@ EXE=Comm
 
 SOURCES=Main.cpp Config.cpp Utils/Error.cpp Utils/Timeout.cpp \
 	Lowlevel/Lowlevel.cpp Lowlevel/SerialLinux.cpp \
-	Lowlevel/SerialDOS.cpp Lowlevel/Network.cpp \
+	Lowlevel/SerialDOS.cpp \
+	Lowlevel/NetworkTCP.cpp Lowlevel/Network.cpp \
 	Protocol/Modbus.cpp Protocol/Terminated.cpp Protocol/MasterSlave.cpp \
 	Interface/Interface.cpp
+	#owlevel/NetworkUDP.cpp \
 
-HEADERS=Config.h Utils/Timeout.h Utils/CRC.h Utils/Error.h \
-	Lowlevel/Lowlevel.h Lowlevel/SerialLinux.h \
-	Lowlevel/SerialDOS.h Lowlevel/Network.h \
-	Protocol/Protocol.h Protocol/Modbus.h Protocol/Terminated.h Protocol/MasterSlave.h \
-	Interface/Interface.h
-#
 ##
 # Generated data
 ##
 ifeq ($(QT), 1)
 CFLAGS+=-DQT_INTERFACE -I/usr/include/qt4
 SOURCES+=Interface/QT/ModbusFrame.cpp Interface/QT/moc_ModbusFrame.cpp
-HEADERS+=Interface/QT/ui_ModbusFrame.h
 LDFLAGS+=-L/usr/lib/qt4 -lQtGui
 endif
 

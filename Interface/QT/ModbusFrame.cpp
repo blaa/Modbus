@@ -47,10 +47,10 @@ void ModbusFrame::Start()
 		try {
 			if (this->ui.NetworkMode->currentText() == "Server") {
 				/* Server mode */
-				CurrentLowlevel = new NetworkServer(Port);
+				CurrentLowlevel = new NetworkTCPServer(Port);
 			} else {
 				/* Client mode */
-				CurrentLowlevel = new NetworkClient(Host.c_str(), Port);
+				CurrentLowlevel = new NetworkTCPClient(Host.c_str(), Port);
 			}
 		} catch (...) {
 			std::cerr << "Network connect failed!\n" << std::endl;
