@@ -60,7 +60,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	::fd = this->fd;
 	if (this->fd < 0) {
 		std::cerr << "Unable to open " << Device << std::endl;
-		std::cerr << "open: " << strerror(errno);
+		std::cerr << "open: " << strerror(errno) << std::endl;
 		throw Error::Exception("Error while opening serial: ", strerror(errno));
 	}
 

@@ -32,17 +32,19 @@ namespace Error {
 	/** Class for informing about problems with the use of exceptions */
 	class Exception : public std::exception
 	{
-		std::string Description;
+		std::string Header, Description;
 	public:
 		
-		Exception(const std::string &str) throw()
+		Exception(const std::string &Description) throw()
 		{
-			Description = str;
+			this->Description = Description;
 		}
 
-		Exception(const std::string &Header, const std::string &Err) throw()
+		Exception(const std::string &Header,
+			  const std::string &Description) throw()
 		{
-			Description = Header + Err;
+			this->Header = Header;
+			this->Description = Description;
 		}
 
 		~Exception() throw()
@@ -51,6 +53,8 @@ namespace Error {
 
 		const char *what() const throw()
 		{
+			if (Header.size() > 0)
+				return (Header + Description).c_str();
 			return Description.c_str();
 		}
 	};

@@ -84,9 +84,9 @@ void ModbusFrame::Start()
 						     Config::CharSize8, Device);
 		} catch (Error::Exception &e) {
 			ui.Status->setText(QString("Serial error: ") + e.what());
+			return;
 		} catch (...) {
-			std::cerr << "Network connect failed!\n" << std::endl;
-			ui.Status->setText("Error: Unable to open network connection");
+			ui.Status->setText("Unknown error while opening serial device");
 			return;
 		}
 
@@ -117,6 +117,7 @@ void ModbusFrame::Start()
 			}
 		} catch (Error::Exception &e) {
 			ui.Status->setText(QString("Network error: ") + e.what());
+			return;
 		} catch (...) {
 			std::cerr << "Network connect failed!\n" << std::endl;
 			ui.Status->setText("Error: Unable to open network connection");
