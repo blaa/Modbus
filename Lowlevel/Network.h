@@ -14,7 +14,7 @@
 class Network : public Lowlevel
 {
 protected:
-
+	/** Callback to middle-layer */
 	Lowlevel::Callback *HigherCB;
 
 	/** Handle system signals regarding network */

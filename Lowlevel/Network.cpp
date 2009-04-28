@@ -40,6 +40,8 @@ void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 
 Network::Network()
 {
+	HigherCB = NULL;
+
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = NetworkSignalHandler;

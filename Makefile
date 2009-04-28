@@ -13,10 +13,9 @@ EXE=Comm
 SOURCES=Main.cpp Config.cpp Utils/Error.cpp Utils/Timeout.cpp \
 	Lowlevel/Lowlevel.cpp Lowlevel/SerialLinux.cpp \
 	Lowlevel/SerialDOS.cpp \
-	Lowlevel/NetworkTCP.cpp Lowlevel/Network.cpp \
+	Lowlevel/NetworkTCP.cpp Lowlevel/Network.cpp Lowlevel/NetworkUDP.cpp \
 	Protocol/Modbus.cpp Protocol/Terminated.cpp Protocol/MasterSlave.cpp \
 	Interface/Interface.cpp
-	#owlevel/NetworkUDP.cpp \
 
 ##
 # Generated data

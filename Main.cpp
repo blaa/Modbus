@@ -362,6 +362,52 @@ namespace Testcase {
 #endif /* NETWORK */
 	}
 
+
+
+	void NetworkUDP()
+	{
+#if NETWORK
+		const bool Client = false;
+		const bool ASCII = true;
+
+		InterfaceCallback InterfaceCB;
+
+		::Lowlevel *L = NULL;
+		Protocol *P = NULL;
+
+		std::cout << "Initializing Network lowlevel" << std::endl;
+		if (Client) {
+			L = new NetworkUDPClient;
+		} else {
+			L = new NetworkUDPServer;
+		}
+
+		std::cout << "Initializing modbus middlelevel" << std::endl;
+		if (ASCII) {
+			P = new ModbusASCII(&InterfaceCB, *L);
+		} else {
+			P = new ModbusRTU(&InterfaceCB, *L, 200);
+		}
+
+
+		if (Client) {
+			for (;;) {
+				if (InterfaceCB.Received > 10) {
+					P->SendMessage("Client", 'B', 'X');
+					InterfaceCB.Received = 0;
+				}
+			}
+		} else {
+			for (;;) {
+				P->SendMessage("SERVER", 'A', 'F');
+				Timeout::Sleep(1000); /* Receiver will bug this */
+			}
+		}
+
+#endif /* NETWORK */
+	}
+ 
+
 };
 
 
@@ -396,8 +442,10 @@ int main(int argc, char **argv)
 	/* Test timeout */
 //	Testcase::Timeout();
 
+	Testcase::NetworkUDP();
+
 #ifdef QT_INTERFACE
-	QTInterface(argc, argv);
+//	QTInterface(argc, argv);
 #endif
 
 	return 0;

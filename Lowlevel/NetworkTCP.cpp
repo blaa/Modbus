@@ -14,10 +14,6 @@
 /************************
  * Server implementation 
  ************************/
-
-//NetworkTCPServer *CurrentNS;
-NetworkTCPClient *CurrentNC;
-
 void NetworkTCPServer::SignalHandler(int Sock)
 {
 	if (Sock == Socket) {
@@ -53,13 +49,7 @@ void NetworkTCPServer::SignalHandler(int Sock)
 	}
 }
 
-
-/*****************************
- * Server functionality 
- *****************************/
-
 NetworkTCPServer::NetworkTCPServer(int Port)
-	: HigherCB(HigherCB)
 {
 	Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (Socket < 0) {
@@ -162,11 +152,11 @@ void NetworkTCPClient::SignalHandler(int Sock)
 }
 
 NetworkTCPClient::NetworkTCPClient(const char *Host, int Port)
-	: HigherCB(HigherCB)
 {
 	Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (Socket < 0) {
-		std::cerr << "NetworkTCPClient, socket: " << strerror(errno);
+		std::cerr << "NetworkTCPClient, socket: " << strerror(errno)
+			  << std::endl;
 		throw -1;
 	}
 

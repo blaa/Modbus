@@ -1,6 +1,6 @@
 
-#ifndef _NETWORKTCP_H_
-#define _NETWORKTCP_H_
+#ifndef _NETWORKUDP_H_
+#define _NETWORKUDP_H_
 
 #include "Config.h"
 #if NETWORK
@@ -21,21 +21,24 @@
 
 
 /** Class implementing a lowlevel network interface - server side. */
-class NetworkTCPServer : public Network
+class NetworkUDPServer : public Network
 {
 protected:
+	/** Callback to middle-layer */
+	Lowlevel::Callback *HigherCB;
+
 	/**@{Network state variables */
 	int Socket;
-	std::vector<int> Clients;
+	std::vector<struct sockaddr_in> Clients;
 	/*@}*/
 
 	virtual void SignalHandler(int Sock);
 public:
 	/** Initialize network with specified configuration */
-	NetworkTCPServer(int Port = 5000);
+	NetworkUDPServer(int Port = 5000);
 
 	/* Deregister us, and close sockets */
-	~NetworkTCPServer();
+	~NetworkUDPServer();
 
 	/** Send a single byte over RS232 */
 	virtual void SendByte(char Byte);
@@ -45,21 +48,25 @@ public:
 };
 
 /** Class implementing a lowlevel network interface - client side. */
-class NetworkTCPClient : public Network
+class NetworkUDPClient : public Network
 {
 protected:
+	/** Callback to middle-layer */
+	Lowlevel::Callback *HigherCB;
+
 	/**@{Network state variables */
 	int Socket;
+	struct sockaddr_in Server;
 	bool Connected;
 	/*@}*/
 
 	virtual void SignalHandler(int Sock);
 public:
 	/** Initialize network with specified configuration */
-	NetworkTCPClient(const char *Host = "localhost", int Port = 5000);
+	NetworkUDPClient(const char *Host = "localhost", int Port = 5000);
 
 	/* Deregister us, and close sockets */
-	~NetworkTCPClient();
+	~NetworkUDPClient();
 
 	/** Send a single byte over RS232 */
 	virtual void SendByte(char Byte);
@@ -70,4 +77,4 @@ public:
 
 
 #endif /* NETWORK */
-#endif /* _NETWORKTCP_H_ */
+#endif /* _NETWORKUDP_H_ */
