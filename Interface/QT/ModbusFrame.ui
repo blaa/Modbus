@@ -107,6 +107,11 @@
                </property>
                <item>
                 <property name="text">
+                 <string>230400</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
                  <string>115200</string>
                 </property>
                </item>
@@ -569,6 +574,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="MiddleSend">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Send</string>
             </property>
@@ -580,6 +588,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
            <widget class="QPushButton" name="MiddlePing">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Ping</string>
             </property>
@@ -649,6 +660,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="LowSend">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Send</string>
             </property>
@@ -737,7 +751,7 @@
      <x>0</x>
      <y>0</y>
      <width>510</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

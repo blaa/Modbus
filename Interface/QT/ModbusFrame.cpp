@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <ctype.h>
 
 #include <QtCore/QString>
 #include <QtGui/QMessageBox>
@@ -36,14 +37,83 @@ ModbusFrame::~ModbusFrame()
 
 void ModbusFrame::Stop()
 {
+
+	ui.MiddleSend->setEnabled(false);
+	ui.LowSend->setEnabled(false);
+	ui.MiddlePing->setEnabled(false);
+
 	if (CurrentProtocol)
 		delete CurrentProtocol,	CurrentProtocol = NULL;
 	if (CurrentLowlevel)
 		delete CurrentLowlevel, CurrentLowlevel = NULL;
 }
 
-const std::string ParseEscapes(const std::string &Str)
+const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 {
+	const int Length = Str.size();
+	std::string New;
+	for (int i=0; i<Length;) {
+		if (Str[i] == '\\' && i+1 < Length) { /* \ and at least one 
+							  character more */
+			char Mark = Str[i+1];
+			char A, B;
+
+			switch (Mark) {
+
+			case '\\':
+				/* Omit this two */
+				i += 2;
+				New += '\\';
+				continue;
+
+			case 'n':
+				i+=2;
+				New += '\n';
+				continue;
+
+			case 'r':
+				i+=2;
+				New += '\n';
+				continue;
+
+			case 'x':
+				if (i+3 >= Length) 
+					goto copy; /* Not enough space */
+				
+				A = toupper(Str[i+2]);
+				B = toupper(Str[i+3]);
+				if (A >= '0' && A <= '9')
+					A -= '0';
+				else {
+					if (A >= 'A' && A <= 'F')
+						A = A - 'A' + 10;
+					else
+						goto copy; /* Wrong character */
+				}
+				
+				if (B >= '0' && B <= '9')
+					B -= '0';
+				else {
+					if (B >= 'A' && B <= 'F')
+						B = B - 'A' + 10;
+					else
+						goto copy; /* Wrong character */
+				}
+
+				New += (unsigned char)(A * 16 + B);
+				i += 4;
+				continue;
+			default:
+				/* Broken, just insert it into new string */
+				goto copy; 
+
+			}
+		}
+	copy:
+		New += Str[i];
+		i++;
+	}
+	return New;
 }
 
 void ModbusFrame::Finish()
@@ -66,6 +136,8 @@ void ModbusFrame::Start()
 		/* Ugly! */
 		const enum Config::BaudRate BaudRate =
 			(enum Config::BaudRate) (13 - ui.SerialSpeed->currentIndex());
+
+		std::cerr << "baudrate = " << BaudRate << std::endl;
 
 		enum Config::Parity Parity;
 		if (ui.SerialParity->currentText() == "Even") {
@@ -140,12 +212,19 @@ void ModbusFrame::Start()
 		ui.Status->setText("Modbus RTU communication started");
 	}
 	std::cerr << "Creation done" << std::endl;
+
+	/* Enable interface buttons (disabled in Stop()) */
+	ui.MiddleSend->setEnabled(true);
+	ui.LowSend->setEnabled(true);
+	ui.MiddlePing->setEnabled(true);
 }
 
 void ModbusFrame::MiddleSend()
 {
 	CurrentProtocol->SendMessage(
-		ui.SendData->text().toStdString(),
+		ParseEscapes(
+			ui.SendData->text().toStdString()
+			),
 		ui.SendAddress->value(),
 		ui.SendFunction->value());
 }
@@ -153,7 +232,10 @@ void ModbusFrame::MiddleSend()
 void ModbusFrame::LowSend()
 {
 	CurrentLowlevel->SendString(
-		ui.LowSendData->text().toStdString());
+		ParseEscapes(
+			ui.LowSendData->text().toStdString()
+			)
+		);
 }
 
 void ModbusFrame::MiddlePing()

@@ -12,6 +12,8 @@
 #ifndef _MODBUS_FRAME_H_
 #define _MODBUS_FRAME_H_
 
+#include <string>
+
 #include "Lowlevel/Lowlevel.h"
 #include "Protocol/Protocol.h"
 
@@ -51,6 +53,7 @@ class ModbusFrame : public QMainWindow
 	/** Stop previous communication system */
 	void Stop();
 
+	/** Convert \xXX into real characters and \\ into \ */
 	const std::string ParseEscapes(const std::string &Str);
 
 public:
