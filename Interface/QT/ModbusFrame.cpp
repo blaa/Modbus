@@ -42,6 +42,10 @@ void ModbusFrame::Stop()
 		delete CurrentLowlevel, CurrentLowlevel = NULL;
 }
 
+const std::string ParseEscapes(const std::string &Str)
+{
+}
+
 void ModbusFrame::Finish()
 {
 	this->Stop();

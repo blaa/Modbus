@@ -37,6 +37,9 @@ namespace Timeout {
 	 */
 	void Sleep(long MSec);
 
+	/** Wait until timeout occurs - if any defined */
+	void Wait();
+
 	/** Initialize timeout */
 	void Init();
 };

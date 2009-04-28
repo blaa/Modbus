@@ -82,9 +82,6 @@ protected:
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
 
-		/** Set to 1 after timeout */
-		volatile unsigned char Notice;
-
 		/* Private constructor like with LL callback */
 		TimeoutCB(ModbusGeneric &M);
 	public:
@@ -114,6 +111,9 @@ protected:
 
 	/** Timeout after which we will reset receiver */
 	int Timeout;
+
+	/** Set after RTU frame is sent; cleared by timer */
+	bool RTUGap;
 
 	/** This collects bytes into frames; called by callback */
 	void ReceivedByte(char Byte);

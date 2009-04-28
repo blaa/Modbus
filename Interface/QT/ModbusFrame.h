@@ -51,6 +51,8 @@ class ModbusFrame : public QMainWindow
 	/** Stop previous communication system */
 	void Stop();
 
+	const std::string ParseEscapes(const std::string &Str);
+
 public:
 	ModbusFrame(QWidget *parent = NULL);
 	~ModbusFrame();

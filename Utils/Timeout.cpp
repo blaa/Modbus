@@ -58,6 +58,7 @@ namespace Timeout {
 		Callback *CB = CurrentCB;
 		if (CB)
 			CB->Run();
+		std::cout << "Timeout!!!" << std::endl;
 		CurrentCB = 0;
 		Notice = 1;
 	}
@@ -73,7 +74,10 @@ namespace Timeout {
 			CurrentCB = NULL;
 			return;
 		}
-
+		if (CurrentCB) {
+			std::cout << "Removing previous timeout!!!" << std::endl;
+		}
+		std::cout << "Waiting max for " << MSec << std::endl;
 		CurrentCB = CB;
 		Notice = 0;
 
@@ -111,6 +115,16 @@ namespace Timeout {
 		Register(&MCB, MSec);
 //		while (!MCB.Set);  /* If timeout gets changed we will hang; better check this:
 		while (CurrentCB == &MCB);
+	}
+	
+	void Wait()
+	{
+		if (!CurrentCB) {
+			std::cerr << "Waiting, but no callback defined!"
+				  << std::endl;
+			return;
+		}
+		while (Notice == 0);
 	}
 #endif
 

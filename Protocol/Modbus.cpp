@@ -85,6 +85,12 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 {
 	CRC16 Hash;
 	std::ostringstream Frame;
+
+	/* Wait until previous send is over */
+	if (RTUGap)
+		Timeout::Wait();
+	RTUGap = false;
+
 	Hash.Init();
 	Frame << (unsigned char)Address << (unsigned char)Function;
 	Hash.Update(Address);
@@ -116,8 +122,8 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 
 	/* Enabling this timeout will cause testcase to fail
 	 * with a looped output -> input */
-	while (Timeout::Notice == 0); /* FIXME: remove this, this just fixes testcases */
-	Timeout::Sleep(Timeout * 3.5);
+	RTUGap = true;
+	Timeout::Register(&this->TimeoutCB, Timeout * 3.5);
 
 	if (HigherCB) {
 		HigherCB->SentMessage(Address, Function, Msg);
@@ -298,6 +304,8 @@ void ModbusGeneric<CRC16, false>::ReceivedByte(char Byte)
 	 * we can either be Reset() if CRC is incorrect or we can mark
 	 * the correct frame */
 	Timeout::Register(&this->TimeoutCB, this->Timeout * 1.5);
+	RTUGap = false;
+	/* FIXME: This register will overwrite possible send-lock wait! */
 
 	Received++;
 
@@ -394,13 +402,20 @@ ModbusGeneric<HashType, ASCII>::TimeoutCB::TimeoutCB(ModbusGeneric<HashType, ASC
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::TimeoutCB::Run()
 {
-	Notice = 1;
+	/* Timeout might be set during receive or during sent */
+
 	/* Timeout! Reset receiver */
 	if (ASCII) {
 		M.Reset();
 		M.RaiseError(Error::TIMEOUT);
 	} else {
-		/* In RTU we either reset the receiver
+		if (M.RTUGap) {
+			M.RTUGap = false;
+			/* Ready to send another frame */
+			return;
+		}
+		/*
+		 * In RTU we either reset the receiver
 		 * if current frame is broken (CRC not correct)
 		 * Or we inform higher layer about correct frame 
 		 */
