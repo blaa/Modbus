@@ -293,6 +293,12 @@
                <property name="enabled">
                 <bool>false</bool>
                </property>
+               <property name="locale">
+                <locale language="English" country="UnitedStates"/>
+               </property>
+               <property name="specialValueText">
+                <string notr="true"/>
+               </property>
                <property name="maximum">
                 <number>65535</number>
                </property>
@@ -402,7 +408,17 @@
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QSpinBox" name="MiddleTimeout"/>
+              <widget class="QSpinBox" name="MiddleTimeout">
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>10000</number>
+               </property>
+               <property name="value">
+                <number>200</number>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
@@ -478,7 +494,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="MiddleInput"/>
+         <widget class="QPlainTextEdit" name="MiddleInput">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_18">
@@ -488,7 +508,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="MiddleOutput"/>
+         <widget class="QPlainTextEdit" name="MiddleOutput">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -576,7 +600,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="LowlevelInput"/>
+         <widget class="QPlainTextEdit" name="LowlevelInput">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_16">
@@ -586,7 +614,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="LowlevelOutput"/>
+         <widget class="QPlainTextEdit" name="LowlevelOutput">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">
@@ -676,7 +708,7 @@
      <x>0</x>
      <y>0</y>
      <width>510</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
