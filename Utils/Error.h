@@ -12,6 +12,8 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
 
+#include <exception>
+
 namespace Error {
 	enum Type {
 		OK = 0,		/* No error */
@@ -26,6 +28,32 @@ namespace Error {
 	};
 
 	const char *StrError(int Errno);
+
+	/** Class for informing about problems with the use of exceptions */
+	class Exception : public std::exception
+	{
+		std::string Description;
+	public:
+		
+		Exception(const std::string &str) throw()
+		{
+			Description = str;
+		}
+
+		Exception(const std::string &Header, const std::string &Err) throw()
+		{
+			Description = Header + Err;
+		}
+
+		~Exception() throw()
+		{
+		}
+
+		const char *what() const throw()
+		{
+			return Description.c_str();
+		}
+	};
 };
 
 

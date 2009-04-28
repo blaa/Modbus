@@ -15,6 +15,8 @@
 #include <iostream>
 #include <cerrno>
 #include <cstring>
+
+#include "Utils/Error.h"
 #include "Lowlevel.h"
 #include "SerialLinux.h"
 
@@ -59,7 +61,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	if (this->fd < 0) {
 		std::cerr << "Unable to open " << Device << std::endl;
 		std::cerr << "open: " << strerror(errno);
-		throw -1;
+		throw Error::Exception("Error while opening serial: ", strerror(errno));
 	}
 
 
@@ -78,7 +80,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	default:
 		std::cerr << "Consult " << __FILE__ << ":" << __LINE__ 
 			  << std::endl;
-		throw -2;
+		throw Error::Exception("Internal error while selecting serial speed");
 	}
 
 	newtio.c_cflag = Speed | CREAD;
@@ -97,13 +99,12 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
     
 	if (Unix::tcflush(this->fd, TCIFLUSH) != 0) {
 		std::cerr << "tcflush: " << strerror(errno);
-
-		throw -1;
+		throw Error::Exception("Serial, tcflush: ", strerror(errno));
 	}
 
 	if (Unix::tcsetattr(this->fd, TCSANOW, &newtio) != 0) {
 		std::cerr << "tcsetattr: " << strerror(errno);
-		throw -1;
+		throw Error::Exception("Serial, tcsetattr: ", strerror(errno));
 	}
 
 	
@@ -114,8 +115,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 
 	if (Unix::sigaction(SIGIO, &sa, NULL) != 0) {
 		std::cerr << "sigaction: " << strerror(errno);
-
-		throw -1;
+		throw Error::Exception("Serial, sigaction: ", strerror(errno));
 	}
 	
 	Unix::fcntl(this->fd, F_SETOWN, getpid());

@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cerrno>
 
+#include "Utils/Error.h"
 #include "Network.h"
 
 /* POSIX headers */
@@ -62,7 +63,7 @@ Network::Network()
 	if (sigaction(SIGRTMIN, &sa, NULL) < 0) {
 		std::cerr << "Network, sigaction: " << strerror(errno)
 			  << std::endl;
-		throw -1;		
+		throw Error::Exception("Network, sigaction: ", strerror(errno));
 	}
 
 	/* Ignore SIGPIPE - so we can close clients cleanly */
@@ -72,7 +73,7 @@ Network::Network()
 	if (sigaction(SIGPIPE, &sa, NULL) < 0) {
 		std::cerr << "Network, sigaction2: " << strerror(errno)
 			  << std::endl;
-		throw -1;		
+		throw Error::Exception("Network, sigaction (sigpipe): ", strerror(errno));
 	}
 
 	/* Change to asynchronous */

@@ -78,8 +78,17 @@ void ModbusFrame::Start()
 		}
 
 		/* Create device */
-		CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
-					     Config::CharSize8, Device);
+		try {
+
+			CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
+						     Config::CharSize8, Device);
+		} catch (Error::Exception &e) {
+			ui.Status->setText(QString("Serial error: ") + e.what());
+		} catch (...) {
+			std::cerr << "Network connect failed!\n" << std::endl;
+			ui.Status->setText("Error: Unable to open network connection");
+			return;
+		}
 
 	} else {
 		
@@ -106,9 +115,11 @@ void ModbusFrame::Start()
 					CurrentLowlevel = new NetworkUDPClient(Host.c_str(), Port);
 				}
 			}
+		} catch (Error::Exception &e) {
+			ui.Status->setText(QString("Network error: ") + e.what());
 		} catch (...) {
 			std::cerr << "Network connect failed!\n" << std::endl;
-			QMessageBox::information(this, "Error", "Unable to open network connection");
+			ui.Status->setText("Error: Unable to open network connection");
 			return;
 		}
 	}
@@ -118,10 +129,10 @@ void ModbusFrame::Start()
 
 	if (ui.MiddleProtocol->currentText() == "Modbus ASCII") {
 		CurrentProtocol = new ModbusASCII(&LowerCB, *CurrentLowlevel, Timeout);
-		MF.ui.Status->setText("Modbus ASCII communication started");
+		ui.Status->setText("Modbus ASCII communication started");
 	} else {
 		CurrentProtocol = new ModbusRTU(&LowerCB, *CurrentLowlevel, Timeout);
-		MF.ui.Status->setText("Modbus RTU communication started");
+		ui.Status->setText("Modbus RTU communication started");
 	}
 	std::cerr << "Creation done" << std::endl;
 }

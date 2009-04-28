@@ -21,6 +21,7 @@
 
 #include <netdb.h> /* Resolver */
 
+#include "Utils/Error.h"
 #include "NetworkUDP.h"
 
 /************************
@@ -83,7 +84,7 @@ NetworkUDPServer::NetworkUDPServer(int Port)
 	if (Socket < 0) {
 		std::cerr << "NetworkUDPServer, socket: " << strerror(errno)
 			  << std::endl;
-		throw -1;
+		throw Error::Exception("NetworkUDPServer, socket: ", strerror(errno));
 	}
 
 	{
@@ -96,7 +97,7 @@ NetworkUDPServer::NetworkUDPServer(int Port)
 		if (bind(Socket, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			std::cerr << "NetworkUDPServer, bind: " << strerror(errno)
 				  << std::endl;
-			throw -1;		
+			throw Error::Exception("NetworkUDPServer, bind: ", strerror(errno));
 		}
 	}
 
@@ -190,7 +191,7 @@ NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
 	if (Socket < 0) {
 		std::cerr << "NetworkUDPClient, socket: " << strerror(errno)
 			  << std::endl;
-		throw -1;
+		throw Error::Exception("NetworkUDPClient, socket: ", strerror(errno));
 	}
 
 	{
@@ -200,7 +201,7 @@ NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
 			std::cerr << "NetworkUDPClient, gethostbyname: " << strerror(errno)
 				  << std::endl;
 			std::cerr << "While resolving " << Host << std::endl;
-			throw -1;
+			throw Error::Exception("NetworkUDPClient, gethostbyname: ", strerror(errno));
 		}
 
 		memset(&Server, 0, sizeof(Server));

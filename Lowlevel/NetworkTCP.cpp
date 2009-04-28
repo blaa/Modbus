@@ -20,6 +20,7 @@
 
 #include <netdb.h> /* Resolver */
 
+#include "Utils/Error.h"
 #include "NetworkTCP.h"
 
 /************************
@@ -66,7 +67,7 @@ NetworkTCPServer::NetworkTCPServer(int Port)
 	if (Socket < 0) {
 		std::cerr << "NetworkTCPServer, socket: " << strerror(errno)
 			  << std::endl;
-		throw -1;
+		throw Error::Exception("NetworkTCPServer, socket: ", strerror(errno));
 	}
 
 	{
@@ -79,13 +80,13 @@ NetworkTCPServer::NetworkTCPServer(int Port)
 		if (bind(Socket, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			std::cerr << "NetworkTCPServer, bind: " << strerror(errno)
 				  << std::endl;
-			throw -1;		
+			throw Error::Exception("NetworkTCPServer, bind: ", strerror(errno));
 		}
 
 		if (listen(Socket, 10) < 0) {
 			std::cerr << "NetworkTCPServer, listen: " << strerror(errno)
 				  << std::endl;
-			throw -1;		
+			throw Error::Exception("NetworkTCPServer, listen: ", strerror(errno));
 		}
 	}
 
@@ -168,7 +169,7 @@ NetworkTCPClient::NetworkTCPClient(const char *Host, int Port)
 	if (Socket < 0) {
 		std::cerr << "NetworkTCPClient, socket: " << strerror(errno)
 			  << std::endl;
-		throw -1;
+		throw Error::Exception("NetworkTCPClient, socket: ", strerror(errno));
 	}
 
 	{
@@ -179,7 +180,7 @@ NetworkTCPClient::NetworkTCPClient(const char *Host, int Port)
 			std::cerr << "NetworkTCPClient, gethostbyname: " << strerror(errno)
 				  << std::endl;
 			std::cerr << "While resolving " << Host << std::endl;
-			throw -1;
+			throw Error::Exception("NetworkTCPClient, gethostbyname: ", strerror(errno));
 		}
 
 		memset(&sa, 0, sizeof(sa));
@@ -190,7 +191,7 @@ NetworkTCPClient::NetworkTCPClient(const char *Host, int Port)
 		if (connect(Socket, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
 			std::cerr << "NetworkTCPClient, connect: " << strerror(errno)
 				  << std::endl;
-			throw -1;		
+			throw Error::Exception("NetworkTCPClient, connect: ", strerror(errno));
 		}
 	}
 
@@ -221,7 +222,8 @@ void NetworkTCPClient::SendByte(char Byte)
 		/* Error happened - disconnect us! */
 		close(Socket);
 		Connected = false;
-		throw -1;
+		throw Error::Exception("NetworkTCPClient, disconnected from master: ",
+				       strerror(errno));
 	}
 
 	if (HigherCB) {
