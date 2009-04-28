@@ -93,7 +93,7 @@
                 </sizepolicy>
                </property>
                <property name="text">
-                <string>Speed</string>
+                <string>Speed:</string>
                </property>
                <property name="buddy">
                 <cstring>SerialSpeed</cstring>
@@ -183,7 +183,7 @@
              <item>
               <widget class="QLabel" name="label_5">
                <property name="text">
-                <string>Parity</string>
+                <string>Parity:</string>
                </property>
                <property name="buddy">
                 <cstring>SerialParity</cstring>
@@ -195,6 +195,11 @@
                <property name="whatsThis">
                 <string>Parity selection</string>
                </property>
+               <item>
+                <property name="text">
+                 <string>None</string>
+                </property>
+               </item>
                <item>
                 <property name="text">
                  <string>Even</string>
@@ -215,7 +220,7 @@
              <item>
               <widget class="QLabel" name="label_6">
                <property name="text">
-                <string>Stopbits</string>
+                <string>Stopbits:</string>
                </property>
                <property name="buddy">
                 <cstring>SerialStopbits</cstring>
