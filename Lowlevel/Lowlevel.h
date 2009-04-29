@@ -31,6 +31,9 @@ public:
 	class Callback
 	{
 	public:
+		/** Default virtual constructor */
+		virtual ~Callback();
+
 		/** Called when we receive a single byte. */
 		virtual void ReceivedByte(char Byte) = 0;
 

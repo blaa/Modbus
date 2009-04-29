@@ -25,3 +25,7 @@ void Lowlevel::SendString(const std::string &Buffer)
 		this->SendByte(*i);
 	}
 }
+
+Lowlevel::Callback::~Callback()
+{
+}

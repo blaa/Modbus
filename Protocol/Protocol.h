@@ -23,6 +23,9 @@ public:
 	class Callback
 	{
 	public:
+		/** Default virtual constructor */
+		virtual ~Callback() {}
+
 		/** For single bytes; for showing all transmitted data */
 		virtual void ReceivedByte(char Byte) = 0;
 
@@ -38,6 +41,8 @@ public:
 		/** Error which happened lower */
 		virtual void Error(int Errno, const char *Description) = 0;
 	};
+
+	virtual ~Protocol() {}
 
 	/** Function registering a callback */
 	virtual void RegisterCallback(Callback *HigherCB) = 0;
