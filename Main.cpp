@@ -425,6 +425,7 @@ namespace Testcase {
 
 #ifdef QT_INTERFACE
 #include <QtGui/QApplication>
+#include <QtCore/QTranslator>
 #include "Interface/QT/ModbusFrame.h"
 
 void QTInterface(int argc, char **argv)
@@ -432,6 +433,11 @@ void QTInterface(int argc, char **argv)
 	using namespace Qt;
 
 	QApplication app(argc, argv);
+	QString locale = QLocale::system().name();
+	QTranslator translator;
+	translator.load(QString("modbus_") + locale);
+	app.installTranslator(&translator);
+
 	ModbusFrame *dialog = new ModbusFrame;
 
 	dialog->show();

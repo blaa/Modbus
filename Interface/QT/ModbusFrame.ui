@@ -197,11 +197,6 @@
                </property>
                <item>
                 <property name="text">
-                 <string>None</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
                  <string>Even</string>
                 </property>
                </item>
@@ -356,7 +351,10 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <layout class="QGridLayout" name="gridLayout">
+            <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,1">
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
+             </property>
              <property name="topMargin">
               <number>0</number>
              </property>
@@ -364,6 +362,9 @@
               <widget class="QLabel" name="label_14">
                <property name="text">
                 <string>Address:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="buddy">
                 <cstring>MiddleAddress</cstring>
@@ -391,6 +392,9 @@
                <property name="text">
                 <string>Protocol:</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
                <property name="buddy">
                 <cstring>MiddleProtocol</cstring>
                </property>
@@ -415,6 +419,9 @@
                <property name="text">
                 <string>Mode:</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
                <property name="buddy">
                 <cstring>MiddleMode</cstring>
                </property>
@@ -438,6 +445,9 @@
               <widget class="QLabel" name="label_2">
                <property name="text">
                 <string>Timeout:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
                <property name="buddy">
                 <cstring>MiddleTimeout</cstring>
@@ -811,12 +821,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>517</y>
+     <x>132</x>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
      <x>488</x>
-     <y>519</y>
+     <y>504</y>
     </hint>
    </hints>
   </connection>
@@ -827,12 +837,12 @@
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>312</x>
-     <y>517</y>
+     <x>403</x>
+     <y>502</y>
     </hint>
     <hint type="destinationlabel">
      <x>488</x>
-     <y>519</y>
+     <y>504</y>
     </hint>
    </hints>
   </connection>
@@ -844,7 +854,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>555</y>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>389</x>
@@ -859,8 +869,8 @@
    <slot>Start()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>555</y>
+     <x>155</x>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>119</x>
@@ -876,7 +886,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>519</y>
+     <y>504</y>
     </hint>
     <hint type="destinationlabel">
      <x>365</x>
@@ -892,7 +902,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>519</y>
+     <y>504</y>
     </hint>
     <hint type="destinationlabel">
      <x>329</x>
@@ -943,8 +953,8 @@
      <y>98</y>
     </hint>
     <hint type="destinationlabel">
-     <x>371</x>
-     <y>148</y>
+     <x>378</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -960,7 +970,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>477</x>
-     <y>148</y>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -971,12 +981,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>179</y>
+     <x>125</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
-     <x>151</x>
-     <y>238</y>
+     <x>137</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>
@@ -987,12 +997,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>232</x>
-     <y>179</y>
+     <x>254</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
-     <x>369</x>
-     <y>239</y>
+     <x>377</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -1003,12 +1013,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>464</x>
-     <y>179</y>
+     <x>478</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
      <x>477</x>
-     <y>239</y>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -1019,8 +1029,8 @@
    <slot>MiddlePing()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>555</y>
+     <x>83</x>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>132</x>
@@ -1036,7 +1046,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>555</y>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>301</x>
@@ -1052,7 +1062,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>555</y>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1068,7 +1078,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>555</y>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>78</x>
@@ -1084,7 +1094,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>488</x>
-     <y>555</y>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>169</x>
@@ -1099,12 +1109,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>170</y>
+     <x>149</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
-     <x>132</x>
-     <y>228</y>
+     <x>137</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>
@@ -1115,12 +1125,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>194</y>
+     <x>326</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
-     <x>303</x>
-     <y>225</y>
+     <x>377</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -1131,12 +1141,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>436</x>
-     <y>200</y>
+     <x>458</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
-     <x>438</x>
-     <y>231</y>
+     <x>477</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
@@ -1147,12 +1157,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>201</y>
+     <x>112</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>229</y>
+     <x>137</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>

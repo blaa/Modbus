@@ -116,6 +116,27 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 	return New;
 }
 
+
+void ModbusFrame::StatusInfo(const QString &Str)
+{
+	QPalette qPalette;
+
+	qPalette.setColor( QPalette::Foreground, QColor( Qt::black ) );
+	ui.Status->setPalette( qPalette );
+
+	ui.Status->setText(Str);
+}
+
+void ModbusFrame::StatusError(const QString &Str)
+{
+	QPalette qPalette;
+
+	qPalette.setColor( QPalette::Foreground, QColor( Qt::red ) );
+	ui.Status->setPalette( qPalette );
+
+	ui.Status->setText(Str);
+}
+
 void ModbusFrame::Finish()
 {
 	this->Stop();
@@ -124,7 +145,6 @@ void ModbusFrame::Finish()
 
 void ModbusFrame::Start()
 {
-	std::cerr << "Start pressed" << std::endl;
 	Stop();
 
 	/* Gather configuration variables and create comm system */
@@ -137,19 +157,15 @@ void ModbusFrame::Start()
 		const enum Config::BaudRate BaudRate =
 			(enum Config::BaudRate) (13 - ui.SerialSpeed->currentIndex());
 
-		std::cerr << "baudrate = " << BaudRate << std::endl;
-
 		enum Config::Parity Parity;
-		if (ui.SerialParity->currentText() == "Even") {
-			Parity = Config::EVEN;
-		} else if (ui.SerialParity->currentText() == "Odd") {
-			Parity = Config::ODD;
-		} else {
-			Parity = Config::NONE;
+		switch (ui.SerialParity->currentIndex()) {
+		case 0:	Parity = Config::EVEN; break;
+		case 1:	Parity = Config::ODD; break;
+		default: Parity = Config::NONE;	break;
 		}
 		
 		enum Config::StopBits StopBits;
-		if (ui.SerialStopbits->currentText() == "1") {
+		if (ui.SerialStopbits->currentIndex() == 1) {
 			StopBits = Config::SINGLE;
 		} else {
 			StopBits = Config::DOUBLE;
@@ -157,14 +173,13 @@ void ModbusFrame::Start()
 
 		/* Create device */
 		try {
-
 			CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
 						     Config::CharSize8, Device);
 		} catch (Error::Exception &e) {
-			ui.Status->setText(QString("Serial error: ") + e.what());
+			StatusError(tr("Serial error: ") + tr(e.GetHeader()) + tr(e.GetDesc()));
 			return;
 		} catch (...) {
-			ui.Status->setText("Unknown error while opening serial device");
+			StatusError(tr("Unknown error while opening serial device"));
 			return;
 		}
 
@@ -175,8 +190,10 @@ void ModbusFrame::Start()
 		const int Port = ui.NetworkPort->value();
 
 		try {
+			bool ServerMode = ui.NetworkMode->currentIndex() == 0 ? true : false;
 			if (ui.TCPSelected->isChecked()) {
-				if (this->ui.NetworkMode->currentText() == "Server") {
+				/* TCP */
+				if (ServerMode) {
 					/* Server mode */
 					CurrentLowlevel = new NetworkTCPServer(Port);
 				} else {
@@ -185,7 +202,7 @@ void ModbusFrame::Start()
 				}
 			} else {
 				/* UDP */
-				if (this->ui.NetworkMode->currentText() == "Server") {
+				if (ServerMode) {
 					/* Server mode */
 					CurrentLowlevel = new NetworkUDPServer(Port);
 				} else {
@@ -194,26 +211,26 @@ void ModbusFrame::Start()
 				}
 			}
 		} catch (Error::Exception &e) {
-			ui.Status->setText(QString("Network error: ") + e.what());
+			StatusError("Network error: " + tr(e.GetHeader())
+					   + tr(e.GetDesc()));
 			return;
 		} catch (...) {
-			std::cerr << "Network connect failed!\n" << std::endl;
-			ui.Status->setText("Error: Unable to open network connection");
+			StatusError("Error: Unable to open network connection");
 			return;
 		}
 	}
 
 	const int Timeout = ui.MiddleTimeout->value();
 	const int Address = ui.MiddleAddress->value();
-
-	if (ui.MiddleProtocol->currentText() == "Modbus ASCII") {
+	const bool ASCII = ui.MiddleProtocol->currentIndex() == 0 ? true : false;
+	
+	if (ASCII) {
 		CurrentProtocol = new ModbusASCII(&LowerCB, *CurrentLowlevel, Timeout);
-		ui.Status->setText("Modbus ASCII communication started");
+		StatusInfo(tr("Modbus ASCII communication started"));
 	} else {
 		CurrentProtocol = new ModbusRTU(&LowerCB, *CurrentLowlevel, Timeout);
-		ui.Status->setText("Modbus RTU communication started");
+		StatusInfo(tr("Modbus RTU communication started"));
 	}
-	std::cerr << "Creation done" << std::endl;
 
 	/* Enable interface buttons (disabled in Stop()) */
 	ui.MiddleSend->setEnabled(true);
@@ -223,21 +240,37 @@ void ModbusFrame::Start()
 
 void ModbusFrame::MiddleSend()
 {
-	CurrentProtocol->SendMessage(
-		ParseEscapes(
-			ui.SendData->text().toStdString()
-			),
-		ui.SendAddress->value(),
-		ui.SendFunction->value());
+	try {
+		CurrentProtocol->SendMessage(
+			ParseEscapes(
+				ui.SendData->text().toStdString()
+				),
+			ui.SendAddress->value(),
+			ui.SendFunction->value());
+	} catch (Error::Exception &e) {
+		StatusError("Lowlevel error: " + tr(e.GetHeader())
+			    + tr(e.GetDesc()));
+		Stop();
+	} catch (...) {
+		StatusError(tr("Unknown error"));
+	}
 }
 
 void ModbusFrame::LowSend()
 {
-	CurrentLowlevel->SendString(
-		ParseEscapes(
-			ui.LowSendData->text().toStdString()
-			)
-		);
+	try {
+		CurrentLowlevel->SendString(
+			ParseEscapes(
+				ui.LowSendData->text().toStdString()
+				)
+			);
+	} catch (Error::Exception &e) {
+		StatusError(QString("Lowlevel error: ") + tr(e.GetHeader())
+				   + tr(e.GetDesc()));
+		Stop();
+	} catch (...) {
+		StatusError(tr("Unknown error"));
+	}
 }
 
 void ModbusFrame::MiddlePing()

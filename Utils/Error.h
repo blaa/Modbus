@@ -58,6 +58,16 @@ namespace Error {
 				return (Header + Description).c_str();
 			return Description.c_str();
 		}
+
+		const char *GetHeader() const throw()
+		{
+			return Header.c_str();
+		}
+
+		const char *GetDesc() const throw()
+		{
+			return Description.c_str();
+		}
 	};
 };
 

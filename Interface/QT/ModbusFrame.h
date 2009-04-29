@@ -53,8 +53,11 @@ class ModbusFrame : public QMainWindow
 	/** Stop previous communication system */
 	void Stop();
 
-	/** Convert \xXX into real characters and \\ into \ */
+	/** Convert \xXX \n \r into real characters and \\ into \ */
 	const std::string ParseEscapes(const std::string &Str);
+
+	void StatusError(const QString &Str);
+	void StatusInfo(const QString &Str);
 
 public:
 	ModbusFrame(QWidget *parent = NULL);
