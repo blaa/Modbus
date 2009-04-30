@@ -21,6 +21,9 @@ namespace Timeout {
 	class Callback
 	{
 	public:
+		/** Virtual destructor */
+		virtual ~Callback() {}
+		
 		/** Called when timeout occurs */
 		virtual void Run() = 0;
 	};
