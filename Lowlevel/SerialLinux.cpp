@@ -100,7 +100,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
     
 	if (Unix::tcflush(this->fd, TCIFLUSH) != 0) {
 		std::cerr << "tcflush: " << strerror(errno);
-		throw Error::Exception("Serial, tcflush: ", strerror(errno));
+/*		throw Error::Exception("Serial, tcflush: ", strerror(errno)); */
 	}
 
 	if (Unix::tcsetattr(this->fd, TCSANOW, &newtio) != 0) {
