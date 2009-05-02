@@ -132,7 +132,7 @@ namespace Testcase {
 				  << std::endl;*/
 		}
 
-		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg)
+		virtual void ReceivedMessage(const std::string &Msg, int Address, int Function)
 		{
 			std::cout << "Interface got correct frame from middle. Addr="
 				  << std::dec
@@ -151,7 +151,7 @@ namespace Testcase {
 			Received++;
 		}
 
-		virtual void SentMessage(int Address, int Function, const std::string &Msg)
+		virtual void SentMessage(const std::string &Msg, int Address, int Function)
 		{
 		}
 

@@ -295,7 +295,8 @@ void ModbusFrame::LowerCB::SentByte(char Byte)
 	MF.ui.LowlevelOutput->insertPlainText(QString(Byte));
 }
 
-void ModbusFrame::LowerCB::ReceivedMessage(int Address, int Function, const std::string &Msg)
+
+void ModbusFrame::LowerCB::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
 	std::ostringstream ss;
 	ss << "Addr=" 
@@ -311,7 +312,7 @@ void ModbusFrame::LowerCB::ReceivedMessage(int Address, int Function, const std:
 	MF.ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
 
-void ModbusFrame::LowerCB::SentMessage(int Address, int Function, const std::string &Msg)
+void ModbusFrame::LowerCB::SentMessage(const std::string &Msg, int Address, int Function)
 {
 	std::ostringstream ss;
 	ss << "Addr="

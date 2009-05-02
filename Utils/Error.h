@@ -26,6 +26,15 @@ namespace Error {
 
 		/* Timeout during frame receive (got some bytes, then silence) */
 		TIMEOUT,
+		
+		/* Received message for wrong address - ignoring */
+		ADDRESS,
+
+		/* Not really an error - we've got a PING, replied with PONG */
+		PING,
+
+		/* Pong received */
+		PONG,
 	};
 
 	const char *StrError(int Errno);

@@ -43,10 +43,10 @@ protected:
 		virtual void SentByte(char Byte);
 
 		/** Informs about new arrived message */
-		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg);
+		virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
 
 		/** Informs about new sent message */
-		virtual void SentMessage(int Address, int Function, const std::string &Msg);
+		virtual void SentMessage(const std::string &Msg, int Address, int Function);
 
 		/** Error which happened lower */
 		virtual void Error(int Errno, const char *Description);
@@ -110,6 +110,9 @@ public:
 	/** Invoked by interface; invokes sending of a frame in lower protocol
 	 * then if master - waits for reply if master */
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
+
+	/** Ping */
+	void Ping(int Address);
 
 	/** Resets state */
 	void Reset();

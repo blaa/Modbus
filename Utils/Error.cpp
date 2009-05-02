@@ -18,6 +18,9 @@ const char *Error::StrError(int Errno)
 	case HASH: return "Hash (CRC/LRC) error";
 	case FRAME: return "Frame error";
 	case TIMEOUT: return "Timeout error";
+	case ADDRESS: return "Wrong frame address";
+	case PING: return "Ping received";
+	case PONG: return "Pong received";
 	default: return "Unknown error";
 	}
 }

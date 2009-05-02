@@ -75,7 +75,7 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 	 * harder to write */
 	Lower.SendString(Frame.str());
 	if (HigherCB) {
-		HigherCB->SentMessage(Address, Function, Msg);
+		HigherCB->SentMessage(Msg, Address, Function);
 	}
 }
 
@@ -126,7 +126,7 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	Timeout::Register(&this->TimeoutCB, Timeout * 3.5);
 
 	if (HigherCB) {
-		HigherCB->SentMessage(Address, Function, Msg);
+		HigherCB->SentMessage(Msg, Address, Function);
 	}
 }
 
@@ -226,7 +226,7 @@ void ModbusGeneric<LRC, true>::ReceivedByte(char Byte)
 		 * ^^ - should not be needed - LRC check will fail
 		 */
 		if (HigherCB) {
-			HigherCB->ReceivedMessage(Address, Function, Buffer);
+			HigherCB->ReceivedMessage(Buffer, Address, Function);
 			Reset();
 			return;
 		}
@@ -421,7 +421,7 @@ void ModbusGeneric<HashType, ASCII>::TimeoutCB::Run()
 		if (M.Hash.IsCorrect()) {
 			M.Buffer.erase(M.Buffer.length()-2, M.Buffer.length()-1);
 			if (M.HigherCB) {
-				M.HigherCB->ReceivedMessage(M.Address, M.Function, M.Buffer);
+				M.HigherCB->ReceivedMessage(M.Buffer, M.Address, M.Function);
 			}
 		} else {
 			if (M.Received < 4) 

@@ -22,12 +22,15 @@
  * General master/slave functions
  ************************************/
 template<bool Master>
-MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB, Protocol &Lower, int Timeout) 
+MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB,
+				 Protocol &Lower,
+				 int Address, int Timeout) 
   : HigherCB(HigherCB), Lower(Lower), LowerCB(*this), TimeoutCB(*this)
 {
 	/* Register us in Lowlevel interface */
 	Lower.RegisterCallback(&LowerCB);
 	this->Timeout = Timeout;
+	this->Address = Address;
 }
 
 template<bool Master>
@@ -77,6 +80,12 @@ void MasterSlave<Master>::SendMessage(const std::string &Msg, int Address, int F
 	Lower.SendMessage(Msg, Address, Function);
 }
 
+template<bool Master>
+void MasterSlave<Master>::Ping(int Address)
+{
+	Lower.SendMessage("", Address, 254);
+}
+
 /************************************
  * Callbacks for lowlevel interface
  * and for timeout.
@@ -89,6 +98,7 @@ MasterSlave<Master>::LowerCB::LowerCB(MasterSlave<Master> &MM) : M(MM)
 template<bool Master>
 void MasterSlave<Master>::LowerCB::ReceivedByte(char Byte)
 {
+	
 	if (M.HigherCB)
 		M.HigherCB->ReceivedByte(Byte);
 }
@@ -101,25 +111,40 @@ void MasterSlave<Master>::LowerCB::SentByte(char Byte)
 }
 
 template<bool Master>
-void MasterSlave<Master>::LowerCB::SentMessage(int Address, int Function, const std::string &Msg)
+void MasterSlave<Master>::LowerCB::SentMessage(const std::string &Msg, int Address, int Function)
 {
-	std::cerr << "Not implemented" << std::endl;
 	if (M.HigherCB)
-		M.HigherCB->SentMessage(Address, Function, Msg);
+		M.HigherCB->SentMessage(Msg, Address, Function);
 }
 
 template<bool Master>
-void MasterSlave<Master>::LowerCB::ReceivedMessage(int Address, int Function, const std::string &Msg)
+void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
-	std::cerr << "Not implemented" << std::endl;
-	if (M.HigherCB)
-		M.HigherCB->ReceivedMessage(Address, Function, Msg);
+	if (Address != M.Address || Address != 0) {
+		std::ostringstream ss;
+		ss << "Got message for " << Address 
+		   << " our is " << M.Address
+		   << " ignoring";
+		M.RaiseError(Error::ADDRESS, ss.str().c_str());
+		return;
+	}
+
+	if (Address == 254) {
+		/* Got ping */
+		M.Lower.SendMessage("", 0, 253);
+		M.RaiseError(Error::PING);
+	} else if (Address == 253) {
+		M.RaiseError(Error::PONG);
+	} else {
+		if (M.HigherCB)
+			M.HigherCB->ReceivedMessage(Msg, Address, Function);
+	}
 }
 
 template<bool Master>
 void MasterSlave<Master>::LowerCB::Error(int Errno, const char *Description)
 {
-	std::cerr << "Got error from lower layer: "
+	std::cerr << "MasterSlave: Got error from lower layer: "
 		  << Errno 
 		  << std::endl;
 	if (M.HigherCB) {

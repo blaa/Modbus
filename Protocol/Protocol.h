@@ -33,10 +33,10 @@ public:
 		virtual void SentByte(char Byte) = 0;
 
 		/** Informs about new arrived message */
-		virtual void ReceivedMessage(int Address, int Function, const std::string &Msg) = 0;
+		virtual void ReceivedMessage(const std::string &Msg, int Address, int Function) = 0;
 
 		/** Informs about sent message */
-		virtual void SentMessage(int Address, int Function, const std::string &Msg) = 0;
+		virtual void SentMessage(const std::string &Msg, int Address, int Function) = 0;
 
 		/** Error which happened lower */
 		virtual void Error(int Errno, const char *Description) = 0;
