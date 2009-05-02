@@ -2,7 +2,7 @@
 ;; --------------------------------------------------------------------------
 ;; Desktop File for Emacs
 ;; --------------------------------------------------------------------------
-;; Created Sun Apr 26 01:43:21 2009
+;; Created Sat May  2 10:38:25 2009
 ;; Desktop file format version 206
 ;; Emacs version 22.3.1
 
@@ -15,6 +15,28 @@
 (setq register-alist nil)
 
 ;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/MasterSlave.h"
+  "MasterSlave.h"
+  'c++-mode
+  '(abbrev-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/MasterSlave.cpp"
+  "MasterSlave.cpp"
+  'c++-mode
+  '(abbrev-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Lowlevel/Serial.h"
   "Serial.h"
@@ -222,7 +244,7 @@
   '(nil nil)
   nil
   nil
-  nil)
+  '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Protocol/Terminated.cpp"
@@ -233,7 +255,7 @@
   '(nil nil)
   nil
   nil
-  nil)
+  '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Interface/Interface.h"
@@ -244,7 +266,7 @@
   '(nil nil)
   nil
   nil
-  nil)
+  '((buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
   "/home/bla/my_projects/my_school/UZK1/trunk/Interface/Interface.cpp"
@@ -255,5 +277,5 @@
   '(nil nil)
   nil
   nil
-  nil)
+  '((buffer-file-coding-system . undecided-unix)))
 

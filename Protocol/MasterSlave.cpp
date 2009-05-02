@@ -10,7 +10,7 @@
  * See Docs/LICENSE
  *********************/
 #include <iostream>
-#include <iomanip> /* std::setw std::setfill*/
+#include <iomanip>
 #include <sstream>
 #include <cctype>
 #include "Utils/Error.h"
@@ -19,7 +19,7 @@
 #include "MasterSlave.h"
 
 /************************************
- * Main modbus ascii class implementation 
+ * General master/slave functions
  ************************************/
 template<bool Master>
 MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB, Protocol &Lower, int Timeout) 
@@ -28,7 +28,6 @@ MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB, Protocol &Lower, 
 	/* Register us in Lowlevel interface */
 	Lower.RegisterCallback(&LowerCB);
 	this->Timeout = Timeout;
-	Reset();
 }
 
 template<bool Master>
@@ -46,26 +45,17 @@ void MasterSlave<Master>::RegisterCallback(Callback *HigherCB)
 
 
 template<bool Master>
-void MasterSlave<Master>::Reset()
-{
-	Timeout::Register(NULL, 0); /* Disable our previous timeout */
-}
-
-
-template<bool Master>
 void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
 {
-	/* Turn off timeout - no frame incoming */
-	Timeout::Register(NULL, this->Timeout);
-
-
+	std::ostringstream ss;
+	
 	/* TODO: Turn this debug off finally */
-	if (Master) 
-		std::cerr << "Master Error: ";
-	else 
-		std::cerr << "Slave Error: ";
+	if (Master && Additional) 
+		ss << "Master Error: " << Additional;
+	else if (Additional)
+		ss << "Slave Error: " << Additional;
 
-	std::cerr << Errno 
+	std::cerr << Errno /* FIXME: Remove this cerr */
 		  << " : "
 		  << Error::StrError(Errno)
 		  << std::endl;
@@ -74,17 +64,18 @@ void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
 	}
 
 	if (HigherCB) {
-		HigherCB->Error(Errno, Additional);
-		return;
+		if (Additional)
+			HigherCB->Error(Errno, ss.str().c_str());
+		else
+			HigherCB->Error(Errno, NULL);
 	}
 }
 
 template<bool Master>
 void MasterSlave<Master>::SendMessage(const std::string &Msg, int Address, int Function)
 {
-	std::cout << "Unimplemented" << std::endl;
+	Lower.SendMessage(Msg, Address, Function);
 }
-
 
 /************************************
  * Callbacks for lowlevel interface
@@ -98,9 +89,6 @@ MasterSlave<Master>::LowerCB::LowerCB(MasterSlave<Master> &MM) : M(MM)
 template<bool Master>
 void MasterSlave<Master>::LowerCB::ReceivedByte(char Byte)
 {
-	std::cout << "Not implemented... "
-		  << "shall we pass it to the higher level? Ok..." 
-		  << std::endl;
 	if (M.HigherCB)
 		M.HigherCB->ReceivedByte(Byte);
 }
@@ -111,7 +99,6 @@ void MasterSlave<Master>::LowerCB::SentByte(char Byte)
 	if (M.HigherCB)
 		M.HigherCB->SentByte(Byte);
 }
-
 
 template<bool Master>
 void MasterSlave<Master>::LowerCB::SentMessage(int Address, int Function, const std::string &Msg)
@@ -128,7 +115,6 @@ void MasterSlave<Master>::LowerCB::ReceivedMessage(int Address, int Function, co
 	if (M.HigherCB)
 		M.HigherCB->ReceivedMessage(Address, Function, Msg);
 }
-
 
 template<bool Master>
 void MasterSlave<Master>::LowerCB::Error(int Errno, const char *Description)
@@ -153,7 +139,6 @@ void MasterSlave<Master>::TimeoutCB::Run()
 	Notice = 1;
 	std::cout << "Not implemented" << std::endl;
 }
-
 
 /**@{ Explicit template specialization */
 template class MasterSlave<true>;

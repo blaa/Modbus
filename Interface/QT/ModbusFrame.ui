@@ -547,7 +547,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="MiddleInput">
+         <widget class="QTextEdit" name="MiddleInput">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -561,7 +561,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="MiddleOutput">
+         <widget class="QTextEdit" name="MiddleOutput">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -659,7 +659,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="LowlevelInput">
+         <widget class="QTextEdit" name="LowlevelInput">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -673,7 +673,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPlainTextEdit" name="LowlevelOutput">
+         <widget class="QTextEdit" name="LowlevelOutput">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -728,7 +728,7 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QPlainTextEdit" name="ErrorLog">
+         <widget class="QTextEdit" name="ErrorLog">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -783,7 +783,7 @@
      <x>0</x>
      <y>0</y>
      <width>560</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>

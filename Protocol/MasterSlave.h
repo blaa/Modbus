@@ -89,20 +89,17 @@ protected:
 	/** Timeout after which we will reset receiver */
 	int Timeout;
 
+	/** Our address */
+	int Address;
+
 	/** Function raising an error */
 	void RaiseError(int Errno, const char *Additional = NULL) const;
 
 public:
-	/** Initialize modbus middle-layer with callback to interface (CB)
-	 * and with some Lowlevel implementation 
-	 * 
-	 * Timeout is time in miliseconds which meaning depends on protocol type.
-	 * In ASCII it is max time between two incoming characters before receiver
-	 * is reset.
-	 * In RTU max time between two incoming characters equals 1.5 * Timeout
-	 * whereas minimal time generated after sending a frame equals 3.5 * Timeout
+	/** Initialize middle-layer with callback to interface HigherCB
+	 * and with some lower protocol (modbus). 
 	 */
-	MasterSlave(Protocol::Callback *HigherCB, Protocol &Lower, int Timeout = 1000);
+	MasterSlave(Protocol::Callback *HigherCB, Protocol &Lower, int Address, int Timeout = 1000);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~MasterSlave();
@@ -110,7 +107,8 @@ public:
 	/** Register new callback to higher interface */
 	virtual void RegisterCallback(Protocol::Callback *HigherCB);
 
-	/** Invoked by interface; creates a frame and sends it; waits for reply if master */
+	/** Invoked by interface; invokes sending of a frame in lower protocol
+	 * then if master - waits for reply if master */
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 
 	/** Resets state */

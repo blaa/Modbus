@@ -338,11 +338,10 @@ void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additiona
 	if (!HigherCB)
 		return;
 
-
 	/* TODO: Turn this debug off finally */
 	if (ASCII && Additional) 
 		ss << "MODBUS ASCII Error: " << Additional;
-	else 
+	else if (Additional)
 		ss << "MODBUS RTU Error: " << Additional;
 
 	if (Additional)
