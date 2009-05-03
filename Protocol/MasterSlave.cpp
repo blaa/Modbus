@@ -24,7 +24,7 @@
 template<bool Master>
 MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB,
 				 Protocol &Lower,
-				 int Address, int Timeout) 
+				 int Address, int Timeout)
   : HigherCB(HigherCB), Lower(Lower), LowerCB(*this), TimeoutCB(*this)
 {
 	/* Register us in Lowlevel interface */
@@ -51,9 +51,9 @@ template<bool Master>
 void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
 {
 	std::ostringstream ss;
-	
+
 	/* TODO: Turn this debug off finally */
-	if (Master && Additional) 
+	if (Master && Additional)
 		ss << "Master Error: " << Additional;
 	else if (Additional)
 		ss << "Slave Error: " << Additional;
@@ -98,7 +98,7 @@ MasterSlave<Master>::LowerCB::LowerCB(MasterSlave<Master> &MM) : M(MM)
 template<bool Master>
 void MasterSlave<Master>::LowerCB::ReceivedByte(char Byte)
 {
-	
+
 	if (M.HigherCB)
 		M.HigherCB->ReceivedByte(Byte);
 }
@@ -122,7 +122,7 @@ void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int A
 {
 	if (Address != M.Address && Address != 0) {
 		std::ostringstream ss;
-		ss << "Got message for " << Address 
+		ss << "Got message for " << Address
 		   << " our is " << M.Address
 		   << " ignoring";
 		M.RaiseError(Error::ADDRESS, ss.str().c_str());
@@ -130,12 +130,17 @@ void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int A
 	}
 
 	if (Function == 254) {
+		/* This will cause reply from lower layer with
+		   bytes we send and a message - which might
+		   create some status box in interface */
 		M.Lower.SendMessage("", 0, 253);
 	}
 
+	/* This might create some status box also */
 	if (M.HigherCB)
 		M.HigherCB->ReceivedMessage(Msg, Address, Function);
 
+	/* And this will for sure - probably the most important */
 	if (Function == 254) {
 		/* Got ping */
 		M.RaiseError(Error::PING);
@@ -148,7 +153,7 @@ template<bool Master>
 void MasterSlave<Master>::LowerCB::Error(int Errno, const char *Description)
 {
 	std::cerr << "MasterSlave: Got error from lower layer: "
-		  << Errno 
+		  << Errno
 		  << std::endl;
 	if (M.HigherCB) {
 		/* Pass this error to interface with callback */
