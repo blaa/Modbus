@@ -17,10 +17,13 @@
 #include "Lowlevel/Lowlevel.h"
 #include "Protocol/Protocol.h"
 
-#include "Protocol/Modbus.h"
-#include "Lowlevel/Serial.h"
 #include "Lowlevel/NetworkTCP.h"
 #include "Lowlevel/NetworkUDP.h"
+#include "Lowlevel/Serial.h"
+
+#include "Protocol/MasterSlave.h"
+#include "Protocol/Modbus.h"
+
 
 
 #include "ui_ModbusFrame.h"
@@ -48,6 +51,7 @@ class ModbusFrame : public QMainWindow
 	/**@{ Elements of running communication system */
 	Lowlevel *CurrentLowlevel;
 	Protocol *CurrentProtocol;
+	Protocol *CurrentTempProtocol;
 	/*@} */
 
 	/** Stop previous communication system */

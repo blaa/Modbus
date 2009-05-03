@@ -9,8 +9,8 @@
  *
  * See Docs/LICENSE
  *********************/
-#ifndef _MODBUS_H_
-#define _MODBUS_H_
+#ifndef _MASTERSLAVE_H_
+#define _MASTERSLAVE_H_
 
 #include "Utils/Hash.h"
 #include "Utils/Timeout.h"

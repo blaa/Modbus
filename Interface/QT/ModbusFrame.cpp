@@ -28,24 +28,12 @@ ModbusFrame::ModbusFrame(QWidget *parent)
 
 	CurrentLowlevel = NULL;
 	CurrentProtocol = NULL;
+	CurrentTempProtocol = NULL;
 }
 
 ModbusFrame::~ModbusFrame()
 {
 	Stop();
-}
-
-void ModbusFrame::Stop()
-{
-
-	ui.MiddleSend->setEnabled(false);
-	ui.LowSend->setEnabled(false);
-	ui.MiddlePing->setEnabled(false);
-
-	if (CurrentProtocol)
-		delete CurrentProtocol,	CurrentProtocol = NULL;
-	if (CurrentLowlevel)
-		delete CurrentLowlevel, CurrentLowlevel = NULL;
 }
 
 const std::string ModbusFrame::ParseEscapes(const std::string &Str)
@@ -116,6 +104,20 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 	return New;
 }
 
+void ModbusFrame::Stop()
+{
+	ui.MiddleSend->setEnabled(false);
+	ui.LowSend->setEnabled(false);
+	ui.MiddlePing->setEnabled(false);
+
+	if (CurrentProtocol)
+		delete CurrentProtocol, CurrentProtocol = NULL;
+	if (CurrentTempProtocol)
+		delete CurrentTempProtocol, CurrentTempProtocol = NULL;
+	if (CurrentLowlevel)
+		delete CurrentLowlevel, CurrentLowlevel = NULL;
+}
+
 
 void ModbusFrame::StatusInfo(const QString &Str)
 {
@@ -148,8 +150,6 @@ void ModbusFrame::Start()
 	Stop();
 
 	/* Gather configuration variables and create comm system */
-
-	/* TODO: How will it work with retranslate? */
 	if (ui.SerialSelected->isChecked()) {
 		/* Serial */
 		const char *Device = ui.SerialDevice->text().toStdString().c_str();
@@ -165,7 +165,7 @@ void ModbusFrame::Start()
 		}
 		
 		enum Config::StopBits StopBits;
-		if (ui.SerialStopbits->currentIndex() == 1) {
+		if (ui.SerialStopbits->value() == 1) {
 			StopBits = Config::SINGLE;
 		} else {
 			StopBits = Config::DOUBLE;
@@ -222,20 +222,35 @@ void ModbusFrame::Start()
 
 	const int Timeout = ui.MiddleTimeout->value();
 	const int Address = ui.MiddleAddress->value();
+	/* True if no master/slave layer present */
+	const bool BareMode = ui.MiddleMode->currentIndex() == 2 ? true : false;
+	const bool MasterMode = ui.MiddleMode->currentIndex() == 0 ? true : false;
+
 	const bool ASCII = ui.MiddleProtocol->currentIndex() == 0 ? true : false;
-	
+
 	if (ASCII) {
 		CurrentProtocol = new ModbusASCII(&LowerCB, *CurrentLowlevel, Timeout);
-		StatusInfo(tr("Modbus ASCII communication started"));
 	} else {
 		CurrentProtocol = new ModbusRTU(&LowerCB, *CurrentLowlevel, Timeout);
-		StatusInfo(tr("Modbus RTU communication started"));
+	}
+	
+	if (!BareMode) {
+		CurrentTempProtocol = CurrentProtocol;
+		/* This will reregister higher level callback in modbus protocol instance */
+		if (MasterMode) {
+			CurrentProtocol = new Master(&LowerCB, *CurrentTempProtocol, 
+						     Address, Timeout);
+		} else {
+			CurrentProtocol = new Slave(&LowerCB, *CurrentTempProtocol, 
+						    Address, Timeout);
+		}
+		ui.MiddlePing->setEnabled(true);
 	}
 
 	/* Enable interface buttons (disabled in Stop()) */
 	ui.MiddleSend->setEnabled(true);
 	ui.LowSend->setEnabled(true);
-	ui.MiddlePing->setEnabled(true);
+	StatusInfo(tr("Modbus communication started"));
 }
 
 void ModbusFrame::MiddleSend()
@@ -275,6 +290,17 @@ void ModbusFrame::LowSend()
 
 void ModbusFrame::MiddlePing()
 {
+	const int Address = ui.SendAddress->value();
+
+	Master *M = dynamic_cast<Master*>(CurrentProtocol);
+	Slave *S = dynamic_cast<Slave*>(CurrentProtocol);
+	if (M) {
+		M->Ping(Address);
+	} else if (S) {
+		S->Ping(Address);
+	} else {
+		StatusError("Unimplemented");
+	}
 }
 
 
@@ -308,7 +334,6 @@ void ModbusFrame::LowerCB::ReceivedMessage(const std::string &Msg, int Address, 
 	   << "'"
 	   << std::endl;
 	MF.ui.MiddleInput->insertPlainText(ss.str().c_str());
-
 	MF.ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
 

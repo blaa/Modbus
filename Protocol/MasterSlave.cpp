@@ -120,7 +120,7 @@ void MasterSlave<Master>::LowerCB::SentMessage(const std::string &Msg, int Addre
 template<bool Master>
 void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
-	if (Address != M.Address || Address != 0) {
+	if (Address != M.Address && Address != 0) {
 		std::ostringstream ss;
 		ss << "Got message for " << Address 
 		   << " our is " << M.Address
@@ -129,15 +129,18 @@ void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int A
 		return;
 	}
 
-	if (Address == 254) {
-		/* Got ping */
+	if (Function == 254) {
 		M.Lower.SendMessage("", 0, 253);
+	}
+
+	if (M.HigherCB)
+		M.HigherCB->ReceivedMessage(Msg, Address, Function);
+
+	if (Function == 254) {
+		/* Got ping */
 		M.RaiseError(Error::PING);
-	} else if (Address == 253) {
+	} else if (Function == 253) {
 		M.RaiseError(Error::PONG);
-	} else {
-		if (M.HigherCB)
-			M.HigherCB->ReceivedMessage(Msg, Address, Function);
 	}
 }
 
