@@ -31,6 +31,7 @@ MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB,
 	Lower.RegisterCallback(&LowerCB);
 	this->Timeout = Timeout;
 	this->Address = Address;
+	this->Quiet = false;
 }
 
 template<bool Master>
@@ -51,6 +52,9 @@ template<bool Master>
 void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
 {
 	std::ostringstream ss;
+
+	if (Quiet)
+		return;
 
 	/* TODO: Turn this debug off finally */
 	if (Master && Additional)
@@ -98,7 +102,6 @@ MasterSlave<Master>::LowerCB::LowerCB(MasterSlave<Master> &MM) : M(MM)
 template<bool Master>
 void MasterSlave<Master>::LowerCB::ReceivedByte(char Byte)
 {
-
 	if (M.HigherCB)
 		M.HigherCB->ReceivedByte(Byte);
 }
@@ -113,7 +116,7 @@ void MasterSlave<Master>::LowerCB::SentByte(char Byte)
 template<bool Master>
 void MasterSlave<Master>::LowerCB::SentMessage(const std::string &Msg, int Address, int Function)
 {
-	if (M.HigherCB)
+	if (M.HigherCB && !M.Quiet)
 		M.HigherCB->SentMessage(Msg, Address, Function);
 }
 
@@ -133,12 +136,12 @@ void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int A
 		/* This will cause reply from lower layer with
 		   bytes we send and a message - which might
 		   create some status box in interface */
+		M.Quiet = true;
 		M.Lower.SendMessage("", 0, 253);
-	}
-
-	/* This might create some status box also */
-	if (M.HigherCB)
-		M.HigherCB->ReceivedMessage(Msg, Address, Function);
+		M.Quiet = false;
+	} else 	/* This might create some status box also */
+		if (M.HigherCB)
+			M.HigherCB->ReceivedMessage(Msg, Address, Function);
 
 	/* And this will for sure - probably the most important */
 	if (Function == 254) {

@@ -92,6 +92,9 @@ protected:
 	/** Our address */
 	int Address;
 
+	/** Do not pass informations up */
+	bool Quiet;
+
 	/** Function raising an error */
 	void RaiseError(int Errno, const char *Additional = NULL) const;
 
