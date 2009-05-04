@@ -32,6 +32,7 @@ public:
 	       enum Config::Parity P = Config::EVEN,
 	       enum Config::StopBits SB = Config::SINGLE,
 	       enum Config::CharSize CS = Config::CharSize8, 
+	       enum Config::FlowControl FC = Config::FLOWNONE, 
 	       const char *Device="/dev/ttyS0");
 	
 	/** Deinitialize device */

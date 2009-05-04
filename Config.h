@@ -27,7 +27,7 @@ struct Config
 
 	enum Parity 
 	{
-		NONE, EVEN, ODD
+		NONE = 0, EVEN, ODD
 	};
 
 	enum StopBits
@@ -37,7 +37,12 @@ struct Config
 
 	enum CharSize 
 	{
-		CharSize8, CharSize5
+		CharSize8, CharSize7, CharSize5
+	};
+
+	enum FlowControl
+	{
+		FLOWNONE = 0, RTSCTS, XONXOFF
 	};
 
 	/* Serial configuration */

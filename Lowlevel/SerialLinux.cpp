@@ -51,6 +51,7 @@ namespace {
 
 Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	       enum Config::StopBits SB, enum Config::CharSize CS,
+	       enum Config::FlowControl FC,
 	       const char *Device)
 {
 	struct Unix::termios newtio = { 0 };
@@ -87,16 +88,33 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	newtio.c_cflag = Speed | CREAD;
 
 	Unix::cfsetispeed(&newtio, Speed);
-	if (CS == Config::CharSize5)
+	switch (CS) {
+	case Config::CharSize5:
 		newtio.c_cflag |= CS5;
-	else
+		break;
+	case Config::CharSize7:
+		newtio.c_cflag |= CS7;
+		break;
+	default:
 		newtio.c_cflag |= CS8;
+		break;
+	}
 
 	if (P == Config::EVEN)
 		newtio.c_cflag |= PARENB;
 
 	if (SB == Config::DOUBLE)
 		newtio.c_cflag |= CSTOPB;
+
+	switch (FC) {
+        case Config::RTSCTS:
+		newtio.c_cflag |= CRTSCTS;
+		break;
+	case Config::XONXOFF:
+		newtio.c_cflag |= IXON | IXOFF;
+		break;
+	};
+
     
 	if (Unix::tcflush(this->fd, TCIFLUSH) != 0) {
 		std::cerr << "tcflush: " << strerror(errno);
