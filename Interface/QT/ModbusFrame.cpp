@@ -121,6 +121,8 @@ void ModbusFrame::Stop()
 		delete CurrentTempProtocol, CurrentTempProtocol = NULL;
 	if (CurrentLowlevel)
 		delete CurrentLowlevel, CurrentLowlevel = NULL;
+
+	CurrentTerminated = false;
 }
 
 
@@ -353,6 +355,7 @@ void ModbusFrame::Start()
 	case ModeTerminated:
 		CurrentProtocol = new Terminated(this, *CurrentLowlevel, ReceiveTimeout, FinalTerminator);
 		ui.TerminatedPing->setEnabled(false);
+		CurrentTerminated = true;
 		break;
 	}
 
@@ -437,11 +440,14 @@ void ModbusFrame::SentByte(char Byte)
 void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
 	std::ostringstream ss;
-	ss << "Addr=" 
-	   << Address
-	   << " Fun="
-	   << Function
-	   << " Data='"
+	if (!CurrentTerminated) {
+		ss << "Addr=" 
+		   << Address
+		   << " Fun="
+		   << Function
+		   << " ";
+	}
+	ss << "Data='"
 	   << Msg
 	   << "'"
 	   << std::endl;
@@ -452,16 +458,19 @@ void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Funct
 void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
 {
 	std::ostringstream ss;
-	ss << "Addr="
-	   << Address
-	   << " Fun="
-	   << Function
-	   << " Data='"
+	if (!CurrentTerminated) {
+		ss << "Addr=" 
+		   << Address
+		   << " Fun="
+		   << Function
+		   << " ";
+	}
+
+	ss << "Data='"
 	   << Msg
 	   << "'"
 	   << std::endl;
 	ui.MiddleOutput->insertPlainText(ss.str().c_str());
-
 	ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 

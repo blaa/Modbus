@@ -39,11 +39,10 @@ namespace {
 	void SerialLinuxReceive(int a)
 	{
 		char Ch;
-
+		if (CurrentCB == NULL) 
+			return;
 		while (1 == read(fd, &Ch, 1)) {
-			if (CurrentCB) {
-				CurrentCB->ReceivedByte(Ch);
-			}
+			CurrentCB->ReceivedByte(Ch);
 		}
 	}
 }
@@ -56,6 +55,8 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 {
 	struct Unix::termios newtio = { 0 };
 	struct Unix::sigaction sa;
+
+	CurrentCB = HigherCB = NULL;
 
 	sa.sa_handler = SerialLinuxReceive;
 	sa.sa_restorer = NULL;
@@ -141,9 +142,6 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		std::cerr << "tcsetattr: " << strerror(errno);
 		throw Error::Exception("Serial, tcsetattr: ", strerror(errno));
 	}
-
-	this->HigherCB = NULL;
-	CurrentCB = NULL;
 }
 
 Serial::~Serial()

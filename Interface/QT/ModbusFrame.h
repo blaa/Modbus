@@ -55,6 +55,9 @@ class ModbusFrame : public QMainWindow, public Protocol::Callback
 	/** Display normal status information */
 	void StatusInfo(const QString &Str);
 
+	/** Used to check whether to print Fun and Addr */
+	bool CurrentTerminated;
+
 public:
 	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
