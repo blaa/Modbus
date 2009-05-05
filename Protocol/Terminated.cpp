@@ -25,7 +25,7 @@
 Terminated::Terminated(Protocol::Callback *HigherCB, 
 		       Lowlevel &Lower, int Timeout,
 		       const std::string &Terminator)
-	: HigherCB(HigherCB), Lower(Lower)
+	: Terminator(Terminator), HigherCB(HigherCB), Lower(Lower)
 {
 	/* Register us in Lowlevel interface */
 	Lower.RegisterCallback(this);
@@ -47,6 +47,8 @@ void Terminated::RegisterCallback(Protocol::Callback *HigherCB)
 void Terminated::SendMessage(const std::string &Msg, int Address, int Function)
 {
 	Lower.SendString(Msg + Terminator);
+	if (HigherCB)
+		HigherCB->SentMessage(Msg, Address, Function);
 }
 
 void Terminated::Ping()
@@ -138,7 +140,6 @@ void Terminated::ReceivedByte(char Byte)
 	}
 
 	std::cerr << "Terminator!" << std::endl;
-
 	Accept();
 }
 

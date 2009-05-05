@@ -57,6 +57,19 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	struct Unix::termios newtio = { 0 };
 	struct Unix::sigaction sa;
 
+	sa.sa_handler = SerialLinuxReceive;
+	sa.sa_restorer = NULL;
+	Unix::sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+
+	if (Unix::sigaction(SIGIO, &sa, NULL) != 0) {
+		std::cerr << "sigaction: " << strerror(errno);
+		throw Error::Exception("Serial, sigaction: ", strerror(errno));
+	}
+
+	Unix::fcntl(this->fd, F_SETOWN, getpid());
+	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
+
 	this->fd = Unix::open(Device, O_RDWR | O_NOCTTY);
 	::fd = this->fd;
 	if (this->fd < 0) {
@@ -121,7 +134,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
     
 	if (Unix::tcflush(this->fd, TCIFLUSH) != 0) {
 		std::cerr << "tcflush: " << strerror(errno);
-/*		throw Error::Exception("Serial, tcflush: ", strerror(errno)); */
+		throw Error::Exception("Serial, tcflush: ", strerror(errno));
 	}
 
 	if (Unix::tcsetattr(this->fd, TCSANOW, &newtio) != 0) {
@@ -129,26 +142,13 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		throw Error::Exception("Serial, tcsetattr: ", strerror(errno));
 	}
 
-	
-	sa.sa_handler = SerialLinuxReceive;
-	sa.sa_restorer = NULL;
-	Unix::sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-
-	if (Unix::sigaction(SIGIO, &sa, NULL) != 0) {
-		std::cerr << "sigaction: " << strerror(errno);
-		throw Error::Exception("Serial, sigaction: ", strerror(errno));
-	}
-	
-	Unix::fcntl(this->fd, F_SETOWN, getpid());
-	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
-	
 	this->HigherCB = NULL;
 	CurrentCB = NULL;
 }
 
 Serial::~Serial()
 {
+	CurrentCB = NULL;
 	close(this->fd);
 }
 

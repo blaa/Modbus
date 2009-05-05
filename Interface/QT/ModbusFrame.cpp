@@ -236,8 +236,16 @@ void ModbusFrame::Start()
 		Custom,
 		None,
 	} Terminator = TermSelect(Proto(ui.TerminatedSelected->currentIndex()));
+	const std::string CustomTerminator = ui.TerminatedCustom->text().toStdString();
 
-	std::string CustomTerminator = ui.TerminatedCustom->text().toStdString();
+	std::string FinalTerminator;
+	switch (Terminator) {
+	case CR: FinalTerminator = "\r"; break;
+	case LF: FinalTerminator = "\n"; break;
+	case CRLF: FinalTerminator = "\n\r"; break;
+	case Custom: FinalTerminator = CustomTerminator; break;
+	case None: break;
+	}
 
 	const int ReceiveTimeout = ui.MiddleTimeout->value();
 	const int TransactionTimeout = ui.ModbusTimeout->value();
@@ -343,7 +351,7 @@ void ModbusFrame::Start()
 						    ReceiveTimeout);
 		break;
 	case ModeTerminated:
-		CurrentProtocol = new Terminated(this, *CurrentLowlevel, ReceiveTimeout);
+		CurrentProtocol = new Terminated(this, *CurrentLowlevel, ReceiveTimeout, FinalTerminator);
 		ui.TerminatedPing->setEnabled(false);
 		break;
 	}
