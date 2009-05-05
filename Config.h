@@ -25,52 +25,29 @@ struct Config
 		BR230400
 	};
 
+	/** Serial parity */
 	enum Parity 
 	{
 		NONE = 0, EVEN, ODD
 	};
 
+	/** Serial stop bits */
 	enum StopBits
 	{
 		SINGLE, DOUBLE
 	};
 
+	/** Serial character size (7-8 bits should be usable) */
 	enum CharSize 
 	{
 		CharSize8, CharSize7, CharSize5
 	};
 
+	/** Serial flow control */
 	enum FlowControl
 	{
 		FLOWNONE = 0, RTSCTS, XONXOFF
 	};
-
-	/* Serial configuration */
-	static enum BaudRate BaudRate;
-	static enum Parity Parity;
-	static enum StopBits StopBits;
-	static enum CharSize CharSize;
-
-	/*** Middle level configuration ***/
-	enum Protocol
-	{
-		MODBUS_ASCII,
-		MODBUS_RTU,
-		TERMINATED
-	};
-
-	enum Role
-	{
-		MASTER,
-		SLAVE
-	};
-
-	/* Current protocol */
-	static enum Protocol Protocol;
-	/* Modbus slave address */
-	static unsigned char Address;
-	/* Modbus role */
-	static enum Role Role;
 };
 
 #endif

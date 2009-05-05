@@ -41,19 +41,24 @@ namespace Error {
 		PONG,
 	};
 
+	/** Convert error code into description string */
 	const char *StrError(int Errno);
 
 	/** Class for informing about problems with the use of exceptions */
 	class Exception : public std::exception
 	{
+		/**@{ Error header and description -
+		 * they are splitted so we can more easily translate them */
 		std::string Header, Description;
+		/*@}*/
 	public:
-		
+		/** Create exception with description only */
 		Exception(const std::string &Description) throw()
 		{
 			this->Description = Description;
 		}
 
+		/** Create exception with description and header */
 		Exception(const std::string &Header,
 			  const std::string &Description) throw()
 		{
@@ -65,6 +70,7 @@ namespace Error {
 		{
 		}
 
+		/** Return combined description of error */
 		const char *what() const throw()
 		{
 			if (Header.size() > 0)
@@ -72,11 +78,13 @@ namespace Error {
 			return Description.c_str();
 		}
 
+		/** Return a header of error */
 		const char *GetHeader() const throw()
 		{
 			return Header.c_str();
 		}
 
+		/** Return a description of error */
 		const char *GetDesc() const throw()
 		{
 			return Description.c_str();

@@ -41,6 +41,7 @@ namespace Testcase {
 			CB = NULL;
 		}
 
+		/** Display byte */
 		void ShowByte(unsigned char Byte)
 		{
 			if (Byte != '\n' && Byte != '\r') {
@@ -118,6 +119,7 @@ namespace Testcase {
 		volatile unsigned char Received;
 		volatile unsigned char Timeout;
 
+		/** Show received bytes */
 		virtual void ReceivedByte(char Byte)
 		{
 /*			std::cout << "Interface got byte from middle '"
@@ -125,6 +127,7 @@ namespace Testcase {
 				  << std::endl;*/
 		}
 
+		/** Show sent bytes */
 		virtual void SentByte(char Byte)
 		{
 /*			std::cout << "Interface got send byte from middle '"
@@ -132,6 +135,7 @@ namespace Testcase {
 				  << std::endl;*/
 		}
 
+		/** Show received messages */
 		virtual void ReceivedMessage(const std::string &Msg, int Address, int Function)
 		{
 			std::cout << "Interface got correct frame from middle. Addr="
@@ -151,11 +155,12 @@ namespace Testcase {
 			Received++;
 		}
 
+		/** Show sent messages */
 		virtual void SentMessage(const std::string &Msg, int Address, int Function)
 		{
 		}
 
-
+		/** Show errors which happened */
 		virtual void Error(int Errno, const char *Desc)
 		{
 			std::cout << "Interface received error no "
@@ -172,6 +177,7 @@ namespace Testcase {
 		}
 	};
 
+	/** Test middle level protocols */
 	void Middle()
 	{
 		/* Simulate what should interface do */
@@ -265,7 +271,7 @@ namespace Testcase {
 		while (Timeout::Notice == 0);
 	}
 
-
+	/** Example timeout callback */
 	class TestTimeout : public Timeout::Callback {
 	public:
 		volatile char TimeoutDone;
@@ -282,6 +288,7 @@ namespace Testcase {
 		}
 	};
 
+	/** Test timeouts */
 	void Timeout()
 	{
 		TestTimeout TT;
@@ -374,7 +381,7 @@ namespace Testcase {
 	}
 
 
-
+	/** Test UDP/IP network */
 	void NetworkUDP()
 	{
 #if NETWORK

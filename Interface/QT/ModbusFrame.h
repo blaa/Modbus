@@ -28,6 +28,8 @@
 
 #include "ui_ModbusFrame.h"
 
+
+/** Class implementing actions of main window GUI */
 class ModbusFrame : public QMainWindow
 {
 	Q_OBJECT

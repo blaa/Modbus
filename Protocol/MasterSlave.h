@@ -22,38 +22,11 @@
  * Slave - few functions builtin (ping)
  */
 template<bool Master>
-class MasterSlave : public Protocol
+class MasterSlave : public Protocol, public Protocol::Callback
 {
 private:
 
 protected:
-	/** This will inform us about what happened lower */
-	class LowerCB : public Protocol::Callback
-	{
-		/** Modbus instance which needs to be informed */
-		MasterSlave<Master> &M;
-
-		/** Private constructor; only M/S class can create an instance */
-		LowerCB(MasterSlave<Master> &MM);
-	public:
-		/** For single bytes; for showing all transmitted data */
-		virtual void ReceivedByte(char Byte);
-
-		/** For single bytes; for showing all transmitted data */
-		virtual void SentByte(char Byte);
-
-		/** Informs about new arrived message */
-		virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
-
-		/** Informs about new sent message */
-		virtual void SentMessage(const std::string &Msg, int Address, int Function);
-
-		/** Error which happened lower */
-		virtual void Error(int Errno, const char *Description);
-
-		friend class MasterSlave<Master>;
-	};
-
 	class TimeoutCB : public Timeout::Callback
 	{
 		/** Modbus instance which needs to be informed */
@@ -79,9 +52,6 @@ protected:
 	/** Lower layer; (middle-level protocol)
 	 * We store it, and pass it our callback. */
 	Protocol &Lower;
-
-	/** Instance of callback which will be passed down */
-	LowerCB LowerCB;
 
 	/** Instance of timeout callback */
 	TimeoutCB TimeoutCB;
@@ -120,6 +90,24 @@ public:
 
 	/**@}*/
 
+
+
+	/**@{ Callback interface */
+	/** For single bytes; for showing all transmitted data */
+	virtual void ReceivedByte(char Byte);
+
+	/** For single bytes; for showing all transmitted data */
+	virtual void SentByte(char Byte);
+
+	/** Informs about new arrived message */
+	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
+
+	/** Informs about new sent message */
+	virtual void SentMessage(const std::string &Msg, int Address, int Function);
+
+	/** Error which happened lower */
+	virtual void Error(int Errno, const char *Description);
+	/**@}*/
 };
 
 /* Explicit specializations of MasterSlave */
