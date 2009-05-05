@@ -82,7 +82,6 @@ void Terminated::RaiseError(int Errno, const char *Additional) const
  * and for timeout.
  ************************************/
 
-/** Modbus ASCII frame grabber */
 void Terminated::ReceivedByte(char Byte)
 {
 }

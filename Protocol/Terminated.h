@@ -53,7 +53,7 @@ public:
 	 * Timeout is time in miliseconds after which we reset receiver
 	 * if no new bytes came
 	 */
-	Terminated(Protocol::Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000);
+	Terminated(Protocol::Callback *HigherCB, Lowlevel &Lower, std::string Terminator, int Timeout = 1000);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~Terminated();
