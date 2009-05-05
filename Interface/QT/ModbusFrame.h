@@ -78,6 +78,9 @@ private slots:
 	/** Cleanup and close the window */
 	void Finish();
 
+	/** Enable/disable some configuration fields */
+	void ConfigEnableUpdate();
+
 private:
 	/** Main window definition created with designer */
 	Ui::ModbusFrame ui;

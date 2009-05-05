@@ -33,13 +33,11 @@ Terminated::Terminated(Protocol::Callback *HigherCB,
 	Reset();
 }
 
-
 Terminated::~Terminated()
 {
 	/* Deregister our callback */
 	Lower.RegisterCallback(NULL);
 }
-
 
 void Terminated::RegisterCallback(Protocol::Callback *HigherCB)
 {
@@ -48,6 +46,14 @@ void Terminated::RegisterCallback(Protocol::Callback *HigherCB)
 
 void Terminated::SendMessage(const std::string &Msg, int Address, int Function)
 {
+	Lower.SendString(Msg + Terminator);
+}
+
+void Terminated::Ping()
+{
+	WaitForPing = true;
+	Lower.SendString(std::string("PING") + Terminator);
+	Timeout::Register(this, this->Timeout);
 }
 
 void Terminated::Reset()
@@ -77,14 +83,63 @@ void Terminated::RaiseError(int Errno, const char *Additional) const
 	return;
 }
 
+void Terminated::Accept()
+{
+	/** FIXME - couldn't it be more optimal? O(n) */
+	Buffer.erase(Received - Terminator.size(), Buffer.size());
+//	std::string Msg = Buffer.substr(0, Received - Terminator.size());
+ 
+	if (WaitForPing) {
+		WaitForPing = false;
+
+		/* Show data as it came */
+		HigherCB->ReceivedMessage(Buffer, -1, -1);
+
+		/* Raise error to inform about ping */
+		if (Buffer == "PING") {
+			RaiseError(Error::PONG, "Got ping reply");
+		} else {
+			RaiseError(Error::FRAME, "Illegal ping reply");
+		}
+	} else {
+		if (HigherCB)
+			HigherCB->ReceivedMessage(Buffer, -1, -1);
+	}
+}
+
 
 /************************************
  * Callbacks for lowlevel interface
  * and for timeout.
  ************************************/
-
 void Terminated::ReceivedByte(char Byte)
 {
+	Timeout::Register(this, this->Timeout);
+
+	Buffer += Byte;
+	Received++;
+
+	const unsigned int TerminatorSize = Terminator.size();
+
+	if (TerminatorSize == 0) {
+		return; /* We will have to accept in timeout */
+	}
+
+	/* Can there be a terminator? */
+	if (Received >= TerminatorSize) {
+		if (Buffer.find(Terminator, Received - TerminatorSize) 
+		    == std::string::npos) {
+			/* No terminator found - return */
+			std::cerr << "No terminator found '"
+				  << Buffer 
+				  << "'" << std::endl;
+			return;
+		}
+	}
+
+	std::cerr << "Terminator!" << std::endl;
+
+	Accept();
 }
 
 void Terminated::SentByte(char Byte)
@@ -110,7 +165,19 @@ void Terminated::Error(int Errno)
 
 void Terminated::Run()
 {
-	/* Timeout! Reset receiver */
-	Reset();
-	RaiseError(Error::TIMEOUT);
+	/* Timeout! */
+	if (Terminator.size() == 0 && Received > 0) {
+		/* No terminator - accept as a frame */
+		Accept();
+		return;
+	} else {
+		Reset();
+	}
+
+	if (WaitForPing) {
+		WaitForPing = false;
+		RaiseError(Error::TIMEOUT, "While waiting for ping reply");
+	} else {
+		RaiseError(Error::TIMEOUT);
+	}
 }

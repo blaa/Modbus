@@ -991,6 +991,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="SendAddress">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>255</number>
             </property>
@@ -1008,6 +1011,9 @@
           </item>
           <item>
            <widget class="QSpinBox" name="SendFunction">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>255</number>
             </property>
@@ -1030,6 +1036,16 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="TerminatedPing">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Ping</string>
+            </property>
+           </widget>
+          </item>
           <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
@@ -1851,22 +1867,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>MiddleProtocol</sender>
-   <signal>currentIndexChanged(int)</signal>
-   <receiver>ModbusFrame</receiver>
-   <slot>ConfigEnableUpdate()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>343</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>7</x>
-     <y>333</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ModbusMaster</sender>
    <signal>toggled(bool)</signal>
    <receiver>ModbusTimeout</receiver>
@@ -1879,6 +1879,22 @@
     <hint type="destinationlabel">
      <x>335</x>
      <y>424</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MiddleProtocol</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ModbusFrame</receiver>
+   <slot>ConfigEnableUpdate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>227</x>
+     <y>350</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>349</y>
     </hint>
    </hints>
   </connection>

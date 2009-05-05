@@ -22,7 +22,7 @@
 #include "Utils/Error.h"
 
 ModbusFrame::ModbusFrame(QWidget *parent)
-	: QMainWindow(parent)//, LowerCB(*this)
+	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
@@ -106,9 +106,14 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 
 void ModbusFrame::Stop()
 {
+	/* Turn off all additional features; 
+	 * Will be enabled in  Start() depending on 
+	 * configuration */
 	ui.MiddleSend->setEnabled(false);
+	ui.SendAddress->setEnabled(false);
+	ui.SendFunction->setEnabled(false);
 	ui.LowSend->setEnabled(false);
-//	ui.MiddlePing->setEnabled(false);
+	ui.TerminatedPing->setEnabled(false);
 
 	if (CurrentProtocol)
 		delete CurrentProtocol, CurrentProtocol = NULL;
@@ -145,46 +150,134 @@ void ModbusFrame::Finish()
 	this->close();
 }
 
+void ModbusFrame::ConfigEnableUpdate()
+{
+	enum Proto {
+		ModeASCII=0,
+		ModeRTU,
+		ModeTerminated,
+	} Protocol = Proto(ui.MiddleProtocol->currentIndex());
+
+	switch (Protocol)
+	{
+	case ModeTerminated:
+		ui.TerminatedSelected->setEnabled(true);
+		ui.TerminatedCustom->setEnabled(true);
+
+		ui.ModbusMaster->setEnabled(false);
+		ui.ModbusSlave->setEnabled(false);
+		ui.ModbusTimeout->setEnabled(false);
+		ui.ModbusRetries->setEnabled(false);
+		ui.ModbusAddress->setEnabled(false);
+		ui.ModbusMaster->setChecked(true);
+		break;
+	default:
+		ui.TerminatedSelected->setEnabled(false);
+		ui.TerminatedCustom->setEnabled(false);
+
+		ui.ModbusMaster->setEnabled(true);
+		ui.ModbusSlave->setEnabled(true);
+		ui.ModbusTimeout->setEnabled(true);
+		ui.ModbusRetries->setEnabled(true);
+		ui.ModbusAddress->setEnabled(true);
+		break;
+	}
+	
+}
+
 void ModbusFrame::Start()
 {
+	/* Gather some basic info */
+	/* Serial */
+	const char *Device = ui.SerialDevice->text().toStdString().c_str();
+	/* Ugly! */
+	const enum Config::BaudRate BaudRate =
+		(enum Config::BaudRate) (13 - ui.SerialSpeed->currentIndex());
+
+	enum Config::Parity Parity;
+	switch (ui.SerialParity->currentIndex()) {
+	case 0:	Parity = Config::EVEN; break;
+	case 1:	Parity = Config::ODD; break;
+	default: Parity = Config::NONE;	break;
+	}
+		
+	enum Config::StopBits StopBits;
+	if (ui.SerialStopbits->value() == 1) {
+		StopBits = Config::SINGLE;
+	} else {
+		StopBits = Config::DOUBLE;
+	}
+
+	enum Config::CharSize CharSize = Config::CharSize8;
+	switch (ui.SerialChar->value()) {
+	case 7: CharSize = Config::CharSize7; break;
+	default:
+	case 8: CharSize = Config::CharSize8; break;
+	}
+
+	enum Config::FlowControl FlowControl = Config::FLOWNONE;
+	switch (ui.SerialFlow->currentIndex()) {
+	default:
+	case 0: FlowControl = Config::FLOWNONE; break;
+	case 1: FlowControl = Config::RTSCTS; break;
+	case 2: FlowControl = Config::XONXOFF; break;
+	}
+
+	enum Proto {
+		ModeASCII=0,
+		ModeRTU,
+		ModeTerminated,
+	} Protocol = Proto(ui.MiddleProtocol->currentIndex());
+
+	enum TermSelect {
+		CR=0,
+		LF,
+		CRLF,
+		Custom,
+		None,
+	} Terminator = TermSelect(Proto(ui.TerminatedSelected->currentIndex()));
+
+	std::string CustomTerminator = ui.TerminatedCustom->text().toStdString();
+
+	const int ReceiveTimeout = ui.MiddleTimeout->value();
+	const int TransactionTimeout = ui.ModbusTimeout->value();
+
+	const int Retries = ui.ModbusRetries->value();
+	const bool MasterMode = ui.ModbusMaster->isChecked();
+
+
+
+	/* Validate configuration */
+	if (ui.ModbusSlave->isChecked()) {
+		/* Check addresses of functions */
+		const int A1 = ui.ModbusFunEchoNum->value();
+		const int A2 = ui.ModbusFunTimeNum->value();
+		const int A3 = ui.ModbusFunTextNum->value();
+		const int A4 = ui.ModbusFunProgramNum->value();
+		if (A1 == A2 || A1 == A3 || A1 == A4 
+		    || A2 == A3 || A2 == A4 
+		    || A3 == A4) {
+			StatusError(tr("Slave function numbers must differ"));
+			return;
+		}
+	}
+
+	if (Protocol == ModeTerminated && Terminator == Custom 
+	    && CustomTerminator.size() == 0) {
+		StatusError(tr("Custom terminator can't be null"));
+		return;
+	}
+
+	if (CharSize == Config::CharSize7 && Protocol != ModeASCII) {
+		/* FIXME: Shall we keep it? */
+		StatusError(tr("Character size smaller than 8 bits allowed only with modbus ascii"));
+		return;
+	}
+
 	Stop();
 
 	/* Gather configuration variables and create comm system */
 	if (ui.SerialSelected->isChecked()) {
-		/* Serial */
-		const char *Device = ui.SerialDevice->text().toStdString().c_str();
-		/* Ugly! */
-		const enum Config::BaudRate BaudRate =
-			(enum Config::BaudRate) (13 - ui.SerialSpeed->currentIndex());
-
-		enum Config::Parity Parity;
-		switch (ui.SerialParity->currentIndex()) {
-		case 0:	Parity = Config::EVEN; break;
-		case 1:	Parity = Config::ODD; break;
-		default: Parity = Config::NONE;	break;
-		}
-		
-		enum Config::StopBits StopBits;
-		if (ui.SerialStopbits->value() == 1) {
-			StopBits = Config::SINGLE;
-		} else {
-			StopBits = Config::DOUBLE;
-		}
-
-		enum Config::CharSize CharSize = Config::CharSize8;
-		switch (ui.SerialChar->value()) {
-		case 7: CharSize = Config::CharSize7; break;
-		default:
-		case 8: CharSize = Config::CharSize8; break;
-		}
-
-		enum Config::FlowControl FlowControl = Config::FLOWNONE;
-		switch (ui.SerialFlow->currentIndex()) {
-		default:
-		case 0: FlowControl = Config::FLOWNONE; break;
-		case 1: FlowControl = Config::RTSCTS; break;
-		case 2: FlowControl = Config::XONXOFF; break;
-		}
 
 		/* Create device */
 		try {
@@ -200,7 +293,6 @@ void ModbusFrame::Start()
 		}
 
 	} else {
-		
 		/* Network */
 		const std::string Host = ui.NetworkHost->text().toStdString();
 		const int Port = ui.NetworkPort->value();
@@ -227,24 +319,17 @@ void ModbusFrame::Start()
 				}
 			}
 		} catch (Error::Exception &e) {
-			StatusError("Network error: " + tr(e.GetHeader())
+			StatusError(tr("Network error: ") + tr(e.GetHeader())
 					   + tr(e.GetDesc()));
 			return;
 		} catch (...) {
-			StatusError("Error: Unable to open network connection");
+			StatusError(tr("Error: Unable to open network connection"));
 			return;
 		}
 	}
 
 	/** Read data about middle protocol configuration */
-	const int ReceiveTimeout = ui.MiddleTimeout->value();
 
-
-	enum Proto {
-		ModeASCII=0,
-		ModeRTU,
-		ModeTerminated,
-	} Protocol = Proto(ui.MiddleProtocol->currentIndex());
 
 	switch (Protocol) {
 	case ModeASCII:
@@ -258,34 +343,37 @@ void ModbusFrame::Start()
 						    ReceiveTimeout);
 		break;
 	case ModeTerminated:
-//		CurrentProtocol = new Terminated(&LowerCB, *CurrentLowlevel, ReceiveTimeout);
+		CurrentProtocol = new Terminated(this, *CurrentLowlevel, ReceiveTimeout);
+		ui.TerminatedPing->setEnabled(false);
 		break;
 	}
 
 
-	const bool MasterMode = ui.ModbusMaster->isChecked();
-
 	if (Protocol == ModeASCII || Protocol == ModeRTU) {
 		/* We have to set up master/slave protocols */
 		if (MasterMode) {
-			const int TransactionTimeout = ui.ModbusTimeout->value();
-			const int Retries = ui.ModbusRetries->value();
 			CurrentProtocol = new Master(this, *CurrentTempProtocol, 
 						     Retries, TransactionTimeout);
+			ui.SendAddress->setEnabled(true);
+			ui.SendFunction->setEnabled(true);
 		} else {
 			const int SlaveAddress = ui.ModbusAddress->value();
 			Slave *S = new Slave(this, *CurrentTempProtocol, 
 						    SlaveAddress);
 
 			CurrentProtocol = S;
+			ui.SendFunction->setEnabled(true);
 		}
-//		ui.MiddlePing->setEnabled(true);
 	}
 
 	/* Enable interface buttons (disabled in Stop()) */
 	ui.MiddleSend->setEnabled(true);
 	ui.LowSend->setEnabled(true);
-	StatusInfo(tr("Modbus communication started"));
+
+	if (Protocol == ModeTerminated)
+		StatusInfo(tr("Terminated communication started"));
+	else
+		StatusInfo(tr("Modbus communication started"));
 }
 
 void ModbusFrame::MiddleSend()
