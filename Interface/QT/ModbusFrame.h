@@ -23,7 +23,7 @@
 
 #include "Protocol/MasterSlave.h"
 #include "Protocol/Modbus.h"
-
+#include "Protocol/Terminated.h"
 
 
 #include "ui_ModbusFrame.h"
@@ -50,7 +50,10 @@ class ModbusFrame : public QMainWindow
 
 	/**@{ Elements of running communication system */
 	Lowlevel *CurrentLowlevel;
+	/** Protocol with which we talk. Master/slave or terminated */
 	Protocol *CurrentProtocol;
+	/** Hidden underlying protocol: modbus ascii, 
+	 *  modbus rtu or null (if terminated enabled) */
 	Protocol *CurrentTempProtocol;
 	/*@} */
 
@@ -74,8 +77,6 @@ private slots:
 	void MiddleSend();
 	/** Send a string using lowlevel interface */
 	void LowSend();
-	/** Send a ping using modbus (predefined function) */
-	void MiddlePing();
 	/** Cleanup and close the window */
 	void Finish();
 private:

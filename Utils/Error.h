@@ -18,6 +18,10 @@
 namespace Error {
 	enum Type {
 		OK = 0,		/* No error */
+		INFO,		/* Show user information */
+		WARNING,	/* Show user warning */
+		ERROR,		/* General error */
+
 		HASH,		/* Hash error = CRC/LRC */
 
 		/* Frame error - e.g. not beginning with ':' 

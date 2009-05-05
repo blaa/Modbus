@@ -108,7 +108,7 @@ void ModbusFrame::Stop()
 {
 	ui.MiddleSend->setEnabled(false);
 	ui.LowSend->setEnabled(false);
-	ui.MiddlePing->setEnabled(false);
+//	ui.MiddlePing->setEnabled(false);
 
 	if (CurrentProtocol)
 		delete CurrentProtocol, CurrentProtocol = NULL;
@@ -171,10 +171,26 @@ void ModbusFrame::Start()
 			StopBits = Config::DOUBLE;
 		}
 
+		enum Config::CharSize CharSize = Config::CharSize8;
+		switch (ui.SerialChar->value()) {
+		case 7: CharSize = Config::CharSize7; break;
+		default:
+		case 8: CharSize = Config::CharSize8; break;
+		}
+
+		enum Config::FlowControl FlowControl = Config::FLOWNONE;
+		switch (ui.SerialFlow->currentIndex()) {
+		default:
+		case 0: FlowControl = Config::FLOWNONE; break;
+		case 1: FlowControl = Config::RTSCTS; break;
+		case 2: FlowControl = Config::XONXOFF; break;
+		}
+
 		/* Create device */
 		try {
 			CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
-						     Config::CharSize8, Device);
+						     Config::CharSize8, FlowControl,
+						     Device);
 		} catch (Error::Exception &e) {
 			StatusError(tr("Serial error: ") + tr(e.GetHeader()) + tr(e.GetDesc()));
 			return;
@@ -220,31 +236,51 @@ void ModbusFrame::Start()
 		}
 	}
 
-	const int Timeout = ui.MiddleTimeout->value();
-	const int Address = ui.MiddleAddress->value();
-	/* True if no master/slave layer present */
-	const bool BareMode = ui.MiddleMode->currentIndex() == 2 ? true : false;
-	const bool MasterMode = ui.MiddleMode->currentIndex() == 0 ? true : false;
+	/** Read data about middle protocol configuration */
+	const int ReceiveTimeout = ui.MiddleTimeout->value();
 
-	const bool ASCII = ui.MiddleProtocol->currentIndex() == 0 ? true : false;
 
-	if (ASCII) {
-		CurrentProtocol = new ModbusASCII(&LowerCB, *CurrentLowlevel, Timeout);
-	} else {
-		CurrentProtocol = new ModbusRTU(&LowerCB, *CurrentLowlevel, Timeout);
+	enum Proto {
+		ModeASCII=0,
+		ModeRTU,
+		ModeTerminated,
+	} Protocol = Proto(ui.MiddleProtocol->currentIndex());
+
+	switch (Protocol) {
+	case ModeASCII:
+		CurrentTempProtocol = new ModbusASCII(&LowerCB, 
+						      *CurrentLowlevel, 
+						      ReceiveTimeout);
+		break;
+	case ModeRTU:
+		CurrentTempProtocol = new ModbusRTU(&LowerCB,
+						    *CurrentLowlevel, 
+						    ReceiveTimeout);
+		break;
+	case ModeTerminated:
+//		CurrentProtocol = new Terminated(&LowerCB, *CurrentLowlevel, ReceiveTimeout);
+		break;
 	}
-	
-	if (!BareMode) {
-		CurrentTempProtocol = CurrentProtocol;
-		/* This will reregister higher level callback in modbus protocol instance */
+
+
+	const bool MasterMode = ui.ModbusMaster->isChecked();
+
+	if (Protocol == ModeASCII || Protocol == ModeRTU) {
+		/* We have to set up master/slave protocols */
 		if (MasterMode) {
+			const int TransactionTimeout = ui.ModbusTimeout->value();
 			CurrentProtocol = new Master(&LowerCB, *CurrentTempProtocol, 
-						     Address, Timeout);
+						     TransactionTimeout);
 		} else {
-			CurrentProtocol = new Slave(&LowerCB, *CurrentTempProtocol, 
-						    Address, Timeout);
+			const int SlaveAddress = ui.ModbusAddress->value();
+			Slave *S = new Slave(&LowerCB, *CurrentTempProtocol, 
+						    SlaveAddress);
+
+			CurrentProtocol = S;
 		}
-		ui.MiddlePing->setEnabled(true);
+
+
+//		ui.MiddlePing->setEnabled(true);
 	}
 
 	/* Enable interface buttons (disabled in Stop()) */
@@ -287,22 +323,6 @@ void ModbusFrame::LowSend()
 		StatusError(tr("Unknown error"));
 	}
 }
-
-void ModbusFrame::MiddlePing()
-{
-	const int Address = ui.SendAddress->value();
-
-	Master *M = dynamic_cast<Master*>(CurrentProtocol);
-	Slave *S = dynamic_cast<Slave*>(CurrentProtocol);
-	if (M) {
-		M->Ping(Address);
-	} else if (S) {
-		S->Ping(Address);
-	} else {
-		StatusError("Unimplemented");
-	}
-}
-
 
 /******************************
  * Callback implementation 

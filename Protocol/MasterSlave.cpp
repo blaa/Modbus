@@ -84,12 +84,6 @@ void MasterSlave<Master>::SendMessage(const std::string &Msg, int Address, int F
 	Lower.SendMessage(Msg, Address, Function);
 }
 
-template<bool Master>
-void MasterSlave<Master>::Ping(int Address)
-{
-	Lower.SendMessage("", Address, 254);
-}
-
 /************************************
  * Callbacks for lowlevel interface
  * and for timeout.
@@ -132,24 +126,8 @@ void MasterSlave<Master>::LowerCB::ReceivedMessage(const std::string &Msg, int A
 		return;
 	}
 
-	if (Function == 254) {
-		/* This will cause reply from lower layer with
-		   bytes we send and a message - which might
-		   create some status box in interface */
-		M.Quiet = true;
-		M.Lower.SendMessage("", 0, 253);
-		M.Quiet = false;
-	} else 	/* This might create some status box also */
-		if (M.HigherCB)
-			M.HigherCB->ReceivedMessage(Msg, Address, Function);
-
-	/* And this will for sure - probably the most important */
-	if (Function == 254) {
-		/* Got ping */
-		M.RaiseError(Error::PING);
-	} else if (Function == 253) {
-		M.RaiseError(Error::PONG);
-	}
+	if (M.HigherCB)
+		M.HigherCB->ReceivedMessage(Msg, Address, Function);
 }
 
 template<bool Master>

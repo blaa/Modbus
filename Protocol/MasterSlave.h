@@ -106,7 +106,11 @@ public:
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~MasterSlave();
-	
+
+	/** Resets state */
+	void Reset();
+
+	/**@{Protocol interface} */
 	/** Register new callback to higher interface */
 	virtual void RegisterCallback(Protocol::Callback *HigherCB);
 
@@ -114,11 +118,8 @@ public:
 	 * then if master - waits for reply if master */
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 
-	/** Ping */
-	void Ping(int Address);
+	/**@}*/
 
-	/** Resets state */
-	void Reset();
 };
 
 /* Explicit specializations of MasterSlave */

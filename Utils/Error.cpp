@@ -21,6 +21,8 @@ const char *Error::StrError(int Errno)
 	case ADDRESS: return "Wrong frame address";
 	case PING: return "Ping received";
 	case PONG: return "Pong received";
+	case WARNING: return "Warning";
+	case INFO: return "Information";
 	default: return "Unknown error";
 	}
 }
