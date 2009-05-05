@@ -30,7 +30,7 @@
  *
  */
 template<typename HashType, bool ASCII>
-class ModbusGeneric : public Protocol
+class ModbusGeneric : public Protocol, public Lowlevel::Callback
 {
 private:
 	/** How many bytes are received already? */
@@ -52,31 +52,6 @@ private:
 	char HalfByte;
 
 protected:
-	/** Lower level callback implementation */
-	class LowerCB : public Lowlevel::Callback
-	{
-		/** Modbus instance which needs to be informed */
-		ModbusGeneric<HashType, ASCII> &M;
-
-		/** Private constructor; only Modbus class can create
-		 * an instance */
-		LowerCB(ModbusGeneric<HashType, ASCII> &MM);
-	public:
-
-		/** Called when we receive a single byte. */
-		virtual void ReceivedByte(char Byte);
-
-		/** Called when we send single byte.
-		 * Modbus passes it higher to interface
-		 * and ignores */
-		virtual void SentByte(char Byte);
-
-		/** Called on any error; to be defined */
-		virtual void Error(int Errno);
-
-		friend class ModbusGeneric<HashType, ASCII>;
-	};
-
 	class TimeoutCB : public Timeout::Callback
 	{
 		/** Modbus instance which needs to be informed */
@@ -103,9 +78,6 @@ protected:
 	 * We store it, and pass it our callback. */
 	Lowlevel &Lower;
 
-	/** Instance of callback which will be passed down */
-	LowerCB LowerCB;
-
 	/** Instance of timeout callback */
 	TimeoutCB TimeoutCB;
 
@@ -116,7 +88,6 @@ protected:
 	bool RTUGap;
 
 	/** This collects bytes into frames; called by callback */
-	void ReceivedByte(char Byte);
 
 	/** Helper for converting ASCII hex into byte */
 	static unsigned char HexConvert(unsigned char A, unsigned  char B);
@@ -131,18 +102,32 @@ public:
 	 * In RTU max time between two incoming characters equals 1.5 * Timeout
 	 * whereas minimal time generated after sending a frame equals 3.5 * Timeout
 	 */
-	ModbusGeneric(Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000);
+	ModbusGeneric(Protocol::Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~ModbusGeneric();
 	
 	/** Register new callback to higher interface */
-	virtual void RegisterCallback(Callback *HigherCB);
+	virtual void RegisterCallback(Protocol::Callback *HigherCB);
 
 	/** Invoked by interface; creates modbus frame and sends it */
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 	/** Resets receiver */
 	void Reset();
+
+	/**@{ Protocol callback interface */
+	/** Called when we receive a single byte. Collects them into a message */
+	virtual void ReceivedByte(char Byte);
+	
+	/** Called when we send single byte.
+	 * Modbus passes it higher to interface
+	 * and ignores */
+	virtual void SentByte(char Byte);
+
+	/** Called on any error; to be defined */
+	virtual void Error(int Errno);
+	/*@}*/
+
 };
 
 /* Explicit specializations of ModbusGeneric */

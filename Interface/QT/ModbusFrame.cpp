@@ -22,7 +22,7 @@
 #include "Utils/Error.h"
 
 ModbusFrame::ModbusFrame(QWidget *parent)
-	: QMainWindow(parent), LowerCB(*this)
+	: QMainWindow(parent)//, LowerCB(*this)
 {
 	ui.setupUi(this);
 
@@ -248,12 +248,12 @@ void ModbusFrame::Start()
 
 	switch (Protocol) {
 	case ModeASCII:
-		CurrentTempProtocol = new ModbusASCII(&LowerCB, 
+		CurrentTempProtocol = new ModbusASCII(this, 
 						      *CurrentLowlevel, 
 						      ReceiveTimeout);
 		break;
 	case ModeRTU:
-		CurrentTempProtocol = new ModbusRTU(&LowerCB,
+		CurrentTempProtocol = new ModbusRTU(this,
 						    *CurrentLowlevel, 
 						    ReceiveTimeout);
 		break;
@@ -269,11 +269,11 @@ void ModbusFrame::Start()
 		/* We have to set up master/slave protocols */
 		if (MasterMode) {
 			const int TransactionTimeout = ui.ModbusTimeout->value();
-			CurrentProtocol = new Master(&LowerCB, *CurrentTempProtocol, 
+			CurrentProtocol = new Master(this, *CurrentTempProtocol, 
 						     TransactionTimeout);
 		} else {
 			const int SlaveAddress = ui.ModbusAddress->value();
-			Slave *S = new Slave(&LowerCB, *CurrentTempProtocol, 
+			Slave *S = new Slave(this, *CurrentTempProtocol, 
 						    SlaveAddress);
 
 			CurrentProtocol = S;
@@ -324,25 +324,22 @@ void ModbusFrame::LowSend()
 	}
 }
 
+
 /******************************
  * Callback implementation 
  *****************************/
-ModbusFrame::LowerCB::LowerCB(ModbusFrame &MF) : MF(MF)
+void ModbusFrame::ReceivedByte(char Byte)
 {
+	ui.LowlevelInput->insertPlainText(QString(Byte));
 }
 
-void ModbusFrame::LowerCB::ReceivedByte(char Byte)
+void ModbusFrame::SentByte(char Byte)
 {
-	MF.ui.LowlevelInput->insertPlainText(QString(Byte));
-}
-
-void ModbusFrame::LowerCB::SentByte(char Byte)
-{
-	MF.ui.LowlevelOutput->insertPlainText(QString(Byte));
+	ui.LowlevelOutput->insertPlainText(QString(Byte));
 }
 
 
-void ModbusFrame::LowerCB::ReceivedMessage(const std::string &Msg, int Address, int Function)
+void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
 	std::ostringstream ss;
 	ss << "Addr=" 
@@ -353,11 +350,11 @@ void ModbusFrame::LowerCB::ReceivedMessage(const std::string &Msg, int Address, 
 	   << Msg
 	   << "'"
 	   << std::endl;
-	MF.ui.MiddleInput->insertPlainText(ss.str().c_str());
-	MF.ui.Status->setText(("Recv: " + ss.str()).c_str());
+	ui.MiddleInput->insertPlainText(ss.str().c_str());
+	ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
 
-void ModbusFrame::LowerCB::SentMessage(const std::string &Msg, int Address, int Function)
+void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
 {
 	std::ostringstream ss;
 	ss << "Addr="
@@ -368,13 +365,13 @@ void ModbusFrame::LowerCB::SentMessage(const std::string &Msg, int Address, int 
 	   << Msg
 	   << "'"
 	   << std::endl;
-	MF.ui.MiddleOutput->insertPlainText(ss.str().c_str());
+	ui.MiddleOutput->insertPlainText(ss.str().c_str());
 
-	MF.ui.Status->setText(("Sent: " + ss.str()).c_str());
+	ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 
 
-void ModbusFrame::LowerCB::Error(int Errno, const char *Description)
+void ModbusFrame::Error(int Errno, const char *Description)
 {
 	std::ostringstream ss;
 	ss << Error::StrError(Errno);
@@ -382,11 +379,11 @@ void ModbusFrame::LowerCB::Error(int Errno, const char *Description)
 		ss << " (" << Description << ")";
 	}
 
-	MF.ui.Status->setText(ss.str().c_str());
+	ui.Status->setText(ss.str().c_str());
 
 	ss << std::endl;
 
-	MF.ui.ErrorLog->insertPlainText(ss.str().c_str());
+	ui.ErrorLog->insertPlainText(ss.str().c_str());
 }
 
 

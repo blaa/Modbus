@@ -30,25 +30,9 @@
 
 
 /** Class implementing actions of main window GUI */
-class ModbusFrame : public QMainWindow
+class ModbusFrame : public QMainWindow, public Protocol::Callback
 {
 	Q_OBJECT
-
-	/** Protocol callback implementation */
-	class LowerCB : public Protocol::Callback
-	{
-		ModbusFrame &MF;
-		LowerCB(ModbusFrame &MF);
-	public:
-		virtual void ReceivedByte(char Byte);
-		virtual void SentByte(char Byte);
-		virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
-		virtual void SentMessage(const std::string &Msg, int Address, int Function);
-		virtual void Error(int Errno, const char *Description);
-		friend class ModbusFrame;
-	};
-
-	LowerCB LowerCB;
 
 	/**@{ Elements of running communication system */
 	Lowlevel *CurrentLowlevel;
@@ -72,6 +56,14 @@ public:
 	ModbusFrame(QWidget *parent = NULL);
 	~ModbusFrame();
 
+	/**@{ Protocol callback interface */
+	virtual void ReceivedByte(char Byte);
+	virtual void SentByte(char Byte);
+	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
+	virtual void SentMessage(const std::string &Msg, int Address, int Function);
+	virtual void Error(int Errno, const char *Description);
+	/* @} */
+
 private slots:
 	/** Recreate all objects - initialize interfaces and communication */
 	void Start();
@@ -81,6 +73,7 @@ private slots:
 	void LowSend();
 	/** Cleanup and close the window */
 	void Finish();
+
 private:
 	Ui::ModbusFrame ui;
 };

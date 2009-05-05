@@ -21,12 +21,11 @@ struct Config
 		BR2400,		BR4800,
 		BR9600,		BR19200,
 		BR38400,	BR57600,
-		BR115200, 
-		BR230400
+		BR115200,	BR230400
 	};
 
 	/** Serial parity */
-	enum Parity 
+	enum Parity
 	{
 		NONE = 0, EVEN, ODD
 	};
@@ -38,7 +37,7 @@ struct Config
 	};
 
 	/** Serial character size (7-8 bits should be usable) */
-	enum CharSize 
+	enum CharSize
 	{
 		CharSize8, CharSize7, CharSize5
 	};

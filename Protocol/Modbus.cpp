@@ -22,12 +22,12 @@
  * Main modbus ascii class implementation 
  ************************************/
 template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::ModbusGeneric(Callback *HigherCB, 
+ModbusGeneric<HashType, ASCII>::ModbusGeneric(Protocol::Callback *HigherCB, 
 					      Lowlevel &Lower, int Timeout)
-  : HigherCB(HigherCB), Lower(Lower), LowerCB(*this), TimeoutCB(*this)
+	: HigherCB(HigherCB), Lower(Lower), /*LowerCB(*this),*/ TimeoutCB(*this)
 {
 	/* Register us in Lowlevel interface */
-	Lower.RegisterCallback(&LowerCB);
+	Lower.RegisterCallback(this);
 	this->Timeout = Timeout;
 	Reset();
 }
@@ -40,7 +40,7 @@ ModbusGeneric<HashType, ASCII>::~ModbusGeneric()
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::RegisterCallback(Callback *HigherCB)
+void ModbusGeneric<HashType, ASCII>::RegisterCallback(Protocol::Callback *HigherCB)
 {
 	this->HigherCB = HigherCB;
 }
@@ -162,6 +162,38 @@ unsigned char ModbusGeneric<HashType, ASCII>::HexConvert(unsigned char A, unsign
 	return Result;
 }
 
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
+{
+	std::ostringstream ss;
+	/* Turn off timeout - no frame incoming */
+	Timeout::Register(NULL, this->Timeout);
+
+	if (!HigherCB)
+		return;
+
+	/* TODO: Turn this debug off finally */
+	if (ASCII && Additional) 
+		ss << "MODBUS ASCII Error: " << Additional;
+	else if (Additional)
+		ss << "MODBUS RTU Error: " << Additional;
+
+	if (Additional)
+		HigherCB->Error(Errno, ss.str().c_str());
+	else
+		HigherCB->Error(Errno, NULL);
+	return;
+}
+
+
+/************************************
+ * Callbacks for lowlevel interface
+ * and for timeout.
+ ************************************/
+/*template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::LowerCB::LowerCB(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
+{
+}*/
 
 /** Modbus ASCII frame grabber */
 template<>
@@ -173,6 +205,9 @@ void ModbusGeneric<LRC, true>::ReceivedByte(char Byte)
 	 * from two characters into one.
 	 */
 
+	if (HigherCB) {
+		HigherCB->ReceivedByte(Byte);
+	}
 
 	/* We've got some byte - reset timeout 
 	 * so we won't get Reset() during this function */
@@ -185,7 +220,6 @@ void ModbusGeneric<LRC, true>::ReceivedByte(char Byte)
 			RaiseError(Error::FRAME, "Frame does not start with a colon");
 			return;
 		}
-//		this->Hash.Update(Byte); /* FIXME: For sure include ':' in LRC? */
 		Received++;
 		return;
 	}
@@ -300,6 +334,10 @@ void ModbusGeneric<CRC16, false>::ReceivedByte(char Byte)
 	 * from two characters into one.
 	 */
 
+	if (HigherCB) {
+		HigherCB->ReceivedByte(Byte);
+	}
+
 	/* Something happened - reset timeout. When it reaches us 
 	 * we can either be Reset() if CRC is incorrect or we can mark
 	 * the correct frame */
@@ -327,69 +365,24 @@ void ModbusGeneric<CRC16, false>::ReceivedByte(char Byte)
 	}
 }
 
-
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
-{
-	std::ostringstream ss;
-	/* Turn off timeout - no frame incoming */
-	Timeout::Register(NULL, this->Timeout);
-
-	if (!HigherCB)
-		return;
-
-	/* TODO: Turn this debug off finally */
-	if (ASCII && Additional) 
-		ss << "MODBUS ASCII Error: " << Additional;
-	else if (Additional)
-		ss << "MODBUS RTU Error: " << Additional;
-
-	if (Additional)
-		HigherCB->Error(Errno, ss.str().c_str());
-	else
-		HigherCB->Error(Errno, NULL);
-	return;
-}
-
-
-/************************************
- * Callbacks for lowlevel interface
- * and for timeout.
- ************************************/
-template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::LowerCB::LowerCB(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
-{
-}
-
-template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::LowerCB::ReceivedByte(char Byte)
+void ModbusGeneric<HashType, ASCII>::SentByte(char Byte)
 {
 	/* Inform higher layer about this single byte */
-	if (M.HigherCB) {
-		M.HigherCB->ReceivedByte(Byte);
-	}
-
-	M.ReceivedByte(Byte);
-}
-
-template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::LowerCB::SentByte(char Byte)
-{
-	/* Inform higher layer about this single byte */
-	if (M.HigherCB) {
-		M.HigherCB->SentByte(Byte);
+	if (HigherCB) {
+		HigherCB->SentByte(Byte);
 	}
 }
 
 template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::LowerCB::Error(int Errno)
+void ModbusGeneric<HashType, ASCII>::Error(int Errno)
 {
 	std::cerr << "Got error from low layer: "
 		  << Errno 
 		  << std::endl;
-	if (M.HigherCB) {
+	if (HigherCB) {
 		/* Pass this error to interface with callback */
-		M.HigherCB->Error(Errno, "Error from lowlevel");
+		HigherCB->Error(Errno, "Error from lowlevel");
 	}
 }
 

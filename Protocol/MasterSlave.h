@@ -90,8 +90,6 @@ public:
 
 	/**@}*/
 
-
-
 	/**@{ Callback interface */
 	/** For single bytes; for showing all transmitted data */
 	virtual void ReceivedByte(char Byte);
