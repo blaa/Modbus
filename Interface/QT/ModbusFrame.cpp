@@ -269,8 +269,9 @@ void ModbusFrame::Start()
 		/* We have to set up master/slave protocols */
 		if (MasterMode) {
 			const int TransactionTimeout = ui.ModbusTimeout->value();
+			const int Retries = ui.ModbusRetries->value();
 			CurrentProtocol = new Master(this, *CurrentTempProtocol, 
-						     TransactionTimeout);
+						     Retries, TransactionTimeout);
 		} else {
 			const int SlaveAddress = ui.ModbusAddress->value();
 			Slave *S = new Slave(this, *CurrentTempProtocol, 

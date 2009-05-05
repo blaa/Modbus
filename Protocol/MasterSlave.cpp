@@ -23,17 +23,11 @@
  ************************************/
 
 MasterSlave::MasterSlave(Protocol::Callback *HigherCB,
-				 Protocol &Lower,
-				 int Address, int Timeout)
-	: HigherCB(HigherCB), Lower(Lower),/* LowerCB(*this),*/ TimeoutCB(*this)
+				 Protocol &Lower)
+	: HigherCB(HigherCB), Lower(Lower)//, TimeoutCB(*this)
 {
-	/* Register us in Lowlevel interface */
-//	Lower.RegisterCallback(&LowerCB);
+	/* Register us in lower interface */
 	Lower.RegisterCallback(this);
-
-	this->Timeout = Timeout;
-	this->Address = Address;
-	this->Quiet = false;
 }
 
 
@@ -49,14 +43,9 @@ void MasterSlave::RegisterCallback(Protocol::Callback *HigherCB)
 	this->HigherCB = HigherCB;
 }
 
-
-
 void MasterSlave::RaiseError(int Errno, const char *Additional) const
 {
 	std::ostringstream ss;
-
-	if (Quiet)
-		return;
 
 	if (Additional)
 		ss << "Master/Slave Error: " << Additional;
@@ -76,12 +65,6 @@ void MasterSlave::RaiseError(int Errno, const char *Additional) const
 		else
 			HigherCB->Error(Errno, NULL);
 	}
-}
-
-
-void MasterSlave::SendMessage(const std::string &Msg, int Address, int Function)
-{
-	Lower.SendMessage(Msg, Address, Function);
 }
 
 /************************************
@@ -106,12 +89,76 @@ void MasterSlave::SentByte(char Byte)
 
 void MasterSlave::SentMessage(const std::string &Msg, int Address, int Function)
 {
-	if (HigherCB && !Quiet)
+	if (HigherCB)
 		HigherCB->SentMessage(Msg, Address, Function);
 }
 
+void MasterSlave::Error(int Errno, const char *Description)
+{
+	std::cerr << "Master/Slave: Got error from lower layer: "
+		  << Errno
+		  << std::endl;
+	if (HigherCB) {
+		/* Pass this error to interface with callback */
+		HigherCB->Error(Errno, Description);
+	}
+}
 
-void MasterSlave::ReceivedMessage(const std::string &Msg, int Address, int Function)
+/****************************
+ * Master implementation 
+ ***************************/
+
+Master::Master(Protocol::Callback *HigherCB,
+	       Protocol &Lower, 
+	       int Retries,
+	       int TransactionTimeout)
+	: MasterSlave(HigherCB, Lower), Retries(Retries), TransactionTimeout(TransactionTimeout)
+{
+}
+
+void Master::SendMessage(const std::string &Msg, int Address, int Function)
+{
+	Lower.SendMessage(Msg, Address, Function);
+}
+
+
+void Master::ReceivedMessage(const std::string &Msg, int Address, int Function)
+{
+/*	if (Address != this->Address && Address != 0) {
+		std::ostringstream ss;
+		ss << "Got message for " << Address
+		   << " our is " << this->Address
+		   << " ignoring";
+		RaiseError(Error::ADDRESS, ss.str().c_str());
+		return;
+		} */
+
+	if (HigherCB)
+		HigherCB->ReceivedMessage(Msg, Address, Function);
+}
+
+void Master::Run()
+{
+	std::cerr << "Unimplemented" << std::endl;
+}
+
+/****************************
+ * Slave implementation 
+ ***************************/
+
+Slave::Slave(Protocol::Callback *HigherCB,
+	     Protocol &Lower, 
+	     int Address)
+	: MasterSlave(HigherCB, Lower), Address(Address)
+{
+}
+
+void Slave::SendMessage(const std::string &Msg, int Address, int Function)
+{
+	Lower.SendMessage(Msg, Address, Function);
+}
+
+void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
 	if (Address != this->Address && Address != 0) {
 		std::ostringstream ss;
@@ -127,18 +174,13 @@ void MasterSlave::ReceivedMessage(const std::string &Msg, int Address, int Funct
 }
 
 
-void MasterSlave::Error(int Errno, const char *Description)
-{
-	std::cerr << "Master/Slave: Got error from lower layer: "
-		  << Errno
-		  << std::endl;
-	if (HigherCB) {
-		/* Pass this error to interface with callback */
-		HigherCB->Error(Errno, Description);
-	}
-}
 
 
+
+/****************************
+ * Timeout callback implementation 
+ ***************************/
+/*
 MasterSlave::TimeoutCB::TimeoutCB(MasterSlave &MM) : M(MM)
 {
 }
@@ -150,3 +192,4 @@ void MasterSlave::TimeoutCB::Run()
 	std::cout << "Not implemented" << std::endl;
 }
 
+*/
