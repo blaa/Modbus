@@ -21,8 +21,8 @@
 /************************************
  * General master/slave functions
  ************************************/
-template<bool Master>
-MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB,
+
+MasterSlave::MasterSlave(Protocol::Callback *HigherCB,
 				 Protocol &Lower,
 				 int Address, int Timeout)
 	: HigherCB(HigherCB), Lower(Lower),/* LowerCB(*this),*/ TimeoutCB(*this)
@@ -36,38 +36,36 @@ MasterSlave<Master>::MasterSlave(Protocol::Callback *HigherCB,
 	this->Quiet = false;
 }
 
-template<bool Master>
-MasterSlave<Master>::~MasterSlave()
+
+MasterSlave::~MasterSlave()
 {
 	/* Deregister our callback */
 	Lower.RegisterCallback(NULL);
 }
 
-template<bool Master>
-void MasterSlave<Master>::RegisterCallback(Protocol::Callback *HigherCB)
+
+void MasterSlave::RegisterCallback(Protocol::Callback *HigherCB)
 {
 	this->HigherCB = HigherCB;
 }
 
 
-template<bool Master>
-void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
+
+void MasterSlave::RaiseError(int Errno, const char *Additional) const
 {
 	std::ostringstream ss;
 
 	if (Quiet)
 		return;
 
-	/* TODO: Turn this debug off finally */
-	if (Master && Additional)
-		ss << "Master Error: " << Additional;
-	else if (Additional)
-		ss << "Slave Error: " << Additional;
+	if (Additional)
+		ss << "Master/Slave Error: " << Additional;
 
 	std::cerr << Errno /* FIXME: Remove this cerr */
 		  << " : "
 		  << Error::StrError(Errno)
 		  << std::endl;
+
 	if (Additional) {
 		std::cerr << Additional << std::endl;
 	}
@@ -80,8 +78,8 @@ void MasterSlave<Master>::RaiseError(int Errno, const char *Additional) const
 	}
 }
 
-template<bool Master>
-void MasterSlave<Master>::SendMessage(const std::string &Msg, int Address, int Function)
+
+void MasterSlave::SendMessage(const std::string &Msg, int Address, int Function)
 {
 	Lower.SendMessage(Msg, Address, Function);
 }
@@ -91,35 +89,29 @@ void MasterSlave<Master>::SendMessage(const std::string &Msg, int Address, int F
  * and for timeout.
  ************************************/
 
-/*template<bool Master>
-MasterSlave<Master>::LowerCB::LowerCB(MasterSlave<Master> &MM) : M(MM)
-{
-}
-*/
 
-template<bool Master>
-void MasterSlave<Master>::ReceivedByte(char Byte)
+void MasterSlave::ReceivedByte(char Byte)
 {
 	if (HigherCB)
 		HigherCB->ReceivedByte(Byte);
 }
 
-template<bool Master>
-void MasterSlave<Master>::SentByte(char Byte)
+
+void MasterSlave::SentByte(char Byte)
 {
 	if (HigherCB)
 		HigherCB->SentByte(Byte);
 }
 
-template<bool Master>
-void MasterSlave<Master>::SentMessage(const std::string &Msg, int Address, int Function)
+
+void MasterSlave::SentMessage(const std::string &Msg, int Address, int Function)
 {
 	if (HigherCB && !Quiet)
 		HigherCB->SentMessage(Msg, Address, Function);
 }
 
-template<bool Master>
-void MasterSlave<Master>::ReceivedMessage(const std::string &Msg, int Address, int Function)
+
+void MasterSlave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
 	if (Address != this->Address && Address != 0) {
 		std::ostringstream ss;
@@ -134,10 +126,10 @@ void MasterSlave<Master>::ReceivedMessage(const std::string &Msg, int Address, i
 		HigherCB->ReceivedMessage(Msg, Address, Function);
 }
 
-template<bool Master>
-void MasterSlave<Master>::Error(int Errno, const char *Description)
+
+void MasterSlave::Error(int Errno, const char *Description)
 {
-	std::cerr << "MasterSlave: Got error from lower layer: "
+	std::cerr << "Master/Slave: Got error from lower layer: "
 		  << Errno
 		  << std::endl;
 	if (HigherCB) {
@@ -146,19 +138,15 @@ void MasterSlave<Master>::Error(int Errno, const char *Description)
 	}
 }
 
-template<bool Master>
-MasterSlave<Master>::TimeoutCB::TimeoutCB(MasterSlave<Master> &MM) : M(MM)
+
+MasterSlave::TimeoutCB::TimeoutCB(MasterSlave &MM) : M(MM)
 {
 }
 
-template<bool Master>
-void MasterSlave<Master>::TimeoutCB::Run()
+
+void MasterSlave::TimeoutCB::Run()
 {
 	Notice = 1;
 	std::cout << "Not implemented" << std::endl;
 }
 
-/**@{ Explicit template specialization */
-template class MasterSlave<true>;
-template class MasterSlave<false>;
-/*@}*/

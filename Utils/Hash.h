@@ -6,6 +6,7 @@
 #define CRC_LO8(x) ((unsigned char)(x&0x00FF))
 #define CRC_HI8(x) (CRC_LO8(x>>8))
 
+/** General hash interface used to create CRC16 and LRC */
 template<typename T, T InitValue = T()>
 class Hash {
 public:

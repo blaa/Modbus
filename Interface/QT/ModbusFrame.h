@@ -49,10 +49,14 @@ class ModbusFrame : public QMainWindow, public Protocol::Callback
 	/** Convert \xXX \n \r into real characters and \\ into \ */
 	const std::string ParseEscapes(const std::string &Str);
 
+	/** Display red status information */
 	void StatusError(const QString &Str);
+	
+	/** Display normal status information */
 	void StatusInfo(const QString &Str);
 
 public:
+	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
 	~ModbusFrame();
 
@@ -75,6 +79,7 @@ private slots:
 	void Finish();
 
 private:
+	/** Main window definition created with designer */
 	Ui::ModbusFrame ui;
 };
 

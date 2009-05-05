@@ -52,12 +52,13 @@ private:
 	char HalfByte;
 
 protected:
+	/** Modbus timeout interface */
 	class TimeoutCB : public Timeout::Callback
 	{
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
 
-		/* Private constructor like with LL callback */
+		/** Private constructor - only modbus can create us */
 		TimeoutCB(ModbusGeneric &M);
 	public:
 		virtual void Run();

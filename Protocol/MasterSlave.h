@@ -21,16 +21,15 @@
  * Master resend; respond error, timeout error
  * Slave - few functions builtin (ping)
  */
-template<bool Master>
+
 class MasterSlave : public Protocol, public Protocol::Callback
 {
-private:
-
 protected:
+	/** Transaction timeout */
 	class TimeoutCB : public Timeout::Callback
 	{
 		/** Modbus instance which needs to be informed */
-		MasterSlave<Master> &M;
+		MasterSlave &M;
 
 		/** Set to 1 after timeout */
 		volatile unsigned char Notice;
@@ -40,7 +39,7 @@ protected:
 	public:
 		virtual void Run();
 
-		friend class MasterSlave<Master>;
+		friend class MasterSlave;
 	};
 
 	/** Callback passed to Modbus from interface 
@@ -110,7 +109,7 @@ public:
 
 /* Explicit specializations of MasterSlave */
 /* Modbus ASCII */
-typedef MasterSlave<true> Master;
-typedef MasterSlave<false> Slave;
+typedef MasterSlave Master;
+typedef MasterSlave Slave;
 
 #endif

@@ -35,6 +35,7 @@
 
 Network *CurrentNet;
 
+/** Handle network 'interrupt' - call current network implementation */
 void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 {
 	if (!CurrentNet) {
