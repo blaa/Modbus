@@ -24,7 +24,7 @@
 template<typename HashType, bool ASCII>
 ModbusGeneric<HashType, ASCII>::ModbusGeneric(Protocol::Callback *HigherCB, 
 					      Lowlevel &Lower, int Timeout)
-	: HigherCB(HigherCB), Lower(Lower), /*LowerCB(*this),*/ TimeoutCB(*this)
+	: HigherCB(HigherCB), Lower(Lower), TimeoutCB(*this)
 {
 	/* Register us in Lowlevel interface */
 	Lower.RegisterCallback(this);
@@ -190,10 +190,6 @@ void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additiona
  * Callbacks for lowlevel interface
  * and for timeout.
  ************************************/
-/*template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::LowerCB::LowerCB(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
-{
-}*/
 
 /** Modbus ASCII frame grabber */
 template<>

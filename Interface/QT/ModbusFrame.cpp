@@ -279,8 +279,6 @@ void ModbusFrame::Start()
 
 			CurrentProtocol = S;
 		}
-
-
 //		ui.MiddlePing->setEnabled(true);
 	}
 
