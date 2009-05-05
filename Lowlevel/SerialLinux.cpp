@@ -113,6 +113,9 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	case Config::XONXOFF:
 		newtio.c_cflag |= IXON | IXOFF;
 		break;
+	default:
+	case Config::FLOWNONE:
+		break;
 	};
 
     

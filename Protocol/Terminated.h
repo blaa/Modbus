@@ -32,6 +32,7 @@ private:
 
 	/** Terminator to be added to frame */
 	std::string Terminator;
+
 protected:
 	/** Callback passed from a higher layer. */
 	Protocol::Callback *HigherCB;
@@ -53,7 +54,8 @@ public:
 	 * Timeout is time in miliseconds after which we reset receiver
 	 * if no new bytes came
 	 */
-	Terminated(Protocol::Callback *HigherCB, Lowlevel &Lower, std::string Terminator, int Timeout = 1000);
+	Terminated(Protocol::Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000, 
+		   const std::string &Terminator = "\n");
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~Terminated();

@@ -23,7 +23,8 @@
  ************************************/
 
 Terminated::Terminated(Protocol::Callback *HigherCB, 
-		       Lowlevel &Lower, int Timeout)
+		       Lowlevel &Lower, int Timeout,
+		       const std::string &Terminator)
 	: HigherCB(HigherCB), Lower(Lower)
 {
 	/* Register us in Lowlevel interface */
