@@ -92,13 +92,15 @@ void Terminated::RaiseError(int Errno, const char *Additional) const
 void Terminated::Accept()
 {
 	/** FIXME - couldn't it be more optimal? O(n) */
-	Buffer.erase(Received - Terminator.size(), Buffer.size());
+	if (Terminator.size() != 0)
+		Buffer.erase(Received - Terminator.size(), Terminator.size());
+
+	/* Show data */
+	if (HigherCB) 
+		HigherCB->ReceivedMessage(Buffer, -1, -1);
  
 	if (WaitForPing) {
 		WaitForPing = false;
-
-		/* Show data as it came */
-		HigherCB->ReceivedMessage(Buffer, -1, -1);
 
 		/* Raise error to inform about ping */
 		if (Buffer == "PING") {
@@ -107,8 +109,6 @@ void Terminated::Accept()
 			RaiseError(Error::FRAME, "Illegal ping reply");
 		}
 	} else {
-		if (HigherCB)
-			HigherCB->ReceivedMessage(Buffer, -1, -1);
 		if (Echo)
 			SendMessage(Buffer, -1, -1);
 	}
@@ -146,11 +146,10 @@ void Terminated::ReceivedByte(char Byte)
 				  << "'" << std::endl;
 			return;
 		}
-	} else 
-		return; /* Too short for terminator */
-
-	std::cerr << "Terminator!" << std::endl;
-	Accept();
+		std::cerr << "Terminator!" << std::endl;
+		Accept();
+	} 
+	/* Too short for terminator */
 }
 
 void Terminated::SentByte(char Byte)
