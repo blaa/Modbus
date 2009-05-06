@@ -32,6 +32,8 @@ Terminated::Terminated(Protocol::Callback *HigherCB,
 	Lower.RegisterCallback(this);
 	this->Timeout = Timeout;
 	this->Echo = Echo;
+	WaitForPing = false;
+	Received = 0;
 	Reset();
 }
 
@@ -59,6 +61,8 @@ void Terminated::Ping()
 	Lower.SendString(std::string("PING") + Terminator);
 	if (HigherCB)
 		HigherCB->SentMessage("PING", -1, -1);
+
+	std::cout << "Got ping click; Setting timeout" << std::endl;
 	Timeout::Register(this, this->Timeout);
 }
 
@@ -72,9 +76,6 @@ void Terminated::Reset()
 void Terminated::RaiseError(int Errno, const char *Additional) const
 {
 	std::ostringstream ss;
-	/* Turn off timeout - no frame incoming */
-	Timeout::Register(NULL, this->Timeout);
-
 	if (!HigherCB)
 		return;
 
@@ -86,11 +87,12 @@ void Terminated::RaiseError(int Errno, const char *Additional) const
 		HigherCB->Error(Errno, ss.str().c_str());
 	else
 		HigherCB->Error(Errno, NULL);
-	return;
 }
 
 void Terminated::Accept()
 {
+	Timeout::Register(NULL, 0); /* Disable our previous timeout */
+
 	/** FIXME - couldn't it be more optimal? O(n) */
 	if (Terminator.size() != 0)
 		Buffer.erase(Received - Terminator.size(), Terminator.size());
@@ -125,6 +127,7 @@ void Terminated::ReceivedByte(char Byte)
 	if (HigherCB)
 		HigherCB->ReceivedByte(Byte);
 
+	std::cout << "Got byte = " << Byte << "; Setting timeout" << std::endl;
 	Timeout::Register(this, this->Timeout);
 
 	Buffer += Byte;

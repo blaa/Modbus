@@ -55,11 +55,14 @@ namespace Timeout {
 	/** Linux Signal handler */
 	void Handler(int Flag, siginfo_t *si, void *Arg)
 	{
-		Callback *CB = CurrentCB;
-		if (CB)
-			CB->Run();
-		std::cout << "Timeout!!!" << std::endl;
-		CurrentCB = 0;
+		if (CurrentCB) {
+			std::cout << "Real Timeout!!!" << std::endl;
+			CurrentCB->Run();
+		} else {
+			std::cout << "Empty Timeout!!!" << std::endl;
+		}
+
+		CurrentCB = NULL;
 		Notice = 1;
 	}
 
@@ -67,18 +70,18 @@ namespace Timeout {
 	void Register(Callback *CB, long MSec)
 	{
 		struct itimerval itv;
+		CurrentCB = NULL;
 
-		std::cout << "Waiting max for " << MSec << std::endl;
-		CurrentCB = CB;
 		Notice = 0;
 
 		if (MSec == 0) {
 			std::cerr << "Timeout::Register: Called with MSec = 0 - disabling"
 				  << std::endl;
 			CurrentCB = NULL;
-			return;
+		} else {
+			CurrentCB = CB;
 		}
-
+		std::cout << "Waiting max for " << MSec << std::endl;
 		memset(&itv, 0, sizeof(itv));
 		itv.it_value.tv_sec = MSec / 1000;
 		itv.it_value.tv_usec = (MSec % 1000) * 1000;
