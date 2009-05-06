@@ -74,7 +74,7 @@ public:
 		   bool Echo = false);
 
 	/** Deregisters modbus protocol in lowlevel layer */
-	~Terminated();
+	virtual ~Terminated();
 
 	/** Timeout interface */
 	virtual void Run();

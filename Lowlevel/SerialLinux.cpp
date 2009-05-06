@@ -78,6 +78,9 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 
 	Unix::speed_t Speed;
 	switch (BR) {
+	case Config::BR150: Speed = B150; break;
+	case Config::BR200: Speed = B200; break;
+	case Config::BR300: Speed = B300; break;
 	case Config::BR600: Speed = B600; break;
 	case Config::BR1200: Speed = B1200; break;
 	case Config::BR1800: Speed = B1800; break;

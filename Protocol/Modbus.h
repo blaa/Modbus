@@ -13,7 +13,7 @@
 #ifndef _MODBUS_H_
 #define _MODBUS_H_
 
-#include <vector>
+#include <deque>
 #include "Utils/Hash.h"
 #include "Utils/Timeout.h"
 #include "Protocol.h"
@@ -65,13 +65,14 @@ protected:
 	class RTUTimeout : public Timeout
 	{
 		/** Queue of messages to send */
-		std::vector<struct Message> Queue;
+		std::deque<struct Message> Queue;
 
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
 
 		/** Private constructor - only modbus can create us */
-		RTUTimeout(ModbusGeneric &M) : M(M) {}
+		RTUTimeout(ModbusGeneric &M);
+		virtual ~RTUTimeout();
 	public:
 		virtual void Run();
 		void ScheduleMessage(const std::string &Msg, int Address, int Function);
@@ -116,7 +117,7 @@ public:
 	ModbusGeneric(Protocol::Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000);
 
 	/** Deregisters modbus protocol in lowlevel layer */
-	~ModbusGeneric();
+	virtual ~ModbusGeneric();
 	
 	/** Register new callback to higher interface */
 	virtual void RegisterCallback(Protocol::Callback *HigherCB);

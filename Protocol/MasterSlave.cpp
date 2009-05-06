@@ -21,22 +21,19 @@
 /************************************
  * General master/slave functions
  ************************************/
-
 MasterSlave::MasterSlave(Protocol::Callback *HigherCB,
-				 Protocol &Lower)
-	: HigherCB(HigherCB), Lower(Lower)//, TimeoutCB(*this)
+			 Protocol &Lower)
+	: HigherCB(HigherCB), Lower(Lower)
 {
 	/* Register us in lower interface */
 	Lower.RegisterCallback(this);
 }
-
 
 MasterSlave::~MasterSlave()
 {
 	/* Deregister our callback */
 	Lower.RegisterCallback(NULL);
 }
-
 
 void MasterSlave::RegisterCallback(Protocol::Callback *HigherCB)
 {

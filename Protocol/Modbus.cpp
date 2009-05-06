@@ -409,9 +409,9 @@ template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::RTUTimeout::Run()
 {
 	if (Queue.size() > 0) {
-		struct Message &Tmp = Queue.back();
+		struct Message &Tmp = Queue.front();
 		M.SendMessage(Tmp.Msg, Tmp.Address, Tmp.Function);
-		Queue.pop_back();
+		Queue.pop_front();
 	}
 }
 
@@ -425,7 +425,15 @@ void ModbusGeneric<HashType, ASCII>::RTUTimeout::ScheduleMessage(const std::stri
 	Queue.push_back(Tmp);
 }
 
+template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::RTUTimeout::RTUTimeout(ModbusGeneric<HashType, ASCII> &M) : M(M)
+{
+}
 
+template<typename HashType, bool ASCII>
+ModbusGeneric<HashType, ASCII>::RTUTimeout::~RTUTimeout()
+{
+}
 
 /**@{ Explicit template specialization */
 template class ModbusGeneric<LRC, true>;
