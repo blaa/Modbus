@@ -38,6 +38,7 @@ SOURCES=Main.cpp Config.cpp Utils/Error.cpp Utils/Timeout.cpp \
 ifeq ($(QT), 1)
 CFLAGS+=-DQT_INTERFACE -I$(QTINC)
 SOURCES+=Interface/QT/ModbusFrame.cpp Interface/QT/moc_ModbusFrame.cpp
+
 LDFLAGS+=-L$(QTLIB) -lQtGui
 endif
 
@@ -71,7 +72,10 @@ Interface/QT/ui_ModbusFrame.h: Interface/QT/ModbusFrame.ui
 	$(UIC) -o $@ $<
 
 Interface/QT/moc_ModbusFrame.cpp: Interface/QT/ModbusFrame.h Interface/QT/ui_ModbusFrame.h
-	$(MOC) $< > $@
+	$(MOC) -DQT_INTERFACE=1 $< > $@
+
+Utils/moc_Timeout.cpp: Utils/Timeout.cpp
+	$(MOC) -DQT_INTERFACE=1 $< > $@
 
 Inteface/QT/ModbusFrame.cpp: Interface/QT/ModbusFrame.h
 	$(CC) -c $(CFLAGS) -o $@ $<

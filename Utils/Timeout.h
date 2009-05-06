@@ -16,6 +16,7 @@
 /** Functions which allows allocation of a one callback
  * which is to be called in a certain period of time
  * in future - OS dependant */
+
 namespace Timeout {
 	/** Timeout callback class */
 	class Callback
@@ -23,7 +24,7 @@ namespace Timeout {
 	public:
 		/** Virtual destructor */
 		virtual ~Callback() {}
-		
+
 		/** Called when timeout occurs */
 		virtual void Run() = 0;
 	};

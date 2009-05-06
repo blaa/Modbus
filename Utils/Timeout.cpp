@@ -23,17 +23,20 @@
 #	include <sys/time.h>
 #endif
 
+#ifdef QT_INTERFACE
+#include <QtCore/QObject>
+#include <QtCore/QTimer>
+#endif
+
 namespace Timeout {
 
+#if SYS_LINUX && !QT_INTERFACE
 	/** Callback which will be called */
 	Callback *CurrentCB;
 
 	/** Definition of notice variable */
 	volatile unsigned char Notice;
 
-	
-#if SYS_LINUX
-	
 	/** For a certain, locked x miliseconds wait time */
 	class MiliCallback : public Callback
 	{
@@ -127,6 +130,95 @@ namespace Timeout {
 		}
 		while (Notice == 0);
 	}
+
+#endif
+
+#if QT_INTERFACE
+
+
+	class CBTimer : public QObject
+	{
+		Q_OBJECT
+
+	private:
+		Callback *CB;
+
+	public slots:
+//	signals:
+		void Timeout()
+		{
+//			stop();
+			CB->Run();
+			delete this;
+		}
+
+	public:
+		CBTimer(Callback *CB, long MSec)
+			: CB(CB)
+		{
+			//start(MSec);
+			QTimer::singleShot(MSec, this, SLOT(Timeout()));
+		}
+
+		~CBTimer()
+		{
+//			stop();
+		}
+	};
+#include "moc_Timeout.cpp"
+
+	/** For a certain, locked x miliseconds wait time */
+	class MiliCallback : public Callback
+	{
+	public:
+		/** 'Ready' marker */
+		volatile unsigned char Set;
+
+		MiliCallback() : Set(0)
+		{
+		}
+
+		/** Just mark that it's ready */
+		virtual void Run()
+		{
+			Set = 1;
+		}
+	};
+
+	CBTimer *LastTimer;
+
+	/** Function registers callback */
+	void Register(Callback *CB, long MSec)
+	{
+		if (MSec == 0 || CB == NULL) {
+			std::cerr << "Timeout::Register: Called with MSec = 0 - ERROR ERROR ERROR! CHANGE THIS!"
+				  << std::endl;
+			return;
+		}
+
+		new CBTimer(CB, MSec);
+		std::cout << "Waiting max for " << MSec << std::endl;
+	}
+
+	/** Initializes Linux signals for Timeout*/
+	void Init()
+	{
+	}
+
+	void Sleep(long MSec)
+	{
+		if (MSec == 0)
+			return;
+		MiliCallback MCB;
+		Register(&MCB, MSec);
+		while (!MCB.Set);
+	}
+
+	void Wait()
+	{
+		std::cerr << "Timeout::Wait() NOT IMPLEMENTED" << std::endl;
+	}
+
 #endif
 
 

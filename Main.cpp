@@ -258,7 +258,7 @@ namespace Testcase {
 		MR.SendMessage("HELLO", 'A', 'F');
 
 		/* Wait for answer */
-		while (Timeout::Notice == 0);
+//		while (Timeout::Notice == 0);
 
 		/* Second testcase - timeout */
 		std::cout
@@ -268,7 +268,7 @@ namespace Testcase {
 		LowlevelLayer.SendString("HELLO");
 
 		/* Wait for answer */
-		while (Timeout::Notice == 0);
+//		while (Timeout::Notice == 0);
 	}
 
 	/** Example timeout callback */
