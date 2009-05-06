@@ -128,7 +128,6 @@ void Terminated::ReceivedByte(char Byte)
 	if (HigherCB)
 		HigherCB->ReceivedByte(Byte);
 
-	std::cout << "Got byte = " << Byte << "; Setting timeout" << std::endl;
 	Timeout::Schedule(this->Timeout);
 
 	Buffer += Byte;
@@ -145,12 +144,8 @@ void Terminated::ReceivedByte(char Byte)
 		if (Buffer.find(Terminator, Received - TerminatorSize) 
 		    == std::string::npos) {
 			/* No terminator found - return */
-			std::cerr << "No terminator found '"
-				  << Buffer 
-				  << "'" << std::endl;
 			return;
 		}
-		std::cerr << "Terminator!" << std::endl;
 		Accept();
 	} 
 	/* Too short for terminator */
@@ -179,7 +174,6 @@ void Terminated::Error(int Errno)
 
 void Terminated::Run()
 {
-	std::cerr << "Terminator got timeout!" << std::endl;
 	/* Timeout! */
 	if (Terminator.size() == 0 && Received > 0) {
 		/* No terminator - accept as a frame */
@@ -189,10 +183,9 @@ void Terminated::Run()
 
 	if (WaitForPing) {
 		WaitForPing = false;
-		RaiseError(Error::TIMEOUT, "While waiting for ping reply");
+		RaiseError(Error::TIMEOUT, "Timeout while waiting for ping reply");
 	} else {
-		RaiseError(Error::TIMEOUT);
+		RaiseError(Error::TIMEOUT, "Timeout while receiving a frame");
 	}
-
 	Reset();
 }

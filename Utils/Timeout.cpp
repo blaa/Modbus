@@ -134,6 +134,7 @@ void Wait()
 Timeout::Timeout() : QTimer()
 {
 	setSingleShot(true);
+	connect(this, SIGNAL(timeout()), this, SLOT(Run()));
 }
 
 void Timeout::Schedule(long MSec)
@@ -159,8 +160,8 @@ public:
 	volatile unsigned char Set;
 
 	MiliTimeout() : Set(0)
-		{
-		}
+	{
+	}
 
 	/** Just mark that it's ready */
 	virtual void Run()

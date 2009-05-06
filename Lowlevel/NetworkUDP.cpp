@@ -152,7 +152,6 @@ void NetworkUDPClient::SignalHandler(int Sock)
 
 	struct sockaddr_in sa;
 	socklen_t Length = sizeof(sa);
-	std::cerr << "GOT SIGNAL" << std::endl;
 
 	/* FIXME: Rewrite to use bigger buffer */
 	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, 
@@ -168,7 +167,6 @@ void NetworkUDPClient::SignalHandler(int Sock)
 		
 		if (HigherCB) {
 			for (int i=0; i<Cnt; i++) {
-				std::cerr << "GOT=" << Buff[i] << std::endl;
 				HigherCB->ReceivedByte(Buff[i]);
 			}
 		} else {

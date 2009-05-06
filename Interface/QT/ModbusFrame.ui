@@ -42,7 +42,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -1013,8 +1013,14 @@
         </item>
         <item>
          <widget class="QTextEdit" name="MiddleInput">
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1027,8 +1033,14 @@
         </item>
         <item>
          <widget class="QTextEdit" name="MiddleOutput">
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1139,8 +1151,14 @@
         </item>
         <item>
          <widget class="QTextEdit" name="LowlevelInput">
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1153,8 +1171,14 @@
         </item>
         <item>
          <widget class="QTextEdit" name="LowlevelOutput">
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1215,8 +1239,14 @@
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <widget class="QTextEdit" name="ErrorLog">
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+          <property name="acceptRichText">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
