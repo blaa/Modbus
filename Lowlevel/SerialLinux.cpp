@@ -76,8 +76,6 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		throw Error::Exception("Error while opening serial: ", strerror(errno));
 	}
 
-	fsync(this->fd);
-
 	Unix::speed_t Speed;
 	switch (BR) {
 	case Config::BR600: Speed = B600; break;
@@ -163,6 +161,9 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	}
 
 	::fd = this->fd;
+
+	fsync(this->fd);
+
 	Unix::fcntl(this->fd, F_SETOWN, getpid());
 	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
 }

@@ -346,7 +346,6 @@ void ModbusFrame::Start()
 
 	/** Read data about middle protocol configuration */
 
-
 	switch (Protocol) {
 	case ModeASCII:
 		CurrentTempProtocol = new ModbusASCII(this, 
