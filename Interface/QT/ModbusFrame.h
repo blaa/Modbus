@@ -14,6 +14,8 @@
 
 #include <string>
 
+#include <QtCore/QSemaphore>
+
 #include "Lowlevel/Lowlevel.h"
 #include "Protocol/Protocol.h"
 
@@ -24,13 +26,13 @@
 #include "Protocol/MasterSlave.h"
 #include "Protocol/Modbus.h"
 #include "Protocol/Terminated.h"
-
+#include "Utils/Timeout.h"
 
 #include "ui_ModbusFrame.h"
 
 
 /** Class implementing actions of main window GUI */
-class ModbusFrame : public QMainWindow, public Protocol::Callback, public Timeout
+class ModbusFrame : public QMainWindow, public Protocol::Callback
 {
 	Q_OBJECT
 
@@ -65,6 +67,12 @@ class ModbusFrame : public QMainWindow, public Protocol::Callback, public Timeou
 	QString MiddleInput, MiddleOutput, LowlevelInput, 
 		LowlevelOutput, ErrorLog;
 	/*@}*/
+
+	QTimer UpdateTimer;
+	QSemaphore Scheduled;
+	void ScheduleRefresh();
+
+
 public:
 	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
@@ -78,8 +86,6 @@ public:
 	virtual void Error(int Errno, const char *Description);
 	/* @} */
 			
-	/** Timeout interface - used for updating */
-	virtual void Run();
 
 private slots:
 	/** Recreate all objects - initialize interfaces and communication */
@@ -94,6 +100,8 @@ private slots:
 	void Finish();
 	/** Enable/disable some configuration fields */
 	void ConfigEnableUpdate();
+	/** Update display */
+	void UpdateData();
 
 private:
 	/** Main window definition created with designer */

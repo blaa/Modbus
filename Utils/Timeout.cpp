@@ -137,8 +137,12 @@ Timeout::Timeout() : QTimer()
 	connect(this, SIGNAL(timeout()), this, SLOT(Run()));
 }
 
-void Timeout::Schedule(long MSec)
+void Timeout::Schedule(long MSec, bool Periodic)
 {
+	if (Periodic)
+		setSingleShot(false);
+	else
+		setSingleShot(true);
 	start(MSec);
 }
 

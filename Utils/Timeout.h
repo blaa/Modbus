@@ -36,7 +36,7 @@ public:
 	virtual ~Timeout() {}
 
 	/** Call Run() after MSec miliseconds */
-	void Schedule(long MSec);
+	void Schedule(long MSec, bool Periodic = false);
 
 	/** Disable current timeout */
 	void StopTime();

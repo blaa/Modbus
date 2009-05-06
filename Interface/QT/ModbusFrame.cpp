@@ -24,13 +24,17 @@
 #include "Lowlevel/Safe.h"
 
 ModbusFrame::ModbusFrame(QWidget *parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent), UpdateTimer(this), Scheduled(0)
 {
 	ui.setupUi(this);
 
 	CurrentLowlevel = NULL;
 	CurrentProtocol = NULL;
 	CurrentTempProtocol = NULL;
+
+//	UpdateTimer.setSingleShot(true);
+	connect(&UpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateData()));
+	UpdateTimer.start(10);
 }
 
 ModbusFrame::~ModbusFrame()
@@ -447,6 +451,15 @@ void ModbusFrame::LowSend()
 /******************************
  * Callback implementation 
  *****************************/
+void ModbusFrame::ScheduleRefresh()
+{
+	Scheduled.release();
+//	if (Scheduled.tryAcquire()) {
+//		QTimer::singleShot(0, this, SLOT(UpdateData()));
+//	}
+}
+
+
 QString ModbusFrame::ToVisible(char Byte)
 {
 	if (Byte == '\\')
@@ -469,20 +482,16 @@ QString ModbusFrame::ToVisible(char Byte)
 
 void ModbusFrame::ReceivedByte(char Byte)
 {
-	Mutex::Safe();
-	ui.LowlevelInput->moveCursor(QTextCursor::End);
-	ui.LowlevelInput->insertPlainText(ToVisible(Byte));
-	Mutex::Unsafe();
+	LowlevelInput += ToVisible(Byte);
+	ScheduleRefresh();
 }
 
 void ModbusFrame::SentByte(char Byte)
 {
-	Mutex::Safe();
-	ui.LowlevelOutput->moveCursor(QTextCursor::End);
-	ui.LowlevelOutput->insertPlainText(ToVisible(Byte));
-	Mutex::Unsafe();
-}
+	LowlevelOutput += ToVisible(Byte);
 
+	ScheduleRefresh();
+}
 
 void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
@@ -498,12 +507,9 @@ void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Funct
 	   << Msg
 	   << "'"
 	   << std::endl;
-	Mutex::Safe();
-	ui.MiddleInput->moveCursor(QTextCursor::End);
-	ui.MiddleInput->insertPlainText(ss.str().c_str());
-	Mutex::Unsafe(); 
-//	MiddleInput += ss.str();
 
+	MiddleInput += ss.str().c_str();
+	ScheduleRefresh();
 
 //	ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
@@ -523,10 +529,10 @@ void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
 	   << Msg
 	   << "'"
 	   << std::endl;
-	Mutex::Safe();
-	ui.MiddleOutput->moveCursor(QTextCursor::End);
-	ui.MiddleOutput->insertPlainText(ss.str().c_str());
-	Mutex::Unsafe();
+
+	MiddleOutput += ss.str().c_str();
+	ScheduleRefresh();
+
 //	ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 
@@ -551,15 +557,49 @@ void ModbusFrame::Error(int Errno, const char *Description)
 
 //	ui.Status->setText(ss.str().c_str());
 	ss << std::endl;
-	Mutex::Safe();
-	ui.ErrorLog->moveCursor(QTextCursor::End);
-	ui.ErrorLog->insertPlainText(ss.str().c_str());
-	Mutex::Unsafe();
+	
+	ErrorLog += ss.str().c_str();
+	ScheduleRefresh();
 }
 
 
 /** Update interface! */
-void ModbusFrame::Run()
+void ModbusFrame::UpdateData()
 {
+	if (!Scheduled.tryAcquire())
+		return;
+
+	Mutex::Safe();
 	
+
+	if (MiddleInput.size()) {
+		ui.MiddleInput->moveCursor(QTextCursor::End);
+		ui.MiddleInput->insertPlainText(MiddleInput);
+		MiddleInput.clear();
+	}
+
+	if (MiddleOutput.size()) {
+		ui.MiddleOutput->moveCursor(QTextCursor::End);
+		ui.MiddleOutput->insertPlainText(MiddleOutput);
+		MiddleOutput.clear();
+	}
+
+	if (LowlevelInput.size()) {
+		ui.LowlevelInput->moveCursor(QTextCursor::End);
+		ui.LowlevelInput->insertPlainText(LowlevelInput);
+		LowlevelInput.clear();
+	}
+
+	if (LowlevelOutput.size()) {
+		ui.LowlevelOutput->moveCursor(QTextCursor::End);
+		ui.LowlevelOutput->insertPlainText(LowlevelOutput);
+		LowlevelOutput.clear();
+	}
+
+	if (ErrorLog.size()) {
+		ui.ErrorLog->moveCursor(QTextCursor::End);
+		ui.ErrorLog->insertPlainText(ErrorLog);
+		ErrorLog.clear();
+	}
+	Mutex::Unsafe();
 }
