@@ -1,0 +1,35 @@
+#0  0xb7f70430 in __kernel_vsyscall ()
+#1  0xb73ba763 in open () from /lib/tls/i686/cmov/libc.so.6
+#2  0x080503ec in Serial (this=0x8cd5c58, BR=BR115200, P=EVEN, SB=DOUBLE, CS=CharSize8, FC=FLOWNONE, 
+    Device=0x8db355c "/dev/ttyS0") at Lowlevel/SerialLinux.cpp:71
+#3  0x0805e26d in ModbusFrame::Start (this=0x8c9e9d8) at Interface/QT/ModbusFrame.cpp:296
+#4  0x0806ffca in ModbusFrame::qt_metacall (this=0x8c9e9d8, _c=QMetaObject::InvokeMetaMethod, _id=0, 
+    _a=0xbfd8d37c) at Interface/QT/moc_ModbusFrame.cpp:73
+#5  0xb7206ca8 in QMetaObject::activate () from /usr/lib/libQtCore.so.4
+#6  0xb72070e0 in QMetaObject::activate () from /usr/lib/libQtCore.so.4
+#7  0xb7d676a1 in QAbstractButton::clicked () from /usr/lib/libQtGui.so.4
+#8  0xb7a924a9 in ?? () from /usr/lib/libQtGui.so.4
+#9  0xb7a94104 in ?? () from /usr/lib/libQtGui.so.4
+#10 0xb7a94396 in QAbstractButton::mouseReleaseEvent () from /usr/lib/libQtGui.so.4
+#11 0xb7707bd3 in QWidget::event () from /usr/lib/libQtGui.so.4
+#12 0xb7a9234e in QAbstractButton::event () from /usr/lib/libQtGui.so.4
+#13 0xb7b3d310 in QPushButton::event () from /usr/lib/libQtGui.so.4
+#14 0xb76b0f2c in QApplicationPrivate::notify_helper () from /usr/lib/libQtGui.so.4
+#15 0xb76b9ba1 in QApplication::notify () from /usr/lib/libQtGui.so.4
+#16 0xb71f0a3b in QCoreApplication::notifyInternal () from /usr/lib/libQtCore.so.4
+#17 0xb76b8c0e in QApplicationPrivate::sendMouseEvent () from /usr/lib/libQtGui.so.4
+#18 0xb7728a0e in ?? () from /usr/lib/libQtGui.so.4
+#19 0xb7727d37 in QApplication::x11ProcessEvent () from /usr/lib/libQtGui.so.4
+#20 0xb7752cfa in ?? () from /usr/lib/libQtGui.so.4
+---Type <return> to continue, or q <return> to quit---
+#21 0xb6efcb88 in g_main_context_dispatch () from /usr/lib/libglib-2.0.so.0
+#22 0xb6f000eb in ?? () from /usr/lib/libglib-2.0.so.0
+#23 0xb6f00268 in g_main_context_iteration () from /usr/lib/libglib-2.0.so.0
+#24 0xb721c438 in QEventDispatcherGlib::processEvents () from /usr/lib/libQtCore.so.4
+#25 0xb77523f5 in ?? () from /usr/lib/libQtGui.so.4
+#26 0xb71ef06a in QEventLoop::processEvents () from /usr/lib/libQtCore.so.4
+#27 0xb71ef4aa in QEventLoop::exec () from /usr/lib/libQtCore.so.4
+#28 0xb71f1959 in QCoreApplication::exec () from /usr/lib/libQtCore.so.4
+#29 0xb76b0da7 in QApplication::exec () from /usr/lib/libQtGui.so.4
+#30 0x0804deb2 in QTInterface (argc=1, argv=0xbfd8e314) at Main.cpp:451
+#31 0x0804df6e in main (argc=1, argv=0xbfd8e314) at Main.cpp:473
