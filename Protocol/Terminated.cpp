@@ -60,14 +60,14 @@ void Terminated::Ping()
 	WaitForPing = true;
 
 	std::cout << "Got ping click; Setting timeout" << std::endl;
-	Timeout::Register(this, this->Timeout);
+	Schedule(this->Timeout);
 
 	SendMessage("PING", -1, -1);
 }
 
 void Terminated::Reset()
 {
-	Timeout::Register(NULL, 0); /* Disable our previous timeout */
+	StopTime(); /* Disable our previous timeout */
 	Received = 0;
 	Buffer.clear();
 }
@@ -92,7 +92,7 @@ void Terminated::RaiseError(int Errno, const char *Additional) const
 
 void Terminated::Accept()
 {
-	Timeout::Register(NULL, 0); /* Disable our previous timeout */
+	StopTime(); /* Disable our previous timeout */
 
 	/** FIXME - couldn't it be more optimal? O(n) */
 	if (Terminator.size() != 0)
@@ -129,7 +129,7 @@ void Terminated::ReceivedByte(char Byte)
 		HigherCB->ReceivedByte(Byte);
 
 	std::cout << "Got byte = " << Byte << "; Setting timeout" << std::endl;
-	Timeout::Register(this, this->Timeout);
+	Timeout::Schedule(this->Timeout);
 
 	Buffer += Byte;
 	Received++;
@@ -179,6 +179,7 @@ void Terminated::Error(int Errno)
 
 void Terminated::Run()
 {
+	std::cerr << "Terminator got timeout!" << std::endl;
 	/* Timeout! */
 	if (Terminator.size() == 0 && Received > 0) {
 		/* No terminator - accept as a frame */

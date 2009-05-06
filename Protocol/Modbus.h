@@ -30,7 +30,7 @@
  *
  */
 template<typename HashType, bool ASCII>
-class ModbusGeneric : public Protocol, public Lowlevel::Callback
+class ModbusGeneric : public Protocol, public Lowlevel::Callback, public Timeout
 {
 private:
 	/** How many bytes are received already? */
@@ -52,16 +52,28 @@ private:
 	char HalfByte;
 
 protected:
-	/** Modbus timeout interface */
-	class TimeoutCB : public Timeout::Callback
+	/** Timeout used for measuring gap between
+	 * two consecutive send frames */
+	class RTUTimeout : public Timeout
 	{
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
 
+		volatile char Done;
+
 		/** Private constructor - only modbus can create us */
-		TimeoutCB(ModbusGeneric &M);
+		RTUTimeout(ModbusGeneric &M) : M(M), Done(0) {}
 	public:
-		virtual void Run();
+		virtual void Run()
+		{
+			Done = 1;
+		}
+
+		void Schedule(long MSec)
+		{
+			Timeout::Schedule(MSec);
+			Done = 0;
+		}
 
 		friend class ModbusGeneric<HashType, ASCII>;
 	};
@@ -79,14 +91,11 @@ protected:
 	 * We store it, and pass it our callback. */
 	Lowlevel &Lower;
 
-	/** Instance of timeout callback */
-	TimeoutCB TimeoutCB;
+	/** Timeout instance used to measure distance between frames */
+	RTUTimeout RTUTimeout;
 
 	/** Timeout after which we will reset receiver */
 	int Timeout;
-
-	/** Set after RTU frame is sent; cleared by timer */
-	bool RTUGap;
 
 	/** This collects bytes into frames; called by callback */
 
@@ -129,6 +138,8 @@ public:
 	virtual void Error(int Errno);
 	/*@}*/
 
+	/** Receive timeout interface */
+	void Run();
 };
 
 /* Explicit specializations of ModbusGeneric */

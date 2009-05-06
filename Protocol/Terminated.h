@@ -27,7 +27,7 @@
  * timeout for our own purposes! First thing is timeout for 
  * resetting receiver - second a timeout for ping.
  */
-class Terminated : public Protocol, public Lowlevel::Callback, public Timeout::Callback
+class Terminated : public Protocol, public Lowlevel::Callback, public Timeout
 {
 private:
 	/** How many bytes are received already? */

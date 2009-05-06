@@ -73,10 +73,10 @@ public:
 };
 
 
-class Master : public MasterSlave, public Timeout::Callback
+class Master : public MasterSlave, public Timeout
 {
 	/** Transaction timeout */
-	class TimeoutCB : public Timeout::Callback
+	class TimeoutCB : public Timeout
 	{
 		/** Master instance which needs to be informed */
 		Master &M;

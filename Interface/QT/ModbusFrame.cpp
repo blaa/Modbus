@@ -62,7 +62,7 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 
 			case 'r':
 				i+=2;
-				New += '\n';
+				New += '\r';
 				continue;
 
 			case 'x':
@@ -444,11 +444,12 @@ QString ModbusFrame::ToVisible(char Byte)
 	if (Byte == '\\')
 		return QString("\\\\");
 
-	if (Byte > ' ' && Byte < '~')
+	if (Byte >= ' ' && Byte <= '~')
 		return QString(Byte);
 
 	std::ostringstream ss;
-	ss << std::hex << std::setfill('0') << "\\x" << std::setw(2)
+	ss << std::hex << std::uppercase
+	   << std::setfill('0') << "\\x" << std::setw(2)
 	   << (unsigned int)((unsigned char)Byte);
 
 	if (Byte == '\r' || Byte == '\n')

@@ -272,7 +272,7 @@ namespace Testcase {
 	}
 
 	/** Example timeout callback */
-	class TestTimeout : public Timeout::Callback {
+	class TestTimeout : public Timeout {
 	public:
 		volatile char TimeoutDone;
 
@@ -293,11 +293,11 @@ namespace Testcase {
 	{
 		TestTimeout TT;
 		std::cerr << "Registering callback" << std::endl;
-		Timeout::Register(&TT, 1500);
+		TT.Schedule(1500);
 		std::cerr << "Waiting..." << std::endl;
 		while (!TT.TimeoutDone);
 		std::cerr << "One..." << std::endl;
-		Timeout::Sleep(1500);
+//		Timeout::Sleep(1500);
 		std::cerr << "Timeout testcase finished!\n" << std::endl;
 
 	}
@@ -373,7 +373,7 @@ namespace Testcase {
 			for (;;) {
 				P->SendMessage("SERVER", 'A', 'F');
 
-				Timeout::Sleep(1000); /* Receiver will bug this */
+//				Timeout::Sleep(1000); /* Receiver will bug this */
 			}
 		}
 
@@ -414,12 +414,12 @@ namespace Testcase {
 					P->SendMessage("Client", 'B', 'X');
 					InterfaceCB.Received = 0;
 					//		}
-					Timeout::Sleep(500);
+//					Timeout::Sleep(500);
 			}
 		} else {
 			for (;;) {
 				P->SendMessage("SERVER", 'A', 'F');
-				Timeout::Sleep(1000); /* Receiver will bug this */
+//				Timeout::Sleep(1000); /* Receiver will bug this */
 			}
 		}
 
@@ -456,7 +456,7 @@ void QTInterface(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	/* Initialize timeout interrupt/signal */
-	Timeout::Init();
+	TimeoutInit();
 
 	/* Test middle-level protocol */
 //	Testcase::Middle();

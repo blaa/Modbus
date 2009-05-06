@@ -24,7 +24,7 @@
 template<typename HashType, bool ASCII>
 ModbusGeneric<HashType, ASCII>::ModbusGeneric(Protocol::Callback *HigherCB, 
 					      Lowlevel &Lower, int Timeout)
-	: HigherCB(HigherCB), Lower(Lower), TimeoutCB(*this)
+	: HigherCB(HigherCB), Lower(Lower), RTUTimeout(*this)
 {
 	/* Register us in Lowlevel interface */
 	Lower.RegisterCallback(this);
@@ -83,13 +83,12 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 template<>
 void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Address, int Function)
 {
+	/* If previous transmit is not over - block and wait */
+	if (RTUTimeout.IsActive())
+		while (!RTUTimeout.Done);
+
 	CRC16 Hash;
 	std::ostringstream Frame;
-
-	/* Wait until previous send is over */
-	if (RTUGap)
-		Timeout::Wait();
-	RTUGap = false;
 
 	Hash.Init();
 	Frame << (unsigned char)Address << (unsigned char)Function;
@@ -110,20 +109,12 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	std::cerr << "DEBUG, SendMessage RTU: "
 		  << Frame.str() << std::endl;
 
-	/* TODO: We can send this data completely with
-	 * interrupts but this would make Serial a bit 
-	 * harder to write */
 	Lower.SendString(Frame.str());
 
-	/* TODO: This should be done with a Register() 
-	 * so we will return immediately, but won't 
-	 * allow sending another frame before timeout.
-	 */
+	RTUTimeout.Schedule(Timeout * 3.5);
 
 	/* Enabling this timeout will cause testcase to fail
 	 * with a looped output -> input */
-	RTUGap = true;
-	Timeout::Register(&this->TimeoutCB, Timeout * 3.5);
 
 	if (HigherCB) {
 		HigherCB->SentMessage(Msg, Address, Function);
@@ -134,7 +125,7 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::Reset()
 {
-	Timeout::Register(NULL, 0); /* Disable our previous timeout */
+	StopTime(); /* Disable our previous timeout */
 	HalfByte = 0;
 	Received = 0;
 	Buffer.clear();
@@ -166,8 +157,6 @@ template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
 {
 	std::ostringstream ss;
-	/* Turn off timeout - no frame incoming */
-	Timeout::Register(NULL, this->Timeout);
 
 	if (!HigherCB)
 		return;
@@ -182,7 +171,6 @@ void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additiona
 		HigherCB->Error(Errno, ss.str().c_str());
 	else
 		HigherCB->Error(Errno, NULL);
-	return;
 }
 
 
@@ -207,12 +195,13 @@ void ModbusGeneric<LRC, true>::ReceivedByte(char Byte)
 
 	/* We've got some byte - reset timeout 
 	 * so we won't get Reset() during this function */
-	Timeout::Register(&this->TimeoutCB, this->Timeout);
+	Schedule(this->Timeout);
 
 	if (0 == Received) {
 		/* Buffer is empty; byte must equal ':' */
 		if (Byte != ':') {
 			/* Frame error */
+			Reset();
 			RaiseError(Error::FRAME, "Frame does not start with a colon");
 			return;
 		}
@@ -337,8 +326,8 @@ void ModbusGeneric<CRC16, false>::ReceivedByte(char Byte)
 	/* Something happened - reset timeout. When it reaches us 
 	 * we can either be Reset() if CRC is incorrect or we can mark
 	 * the correct frame */
-	Timeout::Register(&this->TimeoutCB, this->Timeout * 1.5);
-	RTUGap = false;
+	Schedule(this->Timeout * 1.5);
+
 	/* FIXME: This register will overwrite possible send-lock wait! */
 
 	Received++;
@@ -383,42 +372,32 @@ void ModbusGeneric<HashType, ASCII>::Error(int Errno)
 }
 
 template<typename HashType, bool ASCII>
-ModbusGeneric<HashType, ASCII>::TimeoutCB::TimeoutCB(ModbusGeneric<HashType, ASCII> &MM) : M(MM)
-{
-}
-
-template<typename HashType, bool ASCII>
-void ModbusGeneric<HashType, ASCII>::TimeoutCB::Run()
+void ModbusGeneric<HashType, ASCII>::Run()
 {
 	/* Timeout might be set during receive or during sent */
 
 	/* Timeout! Reset receiver */
 	if (ASCII) {
-		M.Reset();
-		M.RaiseError(Error::TIMEOUT);
+		Reset();
+		RaiseError(Error::TIMEOUT);
 	} else {
-		if (M.RTUGap) {
-			M.RTUGap = false;
-			/* Ready to send another frame */
-			return;
-		}
 		/*
 		 * In RTU we either reset the receiver
 		 * if current frame is broken (CRC not correct)
 		 * Or we inform higher layer about correct frame 
 		 */
-		if (M.Hash.IsCorrect()) {
-			M.Buffer.erase(M.Buffer.length()-2, M.Buffer.length()-1);
-			if (M.HigherCB) {
-				M.HigherCB->ReceivedMessage(M.Buffer, M.Address, M.Function);
+		if (Hash.IsCorrect()) {
+			Buffer.erase(Buffer.length()-2, Buffer.length()-1);
+			if (HigherCB) {
+				HigherCB->ReceivedMessage(Buffer, Address, Function);
 			}
 		} else {
-			if (M.Received < 4) 
-				M.RaiseError(Error::TIMEOUT, "RTU Timeout - too little read to check CRC");
+			if (Received < 4)
+				RaiseError(Error::TIMEOUT, "RTU Timeout - too little bytes read to check CRC");
 			else 
-				M.RaiseError(Error::HASH, "RTU CRC check failed after reading frame");
+				RaiseError(Error::HASH, "RTU CRC check failed after reading frame");
 		}
-		M.Reset();
+		Reset();
 		return;
 	}
 }

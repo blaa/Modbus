@@ -13,40 +13,58 @@
 #ifndef _TIMEOUT_H_
 #define _TIMEOUT_H_
 
+#ifdef QT_INTERFACE
+#include <QtCore/QObject>
+#include <QtCore/QTimer>
+#endif
+
 /** Functions which allows allocation of a one callback
  * which is to be called in a certain period of time
  * in future - OS dependant */
 
-namespace Timeout {
 	/** Timeout callback class */
-	class Callback
-	{
-	public:
-		/** Virtual destructor */
-		virtual ~Callback() {}
+#if QT_INTERFACE
+class Timeout : private QTimer
+{
+	Q_OBJECT
 
-		/** Called when timeout occurs */
-		virtual void Run() = 0;
-	};
-
-	/** Set to 1 on each timeout, and cleared with Register() */
-	extern volatile unsigned char Notice;
-
-	/** Make the system call CB->Callback after MSec miliseconds.
-	 * MSec = 0 disables previous timeout */
-	void Register(Callback *CB, long MSec);
+public:
+	/** Inictialize timeout */
+	Timeout();
 	
-	/** Locked wait of certain time 
-	 * This may remove registered timeout. 
-	 */
-	void Sleep(long MSec);
+	/** Virtual destructor */
+	virtual ~Timeout() {}
 
-	/** Wait until timeout occurs - if any defined */
-	void Wait();
+	/** Call Run() after MSec miliseconds */
+	void Schedule(long MSec);
 
-	/** Initialize timeout */
-	void Init();
+	/** Disable current timeout */
+	void StopTime();
+
+	/** Checks if timeout is active */
+	bool IsActive();
+public slots:
+	/** Called when timeout occurs */
+	virtual void Run() = 0;
 };
 
+#else
+
+class Timeout
+{
+public:
+	/** Virtual destructor */
+	virtual ~Timeout() {}
+
+	void Schedule(long MSec);
+	void StopTime();
+
+	/** Called when timeout occurs */
+	virtual void Run() = 0;
+};
+#endif
+
+/** Call before using timeout. Might be required in DOS */
+void TimeoutInit();
 
 #endif

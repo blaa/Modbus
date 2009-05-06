@@ -23,218 +23,191 @@
 #	include <sys/time.h>
 #endif
 
-#ifdef QT_INTERFACE
-#include <QtCore/QObject>
-#include <QtCore/QTimer>
-#endif
-
-namespace Timeout {
-
 #if SYS_LINUX && !QT_INTERFACE
-	/** Callback which will be called */
-	Callback *CurrentCB;
 
-	/** Definition of notice variable */
-	volatile unsigned char Notice;
+/** Callback which will be called */
+Callback *CurrentCB;
 
-	/** For a certain, locked x miliseconds wait time */
-	class MiliCallback : public Callback
-	{
-	public:
-		/** 'Ready' marker */
-		volatile unsigned char Set;
+/** Definition of notice variable */
+volatile unsigned char Notice;
 
-		MiliCallback() : Set(0)
+/** For a certain, locked x miliseconds wait time */
+class MiliCallback : public Callback
+{
+public:
+	/** 'Ready' marker */
+	volatile unsigned char Set;
+
+	MiliCallback() : Set(0)
 		{
 		}
 
-		/** Just mark that it's ready */
-		virtual void Run()
+	/** Just mark that it's ready */
+	virtual void Run()
 		{
 			Set = 1;
 		}
-	};
+};
 
-	/** Linux Signal handler */
-	void Handler(int Flag, siginfo_t *si, void *Arg)
-	{
-		Callback *CB = CurrentCB;
-		CurrentCB = NULL;
-		if (CB) {
-			std::cout << "Real Timeout!!!" << std::endl;
-			CB->Run(); /* This may set another Callback! */
-		} else {
-			std::cout << "Empty Timeout!!!" << std::endl;
-		}
-		Notice = 1;
+/** Linux Signal handler */
+void Handler(int Flag, siginfo_t *si, void *Arg)
+{
+	Callback *CB = CurrentCB;
+	CurrentCB = NULL;
+	if (CB) {
+		std::cout << "Real Timeout!!!" << std::endl;
+		CB->Run(); /* This may set another Callback! */
+	} else {
+		std::cout << "Empty Timeout!!!" << std::endl;
 	}
+	Notice = 1;
+}
 
-	/** Function registers callback */
-	void Register(Callback *CB, long MSec)
-	{
-		struct itimerval itv;
+/** Function registers callback */
+void Register(Callback *CB, long MSec)
+{
+	struct itimerval itv;
+	CurrentCB = NULL;
+
+	Notice = 0;
+
+	if (MSec == 0) {
+		std::cerr << "Timeout::Register: Called with MSec = 0 - disabling"
+			  << std::endl;
 		CurrentCB = NULL;
-
-		Notice = 0;
-
-		if (MSec == 0) {
-			std::cerr << "Timeout::Register: Called with MSec = 0 - disabling"
-				  << std::endl;
-			CurrentCB = NULL;
-		} else {
-			CurrentCB = CB;
-		}
-		std::cout << "Waiting max for " << MSec << std::endl;
-		memset(&itv, 0, sizeof(itv));
-		itv.it_value.tv_sec = MSec / 1000;
-		itv.it_value.tv_usec = (MSec % 1000) * 1000;
-		if (setitimer(ITIMER_REAL, &itv, NULL) != 0) {
-			perror("setitimer");
-			exit(-1);
-		}
-		/* Will deliver SIGALRM */
+	} else {
+		CurrentCB = CB;
 	}
-
-	/** Initializes Linux signals for Timeout*/
-	void Init()
-	{
-		struct sigaction sa;
-		memset(&sa, 0, sizeof(sa));
-		sa.sa_handler = NULL;
-		sa.sa_sigaction = Handler;
-		sigemptyset(&sa.sa_mask);
-		sa.sa_flags = SA_SIGINFO;
-		sa.sa_restorer = NULL;
-		
-		CurrentCB = NULL;
-		if (sigaction(SIGALRM, &sa, NULL) != 0) {
-			perror("sigaction");
-			exit(-1);
-		}
+	std::cout << "Waiting max for " << MSec << std::endl;
+	memset(&itv, 0, sizeof(itv));
+	itv.it_value.tv_sec = MSec / 1000;
+	itv.it_value.tv_usec = (MSec % 1000) * 1000;
+	if (setitimer(ITIMER_REAL, &itv, NULL) != 0) {
+		perror("setitimer");
+		exit(-1);
 	}
+	/* Will deliver SIGALRM */
+}
 
-	void Sleep(long MSec)
-	{
-		MiliCallback MCB;
-		Register(&MCB, MSec);
+/** Initializes Linux signals for Timeout*/
+void Init()
+{
+	struct sigaction sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = NULL;
+	sa.sa_sigaction = Handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_restorer = NULL;
+
+	CurrentCB = NULL;
+	if (sigaction(SIGALRM, &sa, NULL) != 0) {
+		perror("sigaction");
+		exit(-1);
+	}
+}
+
+void Sleep(long MSec)
+{
+	MiliCallback MCB;
+	Register(&MCB, MSec);
 //		while (!MCB.Set);  /* If timeout gets changed we will hang; better check this:
-		while (CurrentCB == &MCB);
+	while (CurrentCB == &MCB);
+}
+
+void Wait()
+{
+	if (!CurrentCB) {
+		std::cerr << "Waiting, but no callback defined!"
+			  << std::endl;
+		return;
 	}
-	
-	void Wait()
-	{
-		if (!CurrentCB) {
-			std::cerr << "Waiting, but no callback defined!"
-				  << std::endl;
-			return;
-		}
-		while (Notice == 0);
-	}
+	while (Notice == 0);
+}
 
 #endif
+
+
 
 #if QT_INTERFACE
 
+Timeout::Timeout() : QTimer()
+{
+	setSingleShot(true);
+}
 
-	class CBTimer : public QObject
-	{
-		Q_OBJECT
+void Timeout::Schedule(long MSec)
+{
+	start(MSec);
+}
 
-	private:
-		Callback *CB;
+void Timeout::StopTime()
+{
+	stop();
+}
 
-	public slots:
-//	signals:
-		void Timeout()
-		{
-//			stop();
-			CB->Run();
-			delete this;
-		}
+bool Timeout::IsActive()
+{
+	return isActive();
+}
 
-	public:
-		CBTimer(Callback *CB, long MSec)
-			: CB(CB)
-		{
-			//start(MSec);
-			QTimer::singleShot(MSec, this, SLOT(Timeout()));
-		}
+/** For a certain, locked x miliseconds wait time */
+class MiliTimeout : public Timeout
+{
+public:
+	/** 'Ready' marker */
+	volatile unsigned char Set;
 
-		~CBTimer()
-		{
-//			stop();
-		}
-	};
-#include "moc_Timeout.cpp"
-
-	/** For a certain, locked x miliseconds wait time */
-	class MiliCallback : public Callback
-	{
-	public:
-		/** 'Ready' marker */
-		volatile unsigned char Set;
-
-		MiliCallback() : Set(0)
+	MiliTimeout() : Set(0)
 		{
 		}
 
-		/** Just mark that it's ready */
-		virtual void Run()
+	/** Just mark that it's ready */
+	virtual void Run()
 		{
 			Set = 1;
 		}
-	};
+};
 
-	CBTimer *LastTimer;
 
-	/** Function registers callback */
-	void Register(Callback *CB, long MSec)
-	{
-		if (MSec == 0 || CB == NULL) {
-			std::cerr << "Timeout::Register: Called with MSec = 0 - ERROR ERROR ERROR! CHANGE THIS!"
-				  << std::endl;
-			return;
-		}
+void TimeoutInit()
+{
+}
 
-		new CBTimer(CB, MSec);
-		std::cout << "Waiting max for " << MSec << std::endl;
-	}
+/*
+  void Sleep(long MSec)
+  {
+  if (MSec == 0)
+  return;
+  MiliTimeout MCB;
+  Register(&MCB, MSec);
+  while (!MCB.Set);
+  }
 
-	/** Initializes Linux signals for Timeout*/
-	void Init()
-	{
-	}
-
-	void Sleep(long MSec)
-	{
-		if (MSec == 0)
-			return;
-		MiliCallback MCB;
-		Register(&MCB, MSec);
-		while (!MCB.Set);
-	}
-
-	void Wait()
-	{
-		std::cerr << "Timeout::Wait() NOT IMPLEMENTED" << std::endl;
-	}
-
+  void Wait()
+  {
+  std::cerr << "Timeout::Wait() NOT IMPLEMENTED" << std::endl;
+  }
+*/
 #endif
+
+
 
 
 #if SYS_DOS
-	/** To be written; Dos version of Register function */
-	void Register(Callback *CB, long Sec, long MSec)
-	{
-		CurrentCB = CB;
-		std::cerr << "Unimplemented!" << std::endl;
-	}
 
-	void Init()
-	{
-		std::cerr << "Unimplemented!" << std::endl;
-	}
+/** To be written; Dos version of Register function */
+void Register(Callback *CB, long Sec, long MSec)
+{
+	CurrentCB = CB;
+	std::cerr << "Unimplemented!" << std::endl;
+}
+
+void Init()
+{
+	std::cerr << "Unimplemented!" << std::endl;
+}
+
 #endif
 
 
-};
