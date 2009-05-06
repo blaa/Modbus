@@ -498,10 +498,11 @@ void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Funct
 	   << Msg
 	   << "'"
 	   << std::endl;
-	Mutex::Safe();
+/*	Mutex::Safe();
 	ui.MiddleInput->moveCursor(QTextCursor::End);
 	ui.MiddleInput->insertPlainText(ss.str().c_str());
-	Mutex::Unsafe();
+	Mutex::Unsafe(); */
+	MiddleInput += ss.str();
 
 
 //	ui.Status->setText(("Recv: " + ss.str()).c_str());
