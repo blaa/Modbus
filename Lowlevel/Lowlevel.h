@@ -17,8 +17,8 @@
 /** Interface of all low-level communication methods 
  * - most obviously the interface of a serial.
  *
- * Implementation must be interrupt/signal based. Because of this
- * we will have to inform higher levels of incoming data.
+ * \brief Implementation must be interrupt/signal based. Because of 
+ * this we will have to inform higher levels of incoming data.
  * As a callback we will define an abstract class which will be 
  * implemented by higher layer and passed to the initializer of our class.
  *

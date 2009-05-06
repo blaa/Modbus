@@ -27,7 +27,7 @@
 /************************
  * Server implementation 
  ************************/
-void NetworkUDPServer::SignalHandler(int Sock)
+void NetworkUDPServer::SignalHandler(int Value)
 {
 	char Buff[255];
 	/* Got some bytes from this fd probably */
@@ -37,7 +37,7 @@ void NetworkUDPServer::SignalHandler(int Sock)
 	struct sockaddr_in sa;
 	socklen_t Length = sizeof(sa);
 	/* FIXME: Rewrite to use bigger buffer */
-	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, 
+	while ((Cnt = recvfrom(Socket, Buff, sizeof(Buff), 0, 
 			       (struct sockaddr*)&sa, &Length)) > 0) {
 		/* Check if we remember this guy - if not store him */
 		bool Found = false;
@@ -144,7 +144,7 @@ int NetworkUDPServer::GetByte()
 /*****************************
  * Client functionality 
  *****************************/
-void NetworkUDPClient::SignalHandler(int Sock)
+void NetworkUDPClient::SignalHandler(int Value)
 {
 	char Buff[255];
 	int Cnt;
@@ -154,7 +154,7 @@ void NetworkUDPClient::SignalHandler(int Sock)
 	socklen_t Length = sizeof(sa);
 
 	/* FIXME: Rewrite to use bigger buffer */
-	while ((Cnt = recvfrom(Sock, Buff, sizeof(Buff), 0, 
+	while ((Cnt = recvfrom(Socket, Buff, sizeof(Buff), 0, 
 			       (struct sockaddr*)&sa, &Length)) > 0) {
 		/* Check if received from MASTER! */
 		if (Server.sin_addr.s_addr != sa.sin_addr.s_addr

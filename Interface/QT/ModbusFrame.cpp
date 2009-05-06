@@ -21,6 +21,7 @@
 
 #include "ModbusFrame.h"
 #include "Utils/Error.h"
+#include "Lowlevel/Safe.h"
 
 ModbusFrame::ModbusFrame(QWidget *parent)
 	: QMainWindow(parent)
@@ -395,6 +396,7 @@ void ModbusFrame::Start()
 
 void ModbusFrame::MiddleSend()
 {
+	Mutex::Safe();
 	try {
 		CurrentProtocol->SendMessage(
 			ParseEscapes(
@@ -409,18 +411,22 @@ void ModbusFrame::MiddleSend()
 	} catch (...) {
 		StatusError(tr("Unknown error"));
 	}
+	Mutex::Unsafe();
 }
 
 void ModbusFrame::TerminatedPing()
 {
 	Terminated *T = dynamic_cast<Terminated *>(this->CurrentProtocol);
 	if (T) {
+		Mutex::Safe();
 		T->Ping();
+		Mutex::Unsafe();
 	}
 }
 
 void ModbusFrame::LowSend()
 {
+	Mutex::Safe();
 	try {
 		CurrentLowlevel->SendString(
 			ParseEscapes(
@@ -434,6 +440,7 @@ void ModbusFrame::LowSend()
 	} catch (...) {
 		StatusError(tr("Unknown error"));
 	}
+	Mutex::Unsafe();
 }
 
 
@@ -462,12 +469,18 @@ QString ModbusFrame::ToVisible(char Byte)
 
 void ModbusFrame::ReceivedByte(char Byte)
 {
+	Mutex::Safe();
+	ui.LowlevelInput->moveCursor(QTextCursor::End);
 	ui.LowlevelInput->insertPlainText(ToVisible(Byte));
+	Mutex::Unsafe();
 }
 
 void ModbusFrame::SentByte(char Byte)
 {
+	Mutex::Safe();
+	ui.LowlevelOutput->moveCursor(QTextCursor::End);
 	ui.LowlevelOutput->insertPlainText(ToVisible(Byte));
+	Mutex::Unsafe();
 }
 
 
@@ -485,7 +498,12 @@ void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Funct
 	   << Msg
 	   << "'"
 	   << std::endl;
+	Mutex::Safe();
+	ui.MiddleInput->moveCursor(QTextCursor::End);
 	ui.MiddleInput->insertPlainText(ss.str().c_str());
+	Mutex::Unsafe();
+
+
 //	ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
 
@@ -504,7 +522,10 @@ void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
 	   << Msg
 	   << "'"
 	   << std::endl;
+	Mutex::Safe();
+	ui.MiddleOutput->moveCursor(QTextCursor::End);
 	ui.MiddleOutput->insertPlainText(ss.str().c_str());
+	Mutex::Unsafe();
 //	ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 
@@ -528,9 +549,16 @@ void ModbusFrame::Error(int Errno, const char *Description)
 	}
 
 //	ui.Status->setText(ss.str().c_str());
-
 	ss << std::endl;
+	Mutex::Safe();
+	ui.ErrorLog->moveCursor(QTextCursor::End);
 	ui.ErrorLog->insertPlainText(ss.str().c_str());
+	Mutex::Unsafe();
 }
 
 
+/** Update interface! */
+void ModbusFrame::Run()
+{
+	
+}

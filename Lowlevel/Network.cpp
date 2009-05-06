@@ -33,17 +33,31 @@
 
 Network *CurrentNet;
 
+namespace Mutex {
+	/**@{Used by safe/unsafe locking */
+	volatile char NetworkLock, NetworkEvent;
+	/*@}*/
+}
 
 /** Handle network 'interrupt' - call current network implementation */
 void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 {
+	/* Signal execution locked - called inside a safe section */
+	if (Mutex::NetworkLock) {
+		Mutex::NetworkEvent = 1;
+		return;
+	}
+
 	if (!CurrentNet) {
 		std::cerr << "Got network signal but no handler installed - ignoring" 
 			  << std::endl;
 		return;
 	}
 
-	CurrentNet->SignalHandler(sigi->si_fd);
+	if (sigi)
+		CurrentNet->SignalHandler(sigi->si_fd);
+	else
+		CurrentNet->SignalHandler(-1);
 }
 
 /*****************************

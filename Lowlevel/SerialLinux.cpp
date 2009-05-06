@@ -31,22 +31,34 @@ namespace Unix {
 #include <unistd.h>
 };
 
+
+namespace Mutex {
+	/*@{Safe area locking */
+	volatile char SerialLock, SerialEvent;
+	/*@}*/
+}
+
 /* Hide this functions */
 namespace {
 	int fd;
 	Serial::Callback *CurrentCB;
-	
-	void SerialLinuxReceive(int a)
-	{
-		char Ch;
-		if (CurrentCB == NULL || fd <= 0)
-			return;
-		while (1 == read(fd, &Ch, 1)) {
-			CurrentCB->ReceivedByte(Ch);
-		}
-	}
 }
 
+void SerialSignalHandler(int a)
+{
+	/* Signal execution locked - called inside a safe section */
+	if (Mutex::SerialLock) {
+		Mutex::SerialEvent = 1;
+		return;
+	}
+
+	char Ch;
+	if (CurrentCB == NULL || fd <= 0)
+		return;
+	while (1 == read(fd, &Ch, 1)) {
+		CurrentCB->ReceivedByte(Ch);
+	}
+}
 
 Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	       enum Config::StopBits SB, enum Config::CharSize CS,
@@ -58,7 +70,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 
 	CurrentCB = HigherCB = NULL;
 
-	sa.sa_handler = SerialLinuxReceive;
+	sa.sa_handler = SerialSignalHandler;
 	sa.sa_restorer = NULL;
 	Unix::sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;

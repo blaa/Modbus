@@ -30,7 +30,7 @@
 
 
 /** Class implementing actions of main window GUI */
-class ModbusFrame : public QMainWindow, public Protocol::Callback
+class ModbusFrame : public QMainWindow, public Protocol::Callback, public Timeout
 {
 	Q_OBJECT
 
@@ -61,6 +61,10 @@ class ModbusFrame : public QMainWindow, public Protocol::Callback
 	/** Used to check whether to print Fun and Addr */
 	bool CurrentTerminated;
 
+	/**@{Data from lower levels with which the interface is updated */
+	QString MiddleInput, MiddleOutput, LowlevelInput, 
+		LowlevelOutput, ErrorLog;
+	/*@}*/
 public:
 	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
@@ -73,6 +77,9 @@ public:
 	virtual void SentMessage(const std::string &Msg, int Address, int Function);
 	virtual void Error(int Errno, const char *Description);
 	/* @} */
+			
+	/** Timeout interface - used for updating */
+	virtual void Run();
 
 private slots:
 	/** Recreate all objects - initialize interfaces and communication */

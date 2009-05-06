@@ -14,9 +14,11 @@
 #include <iomanip> /* std::setw std::setfill*/
 #include <sstream>
 #include <cctype>
+
 #include "Utils/Error.h"
 #include "Utils/Hash.h"
 #include "Terminated.h"
+#include "Lowlevel/Safe.h"
 
 /************************************
  * Main modbus ascii class implementation 
@@ -50,9 +52,12 @@ void Terminated::RegisterCallback(Protocol::Callback *HigherCB)
 
 void Terminated::SendMessage(const std::string &Msg, int Address, int Function)
 {
+	Mutex::Safe(); /* As receving might cause another sending when echo is on
+			* disable signals until we send this message */
 	Lower.SendString(Msg + Terminator);
 	if (HigherCB)
 		HigherCB->SentMessage(Msg, Address, Function);
+	Mutex::Unsafe();
 }
 
 void Terminated::Ping()
