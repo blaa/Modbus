@@ -55,14 +55,14 @@ namespace Timeout {
 	/** Linux Signal handler */
 	void Handler(int Flag, siginfo_t *si, void *Arg)
 	{
-		if (CurrentCB) {
+		Callback *CB = CurrentCB;
+		CurrentCB = NULL;
+		if (CB) {
 			std::cout << "Real Timeout!!!" << std::endl;
-			CurrentCB->Run();
+			CB->Run(); /* This may set another Callback! */
 		} else {
 			std::cout << "Empty Timeout!!!" << std::endl;
 		}
-
-		CurrentCB = NULL;
 		Notice = 1;
 	}
 

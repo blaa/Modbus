@@ -58,12 +58,11 @@ void Terminated::SendMessage(const std::string &Msg, int Address, int Function)
 void Terminated::Ping()
 {
 	WaitForPing = true;
-	Lower.SendString(std::string("PING") + Terminator);
-	if (HigherCB)
-		HigherCB->SentMessage("PING", -1, -1);
 
 	std::cout << "Got ping click; Setting timeout" << std::endl;
 	Timeout::Register(this, this->Timeout);
+
+	SendMessage("PING", -1, -1);
 }
 
 void Terminated::Reset()
@@ -82,6 +81,8 @@ void Terminated::RaiseError(int Errno, const char *Additional) const
 	/* TODO: Turn this debug off finally */
 	if (Additional)
 		ss << "Terminated Error: " << Additional;
+
+	std::cerr << ss.str() << std::endl;
 
 	if (Additional)
 		HigherCB->Error(Errno, ss.str().c_str());
@@ -183,8 +184,6 @@ void Terminated::Run()
 		/* No terminator - accept as a frame */
 		Accept();
 		return;
-	} else {
-		Reset();
 	}
 
 	if (WaitForPing) {
@@ -193,4 +192,6 @@ void Terminated::Run()
 	} else {
 		RaiseError(Error::TIMEOUT);
 	}
+
+	Reset();
 }

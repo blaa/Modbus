@@ -485,7 +485,7 @@ void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Funct
 	   << "'"
 	   << std::endl;
 	ui.MiddleInput->insertPlainText(ss.str().c_str());
-	ui.Status->setText(("Recv: " + ss.str()).c_str());
+//	ui.Status->setText(("Recv: " + ss.str()).c_str());
 }
 
 void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
@@ -504,22 +504,31 @@ void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
 	   << "'"
 	   << std::endl;
 	ui.MiddleOutput->insertPlainText(ss.str().c_str());
-	ui.Status->setText(("Sent: " + ss.str()).c_str());
+//	ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 
 
 void ModbusFrame::Error(int Errno, const char *Description)
 {
 	std::ostringstream ss;
-	ss << Error::StrError(Errno);
+	ss << tr(Error::StrError(Errno)).toStdString();
 	if (Description) {
-		ss << " (" << Description << ")";
+		ss << " (" << tr(Description).toStdString() << ")";
+	}
+	switch (Errno) {
+	case Error::PING:
+	case Error::PONG:
+	case Error::INFO:
+	case Error::OK:
+		StatusInfo(ss.str().c_str());
+		break;
+	default:
+		StatusError(ss.str().c_str());
 	}
 
-	ui.Status->setText(ss.str().c_str());
+//	ui.Status->setText(ss.str().c_str());
 
 	ss << std::endl;
-
 	ui.ErrorLog->insertPlainText(ss.str().c_str());
 }
 
