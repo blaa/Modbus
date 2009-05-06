@@ -215,6 +215,8 @@ void ModbusFrame::Start()
 
 	enum Config::CharSize CharSize = Config::CharSize8;
 	switch (ui.SerialChar->value()) {
+	case 5: CharSize = Config::CharSize5; break;
+	case 6: CharSize = Config::CharSize6; break;
 	case 7: CharSize = Config::CharSize7; break;
 	default:
 	case 8: CharSize = Config::CharSize8; break;

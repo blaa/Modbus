@@ -25,6 +25,10 @@ protected:
 
 	/** Device descriptor */
 	int fd;
+
+	/** Current byte width stored as mask of '0' where
+	 * values are accepted */
+	unsigned char CSMask;
 public:
 	/** Initialize serial interface with following middle-layer 
 	 * callback and specified serial configuration */

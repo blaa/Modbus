@@ -39,6 +39,10 @@ namespace Error {
 
 		/* Pong received */
 		PONG,
+
+		/** Illegal byte passed to lowlevel (eg. > 7 bits when
+		 * 7 bit communication selected) */
+		ILBYTE,
 	};
 
 	/** Convert error code into description string */

@@ -39,7 +39,7 @@ struct Config
 	/** Serial character size (7-8 bits should be usable) */
 	enum CharSize
 	{
-		CharSize8, CharSize7, CharSize5
+		CharSize8, CharSize7, CharSize6, CharSize5
 	};
 
 	/** Serial flow control */

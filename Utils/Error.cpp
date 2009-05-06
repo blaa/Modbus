@@ -23,6 +23,7 @@ const char *Error::StrError(int Errno)
 	case PONG: return "Pong received";
 	case WARNING: return "Warning";
 	case INFO: return "Information";
+	case ILBYTE: return "Illegal byte passed to serial device";
 	default: return "Unknown error";
 	}
 }

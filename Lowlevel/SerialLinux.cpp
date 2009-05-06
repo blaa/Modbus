@@ -39,7 +39,7 @@ namespace {
 	void SerialLinuxReceive(int a)
 	{
 		char Ch;
-		if (CurrentCB == NULL) 
+		if (CurrentCB == NULL || fd <= 0)
 			return;
 		while (1 == read(fd, &Ch, 1)) {
 			CurrentCB->ReceivedByte(Ch);
@@ -53,7 +53,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	       enum Config::FlowControl FC,
 	       const char *Device)
 {
-	struct Unix::termios newtio = { 0 };
+	struct Unix::termios newtio;
 	struct Unix::sigaction sa;
 
 	CurrentCB = HigherCB = NULL;
@@ -69,13 +69,14 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	}
 
 	this->fd = Unix::open(Device, O_RDWR | O_NOCTTY);
-	::fd = this->fd;
+
 	if (this->fd < 0) {
 		std::cerr << "Unable to open " << Device << std::endl;
 		std::cerr << "open: " << strerror(errno) << std::endl;
 		throw Error::Exception("Error while opening serial: ", strerror(errno));
 	}
 
+	fsync(this->fd);
 
 	Unix::speed_t Speed;
 	switch (BR) {
@@ -93,8 +94,21 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	default:
 		std::cerr << "Consult " << __FILE__ << ":" << __LINE__ 
 			  << std::endl;
+		close(this->fd);
 		throw Error::Exception("Internal error while selecting serial speed");
 	}
+
+	if (Unix::tcgetattr(this->fd, &newtio) != 0) {
+		std::cerr << "tcgetattr: " << strerror(errno);
+		close(this->fd);
+		throw Error::Exception("Error while reading serial attributes", strerror(errno));
+	}
+
+	/* Clear any unwanted */
+	newtio.c_lflag = 0;
+	newtio.c_cflag = 0;
+	newtio.c_iflag = 0;
+	newtio.c_oflag = 0;
 
 	newtio.c_cflag = Speed | CREAD;
 
@@ -102,12 +116,19 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	switch (CS) {
 	case Config::CharSize5:
 		newtio.c_cflag |= CS5;
+		CSMask = 0xE0;
+		break;
+	case Config::CharSize6:
+		newtio.c_cflag |= CS6;
+		CSMask = 0xC0;
 		break;
 	case Config::CharSize7:
 		newtio.c_cflag |= CS7;
+		CSMask = 0x80;
 		break;
 	default:
 		newtio.c_cflag |= CS8;
+		CSMask = 0x00;
 		break;
 	}
 
@@ -122,24 +143,26 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		newtio.c_cflag |= CRTSCTS;
 		break;
 	case Config::XONXOFF:
-		newtio.c_cflag |= IXON | IXOFF;
+		newtio.c_iflag |= IXON | IXOFF;
 		break;
 	default:
 	case Config::FLOWNONE:
 		break;
 	};
-
     
-	if (Unix::tcflush(this->fd, TCIFLUSH) != 0) {
+	if (Unix::tcflush(this->fd, TCIOFLUSH) != 0) {
 		std::cerr << "tcflush: " << strerror(errno);
-		throw Error::Exception("Serial, tcflush: ", strerror(errno));
+		close(this->fd);
+		throw Error::Exception("Error while flushing serial device", strerror(errno));
 	}
 
 	if (Unix::tcsetattr(this->fd, TCSANOW, &newtio) != 0) {
 		std::cerr << "tcsetattr: " << strerror(errno);
-		throw Error::Exception("Serial, tcsetattr: ", strerror(errno));
+		close(this->fd);
+		throw Error::Exception("Error while setting serial attributes", strerror(errno));
 	}
 
+	::fd = this->fd;
 	Unix::fcntl(this->fd, F_SETOWN, getpid());
 	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
 }
@@ -148,6 +171,7 @@ Serial::~Serial()
 {
 	CurrentCB = NULL;
 	close(this->fd);
+	::fd = -1;
 }
 
 void Serial::RegisterCallback(Callback *HigherCB)
@@ -159,7 +183,14 @@ void Serial::RegisterCallback(Callback *HigherCB)
 
 void Serial::SendByte(char Byte)
 {
+	if ((unsigned char)Byte & CSMask) {
+		if (this->HigherCB)
+			this->HigherCB->Error(Error::ILBYTE);
+		return;
+	}
 	write(this->fd, &Byte, 1);
+	fsync(this->fd);
+	Unix::tcdrain(this->fd);
 	if (this->HigherCB)
 		this->HigherCB->SentByte(Byte);
 }
