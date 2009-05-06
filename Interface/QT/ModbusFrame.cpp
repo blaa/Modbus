@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
 #include <ctype.h>
 
 #include <QtCore/QString>
@@ -165,6 +166,7 @@ void ModbusFrame::ConfigEnableUpdate()
 	case ModeTerminated:
 		ui.TerminatedSelected->setEnabled(true);
 		ui.TerminatedCustom->setEnabled(true);
+		ui.TerminatedEcho->setEnabled(true);
 
 		ui.ModbusMaster->setEnabled(false);
 		ui.ModbusSlave->setEnabled(false);
@@ -176,6 +178,7 @@ void ModbusFrame::ConfigEnableUpdate()
 	default:
 		ui.TerminatedSelected->setEnabled(false);
 		ui.TerminatedCustom->setEnabled(false);
+		ui.TerminatedEcho->setEnabled(false);
 
 		ui.ModbusMaster->setEnabled(true);
 		ui.ModbusSlave->setEnabled(true);
@@ -248,6 +251,7 @@ void ModbusFrame::Start()
 	case Custom: FinalTerminator = CustomTerminator; break;
 	case None: break;
 	}
+	const bool TerminatedEcho = ui.TerminatedEcho->isChecked();
 
 	const int ReceiveTimeout = ui.MiddleTimeout->value();
 	const int TransactionTimeout = ui.ModbusTimeout->value();
@@ -353,12 +357,12 @@ void ModbusFrame::Start()
 						    ReceiveTimeout);
 		break;
 	case ModeTerminated:
-		CurrentProtocol = new Terminated(this, *CurrentLowlevel, ReceiveTimeout, FinalTerminator);
-		ui.TerminatedPing->setEnabled(false);
+		CurrentProtocol = new Terminated(this, *CurrentLowlevel, ReceiveTimeout, 
+						 FinalTerminator, TerminatedEcho);
+		ui.TerminatedPing->setEnabled(true);
 		CurrentTerminated = true;
 		break;
 	}
-
 
 	if (Protocol == ModeASCII || Protocol == ModeRTU) {
 		/* We have to set up master/slave protocols */
@@ -405,6 +409,14 @@ void ModbusFrame::MiddleSend()
 	}
 }
 
+void ModbusFrame::TerminatedPing()
+{
+	Terminated *T = dynamic_cast<Terminated *>(this->CurrentProtocol);
+	if (T) {
+		T->Ping();
+	}
+}
+
 void ModbusFrame::LowSend()
 {
 	try {
@@ -426,14 +438,33 @@ void ModbusFrame::LowSend()
 /******************************
  * Callback implementation 
  *****************************/
+QString ModbusFrame::ToVisible(char Byte)
+{
+	if (Byte == '\\')
+		return QString("\\\\");
+
+	if (Byte > ' ' && Byte < '~')
+		return QString(Byte);
+
+	std::ostringstream ss;
+	ss << std::hex << std::setfill('0') << "\\x" << std::setw(2)
+	   << (unsigned int)((unsigned char)Byte);
+
+	if (Byte == '\r' || Byte == '\n')
+		ss << std::endl;
+
+	return QString(ss.str().c_str());
+}
+     
+
 void ModbusFrame::ReceivedByte(char Byte)
 {
-	ui.LowlevelInput->insertPlainText(QString(Byte));
+	ui.LowlevelInput->insertPlainText(ToVisible(Byte));
 }
 
 void ModbusFrame::SentByte(char Byte)
 {
-	ui.LowlevelOutput->insertPlainText(QString(Byte));
+	ui.LowlevelOutput->insertPlainText(ToVisible(Byte));
 }
 
 

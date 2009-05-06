@@ -49,6 +49,9 @@ class ModbusFrame : public QMainWindow, public Protocol::Callback
 	/** Convert \xXX \n \r into real characters and \\ into \ */
 	const std::string ParseEscapes(const std::string &Str);
 
+	/** Convert data so only visible characters are printed */
+	QString ToVisible(char Byte);
+	
 	/** Display red status information */
 	void StatusError(const QString &Str);
 	
@@ -78,9 +81,10 @@ private slots:
 	void MiddleSend();
 	/** Send a string using lowlevel interface */
 	void LowSend();
+	/** Ping second station using terminated protocol */
+	void TerminatedPing();
 	/** Cleanup and close the window */
 	void Finish();
-
 	/** Enable/disable some configuration fields */
 	void ConfigEnableUpdate();
 

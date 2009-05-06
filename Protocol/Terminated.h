@@ -70,7 +70,8 @@ public:
 	 * if no new bytes came
 	 */
 	Terminated(Protocol::Callback *HigherCB, Lowlevel &Lower, int Timeout = 1000, 
-		   const std::string &Terminator = std::string("\n"));
+		   const std::string &Terminator = std::string("\n"),
+		   bool Echo = false);
 
 	/** Deregisters modbus protocol in lowlevel layer */
 	~Terminated();

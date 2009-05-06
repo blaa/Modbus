@@ -24,12 +24,14 @@
 
 Terminated::Terminated(Protocol::Callback *HigherCB, 
 		       Lowlevel &Lower, int Timeout,
-		       const std::string &Terminator)
+		       const std::string &Terminator,
+		       bool Echo)
 	: Terminator(Terminator), HigherCB(HigherCB), Lower(Lower)
 {
 	/* Register us in Lowlevel interface */
 	Lower.RegisterCallback(this);
 	this->Timeout = Timeout;
+	this->Echo = Echo;
 	Reset();
 }
 
@@ -106,7 +108,10 @@ void Terminated::Accept()
 	} else {
 		if (HigherCB)
 			HigherCB->ReceivedMessage(Buffer, -1, -1);
+		if (Echo)
+			SendMessage(Buffer, -1, -1);
 	}
+	Reset();
 }
 
 
@@ -116,6 +121,9 @@ void Terminated::Accept()
  ************************************/
 void Terminated::ReceivedByte(char Byte)
 {
+	if (HigherCB)
+		HigherCB->ReceivedByte(Byte);
+
 	Timeout::Register(this, this->Timeout);
 
 	Buffer += Byte;
