@@ -191,7 +191,7 @@ void ModbusFrame::Start()
 {
 	/* Gather some basic info */
 	/* Serial */
-	const char *Device = ui.SerialDevice->text().toStdString().c_str();
+	const std::string &SerialDevice = ui.SerialDevice->text().toStdString();
 	/* Ugly! */
 	const enum Config::BaudRate BaudRate =
 		(enum Config::BaudRate) (13 - ui.SerialSpeed->currentIndex());
@@ -292,8 +292,8 @@ void ModbusFrame::Start()
 		/* Create device */
 		try {
 			CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
-						     Config::CharSize8, FlowControl,
-						     Device);
+						     CharSize, FlowControl,
+						     SerialDevice.c_str());
 		} catch (Error::Exception &e) {
 			StatusError(tr("Serial error: ") + tr(e.GetHeader()) + tr(e.GetDesc()));
 			return;

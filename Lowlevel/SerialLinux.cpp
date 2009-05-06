@@ -68,9 +68,6 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		throw Error::Exception("Serial, sigaction: ", strerror(errno));
 	}
 
-	Unix::fcntl(this->fd, F_SETOWN, getpid());
-	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
-
 	this->fd = Unix::open(Device, O_RDWR | O_NOCTTY);
 	::fd = this->fd;
 	if (this->fd < 0) {
@@ -142,6 +139,9 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		std::cerr << "tcsetattr: " << strerror(errno);
 		throw Error::Exception("Serial, tcsetattr: ", strerror(errno));
 	}
+
+	Unix::fcntl(this->fd, F_SETOWN, getpid());
+	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
 }
 
 Serial::~Serial()
