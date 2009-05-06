@@ -21,6 +21,9 @@
 
 #include "Lowlevel.h"
 
+//#define SIGNAL_ID	SIGRTMIN	/* Required for TCP/IP */
+#define SIGNAL_ID	SIGIO
+
 /** Base class for implementing networking */
 class Network : public Lowlevel
 {

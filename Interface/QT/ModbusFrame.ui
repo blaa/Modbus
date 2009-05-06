@@ -318,16 +318,6 @@
              </layout>
             </item>
             <item>
-             <widget class="QRadioButton" name="TCPSelected">
-              <property name="text">
-               <string>TCP/IP networking</string>
-              </property>
-              <property name="shortcut">
-               <string>Ctrl+T</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QRadioButton" name="UDPSelected">
               <property name="text">
                <string>UDP/IP networking</string>
@@ -456,7 +446,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_13">
                 <item>
-                 <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,1,0" columnminimumwidth="0,0,0,0,0">
+                 <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,1" columnminimumwidth="0,0,0,0">
                   <property name="sizeConstraint">
                    <enum>QLayout::SetDefaultConstraint</enum>
                   </property>
@@ -1443,54 +1433,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>TCPSelected</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>NetworkMode</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>147</x>
-     <y>189</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>128</x>
-     <y>249</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>TCPSelected</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>NetworkHost</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>276</x>
-     <y>189</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>406</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>TCPSelected</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>NetworkPort</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>500</x>
-     <y>189</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>506</x>
-     <y>239</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_2</sender>
    <signal>clicked()</signal>
    <receiver>MiddleOutput</receiver>
@@ -1551,22 +1493,6 @@
     <hint type="destinationlabel">
      <x>191</x>
      <y>434</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>TCPSelected</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>NetworkMode</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>171</x>
-     <y>189</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>128</x>
-     <y>249</y>
     </hint>
    </hints>
   </connection>

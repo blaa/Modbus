@@ -31,9 +31,8 @@
 #include <signal.h>
 #include <fcntl.h>
 
-
-
 Network *CurrentNet;
+
 
 /** Handle network 'interrupt' - call current network implementation */
 void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
@@ -61,13 +60,13 @@ Network::Network()
 	sa.sa_flags = SA_SIGINFO;
 	sigemptyset(&sa.sa_mask);
 
-	if (sigaction(SIGRTMIN, &sa, NULL) < 0) {
+	if (sigaction(SIGNAL_ID, &sa, NULL) < 0) {
 		std::cerr << "Network, sigaction: " << strerror(errno)
 			  << std::endl;
 		throw Error::Exception("Network, sigaction: ", strerror(errno));
 	}
 
-	/* Ignore SIGPIPE - so we can close clients cleanly */
+	/* Ignore SIGPIPE - so we can close clients cleanly in tcp/ip */
 	memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = SIG_IGN;
 	sigemptyset(&sa.sa_mask);
@@ -80,7 +79,7 @@ Network::Network()
 	/* Change to asynchronous */
 //	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
 //	fcntl(Socket, F_SETOWN, getpid());
-//	fcntl(Socket, F_SETSIG, SIGRTMIN); /* Dont't send SIGIO, but SIGRTMIN */
+//	fcntl(Socket, F_SETSIG, SIGNAL_ID); /* Dont't send SIGIO, but SIGRTMIN */
 
 	if (CurrentNet) {
 		std::cerr << "Network, Previous network handler detected - ignoring"

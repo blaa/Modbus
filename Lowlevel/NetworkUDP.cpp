@@ -104,7 +104,7 @@ NetworkUDPServer::NetworkUDPServer(int Port)
 	/* Change to asynchronous */
 	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
 	fcntl(Socket, F_SETOWN, getpid());
-	fcntl(Socket, F_SETSIG, SIGRTMIN); /* Dont't send SIGIO, but SIGRTMIN */
+	fcntl(Socket, F_SETSIG, SIGNAL_ID); /* Dont't send SIGIO, but SIGRTMIN */
 }
 
 NetworkUDPServer::~NetworkUDPServer()
@@ -211,7 +211,7 @@ NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
 	/* Change to asynchronous */
 	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
 	fcntl(Socket, F_SETOWN, getpid());
-	fcntl(Socket, F_SETSIG, SIGRTMIN); /* Dont't send SIGIO, but SIGRTMIN */
+	fcntl(Socket, F_SETSIG, SIGNAL_ID); /* Dont't send SIGIO, but SIGRTMIN */
 	
 	/* This tells master that we are listening */
 	SendByte(0x00);

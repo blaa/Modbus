@@ -249,7 +249,7 @@ void ModbusFrame::Start()
 	switch (Terminator) {
 	case CR: FinalTerminator = "\r"; break;
 	case LF: FinalTerminator = "\n"; break;
-	case CRLF: FinalTerminator = "\n\r"; break;
+	case CRLF: FinalTerminator = "\r\n"; break;
 	case Custom: FinalTerminator = CustomTerminator; break;
 	case None: break;
 	}
@@ -260,8 +260,6 @@ void ModbusFrame::Start()
 
 	const int Retries = ui.ModbusRetries->value();
 	const bool MasterMode = ui.ModbusMaster->isChecked();
-
-
 
 	/* Validate configuration */
 	if (ui.ModbusSlave->isChecked()) {
@@ -315,6 +313,7 @@ void ModbusFrame::Start()
 
 		try {
 			bool ServerMode = ui.NetworkMode->currentIndex() == 0 ? true : false;
+#if 0
 			if (ui.TCPSelected->isChecked()) {
 				/* TCP */
 				if (ServerMode) {
@@ -324,7 +323,9 @@ void ModbusFrame::Start()
 					/* Client mode */
 					CurrentLowlevel = new NetworkTCPClient(Host.c_str(), Port);
 				}
-			} else {
+			} else 
+#endif
+			{
 				/* UDP */
 				if (ServerMode) {
 					/* Server mode */
