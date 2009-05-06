@@ -1,0 +1,2 @@
+Lowlevel bytes could be sent with callbacks in bigger chunks than 1 byte.
+The same for receiving data from serial/network.
