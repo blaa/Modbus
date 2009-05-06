@@ -13,6 +13,7 @@
 #ifndef _MODBUS_H_
 #define _MODBUS_H_
 
+#include <vector>
 #include "Utils/Hash.h"
 #include "Utils/Timeout.h"
 #include "Protocol.h"
@@ -52,28 +53,28 @@ private:
 	char HalfByte;
 
 protected:
+	/** Message structure used for scheduling messages */
+	struct Message {
+		std::string Msg;
+		int Address;
+		int Function;
+	};
+
 	/** Timeout used for measuring gap between
 	 * two consecutive send frames */
 	class RTUTimeout : public Timeout
 	{
+		/** Queue of messages to send */
+		std::vector<struct Message> Queue;
+
 		/** Modbus instance which needs to be informed */
 		ModbusGeneric<HashType, ASCII> &M;
 
-		volatile char Done;
-
 		/** Private constructor - only modbus can create us */
-		RTUTimeout(ModbusGeneric &M) : M(M), Done(0) {}
+		RTUTimeout(ModbusGeneric &M) : M(M) {}
 	public:
-		virtual void Run()
-		{
-			Done = 1;
-		}
-
-		void Schedule(long MSec)
-		{
-			Timeout::Schedule(MSec);
-			Done = 0;
-		}
+		virtual void Run();
+		void ScheduleMessage(const std::string &Msg, int Address, int Function);
 
 		friend class ModbusGeneric<HashType, ASCII>;
 	};

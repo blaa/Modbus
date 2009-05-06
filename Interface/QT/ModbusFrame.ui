@@ -42,7 +42,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -524,26 +524,6 @@
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>579</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_7">
-           <attribute name="title">
-            <string>Modbus</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_13">
-            <item>
              <widget class="QGroupBox" name="groupBox_3">
               <property name="title">
                <string>Modbus configuration</string>
@@ -829,26 +809,6 @@
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>415</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_8">
-           <attribute name="title">
-            <string>Terminated</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_14">
-            <item>
              <widget class="QGroupBox" name="groupBox_4">
               <property name="title">
                <string>Terminated configuration</string>
@@ -934,14 +894,14 @@
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer">
+             <spacer name="verticalSpacer_3">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>553</height>
+                <height>247</height>
                </size>
               </property>
              </spacer>
@@ -1712,70 +1672,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunEcho</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>44</x>
-     <y>446</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>46</x>
-     <y>486</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunTime</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>69</x>
-     <y>444</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>87</x>
-     <y>517</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusAddress</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>62</x>
-     <y>445</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>490</x>
-     <y>444</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusMaster</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusRetries</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>61</x>
-     <y>413</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>498</x>
-     <y>413</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SerialSelected</sender>
    <signal>toggled(bool)</signal>
    <receiver>SerialFlow</receiver>
@@ -1820,150 +1716,6 @@
     <hint type="destinationlabel">
      <x>452</x>
      <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunText</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>70</x>
-     <y>443</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>65</x>
-     <y>544</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunProgram</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>45</x>
-     <y>443</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>48</x>
-     <y>579</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunEchoNum</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>55</x>
-     <y>436</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>200</x>
-     <y>486</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunTimeNum</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>50</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>218</x>
-     <y>518</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunTextNum</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>63</x>
-     <y>443</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>232</x>
-     <y>542</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunProgramNum</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>58</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>224</x>
-     <y>575</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunTextArgs</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>63</x>
-     <y>444</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>279</x>
-     <y>546</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunProgramArgs</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>440</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>330</x>
-     <y>577</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusMaster</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusTimeout</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>99</x>
-     <y>421</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>335</x>
-     <y>424</y>
     </hint>
    </hints>
   </connection>

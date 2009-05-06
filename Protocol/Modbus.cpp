@@ -83,9 +83,11 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 template<>
 void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Address, int Function)
 {
-	/* If previous transmit is not over - block and wait */
-	if (RTUTimeout.IsActive())
-		while (!RTUTimeout.Done);
+	/* If previous transmit is not over - schedule sending in a timer and return */
+	if (RTUTimeout.IsActive()) {
+		RTUTimeout.ScheduleMessage(Msg, Address, Function);
+		return;
+	}
 
 	CRC16 Hash;
 	std::ostringstream Frame;
@@ -401,6 +403,28 @@ void ModbusGeneric<HashType, ASCII>::Run()
 		return;
 	}
 }
+
+/** RTU Timeout message queue */
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::RTUTimeout::Run()
+{
+	if (Queue.size() > 0) {
+		struct Message &Tmp = Queue.back();
+		M.SendMessage(Tmp.Msg, Tmp.Address, Tmp.Function);
+		Queue.pop_back();
+	}
+}
+
+template<typename HashType, bool ASCII>
+void ModbusGeneric<HashType, ASCII>::RTUTimeout::ScheduleMessage(const std::string &Msg, int Address, int Function)
+{
+	struct Message Tmp;
+	Tmp.Msg = Msg;
+	Tmp.Address = Address;
+	Tmp.Function = Function;
+	Queue.push_back(Tmp);
+}
+
 
 
 /**@{ Explicit template specialization */
