@@ -57,6 +57,8 @@ void Terminated::Ping()
 {
 	WaitForPing = true;
 	Lower.SendString(std::string("PING") + Terminator);
+	if (HigherCB)
+		HigherCB->SentMessage("PING", -1, -1);
 	Timeout::Register(this, this->Timeout);
 }
 
@@ -91,7 +93,6 @@ void Terminated::Accept()
 {
 	/** FIXME - couldn't it be more optimal? O(n) */
 	Buffer.erase(Received - Terminator.size(), Buffer.size());
-//	std::string Msg = Buffer.substr(0, Received - Terminator.size());
  
 	if (WaitForPing) {
 		WaitForPing = false;
@@ -145,7 +146,8 @@ void Terminated::ReceivedByte(char Byte)
 				  << "'" << std::endl;
 			return;
 		}
-	}
+	} else 
+		return; /* Too short for terminator */
 
 	std::cerr << "Terminator!" << std::endl;
 	Accept();

@@ -68,15 +68,12 @@ namespace Timeout {
 	{
 		struct itimerval itv;
 
-		if (CurrentCB && CB) {
-			std::cerr << "Possible error - Overwriting previous timeout!!!" << std::endl;
-		}
 		std::cout << "Waiting max for " << MSec << std::endl;
 		CurrentCB = CB;
 		Notice = 0;
 
 		if (MSec == 0) {
-			std::cerr << "Timeout::Register: Called with MSec = 0 - ignoring"
+			std::cerr << "Timeout::Register: Called with MSec = 0 - disabling"
 				  << std::endl;
 			CurrentCB = NULL;
 			return;
