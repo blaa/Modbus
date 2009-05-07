@@ -4,428 +4,518 @@
 <context>
     <name>ModbusFrame</name>
     <message>
-        <location filename="ui_ModbusFrame.h" line="627"/>
         <location filename="ModbusFrame.ui" line="26"/>
         <source>Modbus</source>
         <translation type="unfinished">Modbus</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="699"/>
-        <location filename="ModbusFrame.ui" line="46"/>
+        <location filename="ModbusFrame.ui" line="61"/>
         <source>Configuration</source>
         <translation type="unfinished">Konfiguracja</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="628"/>
-        <location filename="ModbusFrame.ui" line="52"/>
         <source>Link configuration</source>
-        <translation type="unfinished">Konfiguracja połączenia</translation>
+        <translation type="obsolete">Konfiguracja połączenia</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="629"/>
-        <location filename="ModbusFrame.ui" line="58"/>
+        <location filename="ModbusFrame.ui" line="86"/>
         <source>Serial port</source>
         <translation type="unfinished">Port szeregowy</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="630"/>
-        <location filename="ModbusFrame.ui" line="61"/>
+        <location filename="ModbusFrame.ui" line="89"/>
         <source>Ctrl+S</source>
         <translation type="unfinished">Ctrl+S</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="631"/>
-        <location filename="ModbusFrame.ui" line="73"/>
+        <location filename="ModbusFrame.ui" line="101"/>
         <source>Device:</source>
         <translation type="unfinished">Urządzenie:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="632"/>
-        <location filename="ModbusFrame.ui" line="83"/>
+        <location filename="ModbusFrame.ui" line="111"/>
         <source>/dev/ttyS0</source>
         <translation type="unfinished">/dev/ttyS0</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="637"/>
-        <location filename="ModbusFrame.ui" line="118"/>
+        <location filename="ModbusFrame.ui" line="146"/>
         <source>115200</source>
         <translation type="unfinished">115200</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="638"/>
-        <location filename="ModbusFrame.ui" line="123"/>
+        <location filename="ModbusFrame.ui" line="151"/>
         <source>57600</source>
         <translation type="unfinished">57600</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="639"/>
-        <location filename="ModbusFrame.ui" line="128"/>
+        <location filename="ModbusFrame.ui" line="156"/>
         <source>38400</source>
         <translation type="unfinished">38400</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="640"/>
-        <location filename="ModbusFrame.ui" line="133"/>
+        <location filename="ModbusFrame.ui" line="161"/>
         <source>19200</source>
         <translation type="unfinished">19200</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="641"/>
-        <location filename="ModbusFrame.ui" line="138"/>
+        <location filename="ModbusFrame.ui" line="166"/>
         <source>9600</source>
         <translation type="unfinished">9600</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="642"/>
-        <location filename="ModbusFrame.ui" line="143"/>
+        <location filename="ModbusFrame.ui" line="171"/>
         <source>4800</source>
         <translation type="unfinished">4800</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="643"/>
-        <location filename="ModbusFrame.ui" line="148"/>
+        <location filename="ModbusFrame.ui" line="176"/>
         <source>2400</source>
         <translation type="unfinished">2400</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="644"/>
-        <location filename="ModbusFrame.ui" line="153"/>
+        <location filename="ModbusFrame.ui" line="181"/>
         <source>1800</source>
         <translation type="unfinished">1800</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="645"/>
-        <location filename="ModbusFrame.ui" line="158"/>
+        <location filename="ModbusFrame.ui" line="186"/>
         <source>1200</source>
         <translation type="unfinished">1200</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="646"/>
-        <location filename="ModbusFrame.ui" line="163"/>
+        <location filename="ModbusFrame.ui" line="191"/>
         <source>600</source>
         <translation type="unfinished">600</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="647"/>
-        <location filename="ModbusFrame.ui" line="168"/>
+        <location filename="ModbusFrame.ui" line="196"/>
         <source>300</source>
         <translation type="unfinished">300</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="648"/>
-        <location filename="ModbusFrame.ui" line="173"/>
+        <location filename="ModbusFrame.ui" line="201"/>
         <source>200</source>
         <translation type="unfinished">200</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="649"/>
-        <location filename="ModbusFrame.ui" line="178"/>
+        <location filename="ModbusFrame.ui" line="206"/>
         <source>150</source>
         <translation type="unfinished">150</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="659"/>
-        <location filename="ModbusFrame.ui" line="196"/>
+        <location filename="ModbusFrame.ui" line="224"/>
         <source>Parity selection</source>
-        <translation type="unfinished">wybór parzystości</translation>
+        <translation type="unfinished">Wybór parzystości</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="654"/>
-        <location filename="ModbusFrame.ui" line="200"/>
+        <location filename="ModbusFrame.ui" line="228"/>
         <source>Even</source>
         <translation type="unfinished">Parzyste</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="655"/>
-        <location filename="ModbusFrame.ui" line="205"/>
+        <location filename="ModbusFrame.ui" line="233"/>
         <source>Odd</source>
         <translation type="unfinished">Nieparzyste</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="633"/>
-        <location filename="ModbusFrame.ui" line="96"/>
+        <location filename="ModbusFrame.ui" line="666"/>
+        <source>Enable echo</source>
+        <translation type="unfinished">Włącz echo</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="679"/>
+        <source>Enable time reply</source>
+        <translation type="unfinished">Włącz odpowiedź czasową</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="692"/>
+        <source>Enable text reply</source>
+        <translation type="unfinished">Włącz odpowiedź tekstową</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="747"/>
+        <source>Hello world</source>
+        <translation type="unfinished">Hello world</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="754"/>
+        <source>Slave built-in functions:</source>
+        <translation type="unfinished">Wbudowane funkcje Slave:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="761"/>
+        <source>Number:</source>
+        <translation type="unfinished">Liczba:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="768"/>
+        <source>Arguments:</source>
+        <translation type="unfinished">Argumenty:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="778"/>
+        <source>Enable program reply</source>
+        <translation type="unfinished">Włącz odpowiedź programu</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="801"/>
+        <source>uname -a</source>
+        <translation type="unfinished">uname -a</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="813"/>
+        <source>Terminated configuration</source>
+        <translation type="unfinished">Konfiguracja protokołu ze znacznikiem końca łańcucha</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="821"/>
+        <source>Terminator:</source>
+        <translation type="unfinished">Znacznik końca:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="835"/>
+        <source>CR</source>
+        <translation type="unfinished">CR</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="840"/>
+        <source>LF</source>
+        <translation type="unfinished">LF</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="845"/>
+        <source>CRLF</source>
+        <translation type="unfinished">CRLF</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="850"/>
+        <source>Custom</source>
+        <translation type="unfinished">Niestandardowy</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="863"/>
+        <source>Custom terminator:</source>
+        <translation type="unfinished">Znacznik niestandardowy:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="888"/>
+        <source>Echo enabled</source>
+        <translation type="unfinished">Echo włączone</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="124"/>
         <source>Speed:</source>
         <translation type="unfinished">Prędkosć:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="636"/>
-        <location filename="ModbusFrame.ui" line="113"/>
-        <source>230400</source>
-        <translation type="unfinished"></translation>
+        <location filename="ModbusFrame.ui" line="80"/>
+        <source>Link</source>
+        <translation type="unfinished">Połączenie</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="651"/>
-        <location filename="ModbusFrame.ui" line="186"/>
+        <location filename="ModbusFrame.ui" line="141"/>
+        <source>230400</source>
+        <translation type="unfinished">230400</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="214"/>
         <source>Parity:</source>
         <translation type="unfinished">Parzystość:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="656"/>
-        <location filename="ModbusFrame.ui" line="210"/>
+        <location filename="ModbusFrame.ui" line="238"/>
+        <location filename="ModbusFrame.ui" line="280"/>
+        <location filename="ModbusFrame.ui" line="855"/>
         <source>None</source>
         <translation type="unfinished">Brak</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="661"/>
-        <location filename="ModbusFrame.ui" line="218"/>
+        <location filename="ModbusFrame.ui" line="246"/>
         <source>Stopbits:</source>
         <translation type="unfinished">Bity stopu:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="664"/>
-        <location filename="ModbusFrame.ui" line="232"/>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation type="obsolete">1</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="665"/>
-        <location filename="ModbusFrame.ui" line="237"/>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation type="obsolete">2</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="667"/>
-        <location filename="ModbusFrame.ui" line="247"/>
         <source>TCP/IP networking</source>
-        <translation type="unfinished">Sieć TCP/IP</translation>
+        <translation type="obsolete">Sieć TCP/IP</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="668"/>
-        <location filename="ModbusFrame.ui" line="250"/>
         <source>Ctrl+T</source>
-        <translation type="unfinished">Ctrl+T</translation>
+        <translation type="obsolete">Ctrl+T</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="669"/>
-        <location filename="ModbusFrame.ui" line="257"/>
+        <location filename="ModbusFrame.ui" line="323"/>
         <source>UDP/IP networking</source>
         <translation type="unfinished">Sieć UDP/IP</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="670"/>
-        <location filename="ModbusFrame.ui" line="260"/>
+        <location filename="ModbusFrame.ui" line="326"/>
         <source>Ctrl+U</source>
         <translation type="unfinished">Ctrl+U</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="671"/>
-        <location filename="ui_ModbusFrame.h" line="688"/>
-        <location filename="ModbusFrame.ui" line="269"/>
-        <location filename="ModbusFrame.ui" line="420"/>
+        <location filename="ModbusFrame.ui" line="335"/>
         <source>Mode:</source>
         <translation type="unfinished">Tryb:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="674"/>
-        <location filename="ModbusFrame.ui" line="283"/>
+        <location filename="ModbusFrame.ui" line="349"/>
         <source>Server</source>
         <translation type="unfinished">Serwer</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="675"/>
-        <location filename="ModbusFrame.ui" line="288"/>
+        <location filename="ModbusFrame.ui" line="354"/>
         <source>Client</source>
         <translation type="unfinished">Klient</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="677"/>
-        <location filename="ModbusFrame.ui" line="296"/>
+        <location filename="ModbusFrame.ui" line="362"/>
         <source>Host:</source>
         <translation type="unfinished">Host:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="678"/>
-        <location filename="ModbusFrame.ui" line="309"/>
+        <location filename="ModbusFrame.ui" line="375"/>
         <source>localhost</source>
         <translation type="unfinished">localhost</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="679"/>
-        <location filename="ModbusFrame.ui" line="316"/>
+        <location filename="ModbusFrame.ui" line="382"/>
         <source>Port:</source>
         <translation type="unfinished">Port:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="680"/>
-        <location filename="ModbusFrame.ui" line="350"/>
         <source>Protocol configuration</source>
-        <translation type="unfinished">Konfiguracja protokołu</translation>
+        <translation type="obsolete">Konfiguracja protokołu</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="681"/>
-        <location filename="ModbusFrame.ui" line="364"/>
+        <location filename="ModbusFrame.ui" line="633"/>
         <source>Address:</source>
         <translation type="unfinished">Adres:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="682"/>
-        <location filename="ModbusFrame.ui" line="393"/>
+        <location filename="ModbusFrame.ui" line="465"/>
         <source>Protocol:</source>
         <translation type="unfinished">Protokół:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="685"/>
-        <location filename="ModbusFrame.ui" line="407"/>
+        <location filename="ModbusFrame.ui" line="269"/>
+        <source>Flow control:</source>
+        <translation type="unfinished">Kontrola transmisji:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="285"/>
+        <source>RTS/CTS</source>
+        <translation type="unfinished">RTS/CTS</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="290"/>
+        <source>XON/XOFF</source>
+        <translation type="unfinished">XON/XOFF</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="311"/>
+        <source>Character size:</source>
+        <translation type="unfinished">Rozmiar znaku:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="424"/>
+        <source>Protocol</source>
+        <translation type="unfinished">Protokół</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="479"/>
         <source>Modbus ASCII</source>
         <translation type="unfinished">Modbus ASCII</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="686"/>
-        <location filename="ModbusFrame.ui" line="412"/>
+        <location filename="ModbusFrame.ui" line="484"/>
         <source>Modbus RTU</source>
         <translation type="unfinished">Modbus RTU</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="691"/>
-        <location filename="ModbusFrame.ui" line="434"/>
+        <location filename="ModbusFrame.ui" line="489"/>
+        <source>Terminated</source>
+        <translation type="unfinished">Protokół ze znacznikiem</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="497"/>
+        <source>Receive timeout:</source>
+        <translation type="unfinished">Limit czasu odbioru:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="528"/>
+        <source>Modbus configuration</source>
+        <translation type="unfinished">Konfiguracja protokołu Modbus</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="538"/>
         <source>Master</source>
         <translation type="unfinished">Master</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="692"/>
-        <location filename="ModbusFrame.ui" line="439"/>
+        <location filename="ModbusFrame.ui" line="561"/>
+        <source>Transaction timeout:</source>
+        <translation type="unfinished">Limit czasu transakcji:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="584"/>
+        <source>Send retries:</source>
+        <translation type="unfinished">Liczba ponowień:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.ui" line="607"/>
         <source>Slave</source>
         <translation type="unfinished">Slave</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="694"/>
-        <location filename="ModbusFrame.ui" line="447"/>
         <source>Timeout:</source>
-        <translation type="unfinished">Limit czasu:</translation>
+        <translation type="obsolete">Limit czasu:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="695"/>
-        <location filename="ModbusFrame.ui" line="500"/>
+        <location filename="ModbusFrame.ui" line="928"/>
         <source>Start</source>
         <translation type="unfinished">Start</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="696"/>
-        <location filename="ModbusFrame.ui" line="503"/>
+        <location filename="ModbusFrame.ui" line="931"/>
         <source>Return</source>
         <translation type="unfinished">Return</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="697"/>
-        <location filename="ModbusFrame.ui" line="526"/>
+        <location filename="ModbusFrame.ui" line="954"/>
         <source>Quit</source>
         <translation type="unfinished">Wyjście</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="698"/>
-        <location filename="ModbusFrame.ui" line="529"/>
+        <location filename="ModbusFrame.ui" line="957"/>
         <source>Esc</source>
         <translation type="unfinished">Esc</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="707"/>
-        <location filename="ModbusFrame.ui" line="539"/>
+        <location filename="ModbusFrame.ui" line="967"/>
         <source>Data</source>
         <translation type="unfinished">Dane</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="700"/>
-        <location filename="ModbusFrame.ui" line="545"/>
+        <location filename="ModbusFrame.ui" line="973"/>
         <source>Input high level data:</source>
         <translation type="unfinished">Ramki przychodzące:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="701"/>
-        <location filename="ModbusFrame.ui" line="559"/>
+        <location filename="ModbusFrame.ui" line="993"/>
         <source>Output high level data:</source>
         <translation type="unfinished">Ramki wychodzące:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="702"/>
-        <location filename="ModbusFrame.ui" line="575"/>
+        <location filename="ModbusFrame.ui" line="1015"/>
         <source>Addr:</source>
         <translation type="unfinished">Adres:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="703"/>
-        <location filename="ModbusFrame.ui" line="588"/>
+        <location filename="ModbusFrame.ui" line="1035"/>
         <source>Fun:</source>
         <translation type="unfinished">Funkcja:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="704"/>
-        <location filename="ui_ModbusFrame.h" line="710"/>
-        <location filename="ModbusFrame.ui" line="607"/>
-        <location filename="ModbusFrame.ui" line="693"/>
+        <location filename="ModbusFrame.ui" line="1061"/>
+        <location filename="ModbusFrame.ui" line="1166"/>
         <source>Send</source>
         <translation type="unfinished">Wyślij</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="705"/>
-        <location filename="ModbusFrame.ui" line="621"/>
+        <location filename="ModbusFrame.ui" line="1075"/>
         <source>Ping</source>
         <translation type="unfinished">Ping</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="706"/>
-        <location filename="ui_ModbusFrame.h" line="711"/>
-        <location filename="ui_ModbusFrame.h" line="713"/>
-        <location filename="ModbusFrame.ui" line="641"/>
-        <location filename="ModbusFrame.ui" line="717"/>
-        <location filename="ModbusFrame.ui" line="755"/>
+        <location filename="ModbusFrame.ui" line="1095"/>
+        <location filename="ModbusFrame.ui" line="1190"/>
+        <location filename="ModbusFrame.ui" line="1234"/>
         <source>Clear</source>
         <translation type="unfinished">Wyczyść</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="712"/>
-        <location filename="ModbusFrame.ui" line="651"/>
+        <location filename="ModbusFrame.ui" line="1105"/>
         <source>Debug</source>
         <translation type="unfinished">Debug</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="708"/>
-        <location filename="ModbusFrame.ui" line="657"/>
+        <location filename="ModbusFrame.ui" line="1111"/>
         <source>Input data:</source>
         <translation type="unfinished">Dane przychodzące:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="709"/>
-        <location filename="ModbusFrame.ui" line="671"/>
+        <location filename="ModbusFrame.ui" line="1131"/>
         <source>Output data:</source>
         <translation type="unfinished">Dane wychodzące:</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="714"/>
-        <location filename="ModbusFrame.ui" line="727"/>
+        <location filename="ModbusFrame.ui" line="1200"/>
         <source>Error log</source>
         <translation type="unfinished">Konsola błędów</translation>
     </message>
     <message>
-        <location filename="ui_ModbusFrame.h" line="715"/>
-        <location filename="ModbusFrame.ui" line="768"/>
+        <location filename="ModbusFrame.ui" line="1253"/>
         <source>Status line</source>
         <translation type="unfinished">Pasek stanu</translation>
     </message>
     <message>
-        <location filename="ModbusFrame.cpp" line="179"/>
+        <location filename="ModbusFrame.cpp" line="279"/>
+        <source>Slave function numbers must differ</source>
+        <translation type="unfinished">numery funkcji Slave muszą być różne</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="286"/>
+        <source>Custom terminator can&apos;t be null</source>
+        <translation type="unfinished">Znacznik niestandardowy nie może być pusty</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="292"/>
+        <source>Character size smaller than 8 bits allowed only with modbus ascii</source>
+        <translation type="unfinished">Rozmiar znaku mniejszy niż 8 bitów jest dozwolony tylko w trybie Modbus ASCII</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="307"/>
         <source>Serial error: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Błąd urządzenia szeregowego:</translation>
     </message>
     <message>
-        <location filename="ModbusFrame.cpp" line="182"/>
+        <location filename="ModbusFrame.cpp" line="310"/>
         <source>Unknown error while opening serial device</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nieznany błąd podczas łączenia z urządzeniem szeregowym</translation>
     </message>
     <message>
-        <location filename="ModbusFrame.cpp" line="255"/>
-        <location filename="ModbusFrame.cpp" line="272"/>
+        <location filename="ModbusFrame.cpp" line="344"/>
+        <source>Network error: </source>
+        <translation type="unfinished">Błąd sieci:</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="348"/>
+        <source>Error: Unable to open network connection</source>
+        <translation type="unfinished">Błąd: Nie udało się otworzyć połączenia sieciowego</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="396"/>
+        <source>Terminated communication started</source>
+        <translation type="unfinished">Rozpoczęto komunikację ze znacznikiem końca łańcucha</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="398"/>
+        <source>Modbus communication started</source>
+        <translation type="unfinished">Rozpoczeto komunikację Modbus</translation>
+    </message>
+    <message>
+        <location filename="ModbusFrame.cpp" line="416"/>
+        <location filename="ModbusFrame.cpp" line="445"/>
         <source>Unknown error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="ModbusFrame.cpp" line="229"/>
-        <source>Modbus ASCII communication started</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="ModbusFrame.cpp" line="232"/>
-        <source>Modbus RTU communication started</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nieznany błąd</translation>
     </message>
 </context>
 </TS>
