@@ -161,9 +161,13 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	/* Set parity */
 	switch (P) {
 	case Config::EVEN:
-		newtio.c_cflag |= INPCK | PARENB; break;
+		newtio.c_cflag |= PARENB;
+		newtio.c_iflag |= INPCK | IGNPAR;
+		break;
 	case Config::ODD:
-		newtio.c_cflag |= INPCK | PARENB | PARODD; break;
+		newtio.c_cflag |= PARENB | PARODD;
+		newtio.c_iflag |= INPCK | IGNPAR;
+		break;
 	default:
 		break;
 	}

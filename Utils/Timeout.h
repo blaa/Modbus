@@ -28,8 +28,6 @@ class Timeout : private QTimer
 {
 	Q_OBJECT
 
-	void RunWrapper();
-
 public:
 	/** Inictialize timeout */
 	Timeout();
@@ -48,6 +46,7 @@ public:
 public slots:
 	/** Called when timeout occurs */
 	virtual void Run() = 0;
+	void RunWrapper();
 };
 
 #else
