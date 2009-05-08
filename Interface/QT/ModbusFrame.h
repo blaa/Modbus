@@ -15,6 +15,7 @@
 #include <string>
 
 #include <QtCore/QSemaphore>
+#include <QtCore/QWaitCondition>
 #include <QtCore/QThread>
 #include <QtCore/QMutex>
 
@@ -33,6 +34,92 @@
 #include "ui_ModbusFrame.h"
 
 
+namespace DataKind {
+	enum DataKind {
+		MiddleInput=0, MiddleOutput,
+		LowlevelInput, LowlevelOutput,
+		ErrorOutput
+	};
+};
+
+class Comm : public QThread, public Protocol::Callback
+{
+	Q_OBJECT
+
+	/**@{ Elements of running communication system */
+	Lowlevel *CurrentLowlevel;
+	/** Protocol with which we talk. Master/slave or terminated */
+	Protocol *CurrentProtocol;
+	/** Hidden underlying protocol: modbus ascii,
+	 *  modbus rtu or null (if terminated enabled) */
+	Protocol *CurrentTempProtocol;
+
+	/** Used to check whether to print Fun and Addr */
+	bool CurrentTerminated;
+	/*@} */
+
+	/**@{ Helpers */
+	/** Convert unprintable characters to \xXX notation */
+	QString ToVisible(char Byte);
+	/*@}*/
+
+	/** Initialize communication system using data from UI */
+	bool Initialize();
+
+	/** Shutdown communication system */
+	void Shutdown();
+
+	/**@{Thread safe functions and variables to tell run() what to do next */
+	/** For sleeping thread if nothing to do */
+	QWaitCondition WaitCondition;
+	/** Secures access to all common variables */
+	QMutex Mutex;
+	/** Finish thread if true */
+	bool DoAbort;
+	/** Start communication system if true */
+	bool DoInitialize;
+	/** Stop the communication system if true */
+	bool DoShutdown;
+
+	void ScheduleInitialize();
+	void ScheduleShutdown();
+	void ScheduleAbort();
+	/**@}*/
+
+
+	/** Interface from which we gather information
+	 * about configuration; access restricted with mutex */
+	const Ui::ModbusFrame &ui;
+
+	/** Secure access to ui */
+	QMutex UIMutex;
+
+protected:
+	void run();
+
+public:
+	Comm(QObject *parent, const Ui::ModbusFrame &ui);
+	~Comm();
+
+	/**@{ Protocol callback interface */
+	virtual void ReceivedByte(char Byte);
+	virtual void SentByte(char Byte);
+	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
+	virtual void SentMessage(const std::string &Msg, int Address, int Function);
+	virtual void Error(int Errno, const char *Description);
+	/* @} */
+
+	friend class ModbusFrame;
+
+signals:
+	/** Update data in main window */
+	void UpdateData(const QString &Data, int DK);
+
+	/** Set status in main window */
+	void Status(const QString &Str, bool Error = false);
+};
+
+
 /** Class implementing actions of main window GUI */
 class ModbusFrame : public QMainWindow
 {
@@ -44,29 +131,16 @@ class ModbusFrame : public QMainWindow
 	/** Convert \xXX \n \r into real characters and \\ into \ */
 	const std::string ParseEscapes(const std::string &Str);
 
-	/** Convert data so only visible characters are printed */
-	QString ToVisible(char Byte);
-	
-	/** Display red status information */
-	void StatusError(const QString &Str);
-	
-	/** Display normal status information */
-	void StatusInfo(const QString &Str);
-
-	/** Used to check whether to print Fun and Addr */
-	bool CurrentTerminated;
-
-	/**@{Data from lower levels with which the interface is updated */
-	QString MiddleInput, MiddleOutput, LowlevelInput, 
-		LowlevelOutput, ErrorLog;
-	/*@}*/
-
 	QSemaphore Scheduled;
+
+	/** Current communication system */
+	Comm System;
 
 public:
 	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
 	~ModbusFrame();
+
 
 private slots:
 	/** Recreate all objects - initialize interfaces and communication */
@@ -81,48 +155,19 @@ private slots:
 	void Finish();
 	/** Enable/disable some configuration fields */
 	void ConfigEnableUpdate();
+
+public slots:
+	/** Display status information */
+	void Status(const QString &Str, bool Error = false);
+
 	/** Update display */
-	void UpdateData();
+	void UpdateData(const QString &Data, int DK);
 
 private:
 	/** Main window definition created with designer */
 	Ui::ModbusFrame ui;
 };
 
-
-class Comm : public QThread, public Protocol::Callback
-{
-	Q_OBJECT
-
-	/**@{ Elements of running communication system */
-	Lowlevel *CurrentLowlevel;
-	/** Protocol with which we talk. Master/slave or terminated */
-	Protocol *CurrentProtocol;
-	/** Hidden underlying protocol: modbus ascii,
-	 *  modbus rtu or null (if terminated enabled) */
-	Protocol *CurrentTempProtocol;
-	/*@} */
-
-	QMutex mutex;
-	bool Abort;
-protected:
-	const ModbusFrame &MF; /* Used for initialization only */
-	void run();
-
-public:
-	Comm(QObject *parent, const ModbusFrame &MF);
-	~Comm();
-
-	/**@{ Protocol callback interface */
-	virtual void ReceivedByte(char Byte);
-	virtual void SentByte(char Byte);
-	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
-	virtual void SentMessage(const std::string &Msg, int Address, int Function);
-	virtual void Error(int Errno, const char *Description);
-	/* @} */
-signals:
-	void UpdateData();
-};
 
 
 #endif

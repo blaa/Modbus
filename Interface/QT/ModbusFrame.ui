@@ -325,6 +325,9 @@
               <property name="shortcut">
                <string>Ctrl+U</string>
               </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
             <item>
@@ -1503,12 +1506,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>348</x>
-     <y>211</y>
+     <x>361</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
      <x>406</x>
-     <y>239</y>
+     <y>237</y>
     </hint>
    </hints>
   </connection>
@@ -1519,12 +1522,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>480</x>
-     <y>211</y>
+     <x>493</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
      <x>506</x>
-     <y>239</y>
+     <y>237</y>
     </hint>
    </hints>
   </connection>
@@ -1535,12 +1538,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>134</x>
-     <y>211</y>
+     <x>147</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>249</y>
+     <x>137</x>
+     <y>236</y>
     </hint>
    </hints>
   </connection>

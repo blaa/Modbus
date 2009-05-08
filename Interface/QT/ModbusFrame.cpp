@@ -24,13 +24,17 @@
 #include "Lowlevel/Safe.h"
 
 ModbusFrame::ModbusFrame(QWidget *parent)
-	: QMainWindow(parent), Scheduled(0)
+	: QMainWindow(parent), System(parent, ui)
 {
 	ui.setupUi(this);
 
-	CurrentLowlevel = NULL;
-	CurrentProtocol = NULL;
-	CurrentTempProtocol = NULL;
+//	qRegisterMetaType<Comm::DataKind>("Comm::DataKind");
+	connect(&System, SIGNAL(UpdateData(const QString &, int)),
+		this, SLOT(UpdateData(const QString &, int)));
+
+	connect(&System, SIGNAL(Status(const QString &, bool)),
+		this, SLOT(Status(const QString &, bool)));
+
 }
 
 ModbusFrame::~ModbusFrame()
@@ -96,7 +100,6 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 			default:
 				/* Broken, just insert it into new string */
 				goto copy; 
-
 			}
 		}
 	copy:
@@ -108,7 +111,7 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 
 void ModbusFrame::Start()
 {
-	/* Create a thread */
+	System.ScheduleInitialize();
 }
 
 void ModbusFrame::Stop()
@@ -122,34 +125,21 @@ void ModbusFrame::Stop()
 	ui.LowSend->setEnabled(false);
 	ui.TerminatedPing->setEnabled(false);
 
-	if (CurrentProtocol)
-		delete CurrentProtocol, CurrentProtocol = NULL;
-	if (CurrentTempProtocol)
-		delete CurrentTempProtocol, CurrentTempProtocol = NULL;
-	if (CurrentLowlevel)
-		delete CurrentLowlevel, CurrentLowlevel = NULL;
-
-	CurrentTerminated = false;
+	/* Delete thread here! And block until it dies! */
+	System.ScheduleShutdown();
 }
 
 
-void ModbusFrame::StatusInfo(const QString &Str)
+void ModbusFrame::Status(const QString &Str, bool Error)
 {
 	QPalette qPalette;
+	if (Error) {
+		qPalette.setColor( QPalette::Foreground, QColor( Qt::red ) );
+	} else {
+		qPalette.setColor( QPalette::Foreground, QColor( Qt::black ) );
+	}
 
-	qPalette.setColor( QPalette::Foreground, QColor( Qt::black ) );
 	ui.Status->setPalette( qPalette );
-
-	ui.Status->setText(Str);
-}
-
-void ModbusFrame::StatusError(const QString &Str)
-{
-	QPalette qPalette;
-
-	qPalette.setColor( QPalette::Foreground, QColor( Qt::red ) );
-	ui.Status->setPalette( qPalette );
-
 	ui.Status->setText(Str);
 }
 
@@ -199,7 +189,7 @@ void ModbusFrame::ConfigEnableUpdate()
 
 void ModbusFrame::MiddleSend()
 {
-	Mutex::Safe();
+/*	Mutex::Safe();
 	try {
 		CurrentProtocol->SendMessage(
 			ParseEscapes(
@@ -214,21 +204,23 @@ void ModbusFrame::MiddleSend()
 	} catch (...) {
 		StatusError(tr("Unknown error"));
 	}
-	Mutex::Unsafe();
+	Mutex::Unsafe();*/
 }
 
 void ModbusFrame::TerminatedPing()
 {
+/*
 	Terminated *T = dynamic_cast<Terminated *>(this->CurrentProtocol);
 	if (T) {
 		Mutex::Safe();
 		T->Ping();
 		Mutex::Unsafe();
-	}
+		}*/
 }
 
 void ModbusFrame::LowSend()
 {
+/*
 	Mutex::Safe();
 	try {
 		CurrentLowlevel->SendString(
@@ -244,38 +236,14 @@ void ModbusFrame::LowSend()
 		StatusError(tr("Unknown error"));
 	}
 	Mutex::Unsafe();
+*/
 }
 
 
 /******************************
  * Callback implementation 
  *****************************/
-void ModbusFrame::ScheduleRefresh()
-{
-	Scheduled.release();
-}
-
-
-QString ModbusFrame::ToVisible(char Byte)
-{
-	if (Byte == '\\')
-		return QString("\\\\");
-
-	if (Byte >= ' ' && Byte <= '~')
-		return QString(Byte);
-
-	std::ostringstream ss;
-	ss << std::hex << std::uppercase
-	   << std::setfill('0') << "\\x" << std::setw(2)
-	   << (unsigned int)((unsigned char)Byte);
-
-	if (Byte == '\r' || Byte == '\n')
-		ss << std::endl;
-
-	return QString(ss.str().c_str());
-}
-     
-
+/*
 void ModbusFrame::ReceivedByte(char Byte)
 {
 	LowlevelInput += ToVisible(Byte);
@@ -357,86 +325,140 @@ void ModbusFrame::Error(int Errno, const char *Description)
 	ErrorLog += ss.str().c_str();
 	ScheduleRefresh();
 }
-
+*/
 
 /** Update interface! */
-void ModbusFrame::UpdateData()
+void ModbusFrame::UpdateData(const QString &Data, int DK)
 {
-	if (!Scheduled.tryAcquire())
-		return;
-
-	Mutex::Safe();
-	
-
-	if (MiddleInput.size()) {
+	switch (DK) {
+	case DataKind::MiddleInput:
 		ui.MiddleInput->moveCursor(QTextCursor::End);
-		ui.MiddleInput->insertPlainText(MiddleInput);
-		MiddleInput.clear();
-	}
+		ui.MiddleInput->insertPlainText(Data);
+		break;
 
-	if (MiddleOutput.size()) {
+	case DataKind::MiddleOutput:
 		ui.MiddleOutput->moveCursor(QTextCursor::End);
-		ui.MiddleOutput->insertPlainText(MiddleOutput);
-		MiddleOutput.clear();
-	}
+		ui.MiddleOutput->insertPlainText(Data);
+		break;
 
-	if (LowlevelInput.size()) {
+	case DataKind::LowlevelInput:
 		ui.LowlevelInput->moveCursor(QTextCursor::End);
-		ui.LowlevelInput->insertPlainText(LowlevelInput);
-		LowlevelInput.clear();
-	}
+		ui.LowlevelInput->insertPlainText(Data);
+		break;
 
-	if (LowlevelOutput.size()) {
+	case DataKind::LowlevelOutput:
 		ui.LowlevelOutput->moveCursor(QTextCursor::End);
-		ui.LowlevelOutput->insertPlainText(LowlevelOutput);
-		LowlevelOutput.clear();
-	}
+		ui.LowlevelOutput->insertPlainText(Data);
+		break;
 
-	if (ErrorLog.size()) {
+	case DataKind::ErrorOutput:
 		ui.ErrorLog->moveCursor(QTextCursor::End);
-		ui.ErrorLog->insertPlainText(ErrorLog);
-		ErrorLog.clear();
+		ui.ErrorLog->insertPlainText(Data);
+		break;
 	}
-	Mutex::Unsafe();
 }
 
 
 /******************************
  * Signal thread implementation
  *****************************/
-Comm::Comm(QObject *parent, const ModbusFrame &MF)
-  : QThread(parent), MF(MF)
+Comm::Comm(QObject *parent, const Ui::ModbusFrame &ui)
+	: QThread(parent), ui(ui)
 {
-	Abort = false;
+	std::cerr << "Creating thread" << std::endl;
+
+	DoAbort = DoInitialize = DoShutdown = false;
 
 	CurrentLowlevel = NULL;
 	CurrentProtocol = NULL;
 	CurrentTempProtocol = NULL;
+
+	start(LowPriority);
 }
+
+void Comm::ScheduleAbort()
+{
+	Mutex.lock();
+	DoAbort = true;
+	WaitCondition.wakeOne();
+	Mutex.unlock();
+}
+
+void Comm::ScheduleInitialize()
+{
+	Mutex.lock();
+	DoInitialize = true;
+	WaitCondition.wakeOne();
+	Mutex.unlock();
+}
+
+void Comm::ScheduleShutdown()
+{
+	Mutex.lock();
+	DoShutdown = true;
+	WaitCondition.wakeOne();
+	Mutex.unlock();
+}
+
 
 void Comm::run()
 {
+	std::cerr << "Running" << std::endl;
 	forever {
 		std::cerr << "thread" << std::endl;
-		emit UpdateData();
+
+		Mutex.lock();
+		if (DoAbort) {
+			Mutex.unlock();
+			return;
+		}
+
+		if (DoInitialize) {
+			/* Lock UI! */
+			DoInitialize = false;
+			this->Initialize();
+		} else if (DoShutdown) {
+			DoShutdown = false;
+			this->Shutdown();
+		}
+
+		WaitCondition.wait(&Mutex);
+		Mutex.unlock();
 	}
 }
 
 Comm::~Comm()
 {
-	Mutex.lock();
-	Abort = true;
-	/* Wake thread! */
-	Mutex.unlock();
+	std::cerr << "Destroying thread" << std::endl;
 
-	/* Wait for run() */
+	ScheduleAbort();
+	/* Tell main thread loop what to do and restart */
+	/* Wait for run() to finish */
 	QThread::wait();
 }
 
-
-
-void Comm::Initialize()
+QString Comm::ToVisible(char Byte)
 {
+	if (Byte == '\\')
+		return QString("\\\\");
+
+	if (Byte >= ' ' && Byte <= '~')
+		return QString(Byte);
+
+	std::ostringstream ss;
+	ss << std::hex << std::uppercase
+	   << std::setfill('0') << "\\x" << std::setw(2)
+	   << (unsigned int)((unsigned char)Byte);
+
+	if (Byte == '\r' || Byte == '\n')
+		ss << std::endl;
+
+	return QString(ss.str().c_str());
+}
+
+bool Comm::Initialize()
+{
+	std::cout << "Building interface!" << std::endl;
 	/* Gather some basic info */
 	/* Serial */
 	const std::string &SerialDevice = ui.SerialDevice->text().toStdString();
@@ -516,24 +538,24 @@ void Comm::Initialize()
 		if (A1 == A2 || A1 == A3 || A1 == A4
 		    || A2 == A3 || A2 == A4
 		    || A3 == A4) {
-			StatusError(tr("Slave function numbers must differ"));
-			return;
+			emit Status(tr("Slave function numbers must differ"), true);
+			return false;
 		}
 	}
 
 	if (Protocol == ModeTerminated && Terminator == Custom
 	    && CustomTerminator.size() == 0) {
-		StatusError(tr("Custom terminator can't be null"));
-		return;
+		emit Status(tr("Custom terminator can't be null"), true);
+		return false;
 	}
 
 	if (CharSize == Config::CharSize7 && Protocol != ModeASCII) {
 		/* FIXME: Shall we keep it? */
-		StatusError(tr("Character size smaller than 8 bits allowed only with modbus ascii"));
-		return;
+		emit Status(tr("Character size smaller than 8 bits allowed only with modbus ascii"), true);
+		return false;
 	}
 
-	Stop();
+	Shutdown();
 
 	/* Gather configuration variables and create comm system */
 	if (ui.SerialSelected->isChecked()) {
@@ -544,11 +566,12 @@ void Comm::Initialize()
 						     CharSize, FlowControl,
 						     SerialDevice.c_str());
 		} catch (Error::Exception &e) {
-			StatusError(tr("Serial error: ") + tr(e.GetHeader()) + tr(e.GetDesc()));
-			return;
+			emit Status(tr("Serial error: ") +
+				    tr(e.GetHeader()) + tr(e.GetDesc()), true);
+			return false;
 		} catch (...) {
-			StatusError(tr("Unknown error while opening serial device"));
-			return;
+			emit Status(tr("Unknown error while opening serial device"), true);
+			return false;
 		}
 
 	} else {
@@ -581,12 +604,12 @@ void Comm::Initialize()
 				}
 			}
 		} catch (Error::Exception &e) {
-			StatusError(tr("Network error: ") + tr(e.GetHeader())
-					   + tr(e.GetDesc()));
-			return;
+			emit Status(tr("Network error: ") + tr(e.GetHeader())
+				    + tr(e.GetDesc()), true);
+			return false;
 		} catch (...) {
-			StatusError(tr("Error: Unable to open network connection"));
-			return;
+			emit Status(tr("Error: Unable to open network connection"), true);
+			return false;
 		}
 	}
 
@@ -633,7 +656,99 @@ void Comm::Initialize()
 	ui.LowSend->setEnabled(true);
 
 	if (Protocol == ModeTerminated)
-		StatusInfo(tr("Terminated communication started"));
+		emit Status(tr("Terminated communication started"));
 	else
-		StatusInfo(tr("Modbus communication started"));
+		emit Status(tr("Modbus communication started"));
+	return true;
+}
+
+void Comm::Shutdown()
+{
+	if (CurrentProtocol)
+		delete CurrentProtocol, CurrentProtocol = NULL;
+	if (CurrentTempProtocol)
+		delete CurrentTempProtocol, CurrentTempProtocol = NULL;
+	if (CurrentLowlevel)
+		delete CurrentLowlevel, CurrentLowlevel = NULL;
+}
+
+
+/***********************************
+ * Protocol callbacks
+ **********************************/
+
+void Comm::ReceivedByte(char Byte)
+{
+	emit UpdateData(ToVisible(Byte), DataKind::LowlevelInput);
+}
+
+void Comm::SentByte(char Byte)
+{
+	emit UpdateData(ToVisible(Byte), DataKind::LowlevelOutput);
+}
+
+void Comm::ReceivedMessage(const std::string &Msg, int Address, int Function)
+{
+	std::ostringstream ss;
+	if (!CurrentTerminated) {
+		ss << "Addr="
+		   << Address
+		   << " Fun="
+		   << Function
+		   << " ";
+	}
+	ss << "Data='"
+	   << Msg
+	   << "'"
+	   << std::endl;
+	/* FIXME - ToVisible */
+	emit UpdateData(ss.str().c_str(), DataKind::MiddleInput);
+
+	/* Update status? */
+//	ui.Status->setText(("Recv: " + ss.str()).c_str());
+}
+
+void Comm::SentMessage(const std::string &Msg, int Address, int Function)
+{
+	std::ostringstream ss;
+	if (!CurrentTerminated) {
+		ss << "Addr="
+		   << Address
+		   << " Fun="
+		   << Function
+		   << " ";
+	}
+
+	ss << "Data='"
+	   << Msg
+	   << "'"
+	   << std::endl;
+
+	emit UpdateData(ss.str().c_str(), DataKind::MiddleOutput);
+
+//	ui.Status->setText(("Sent: " + ss.str()).c_str());
+}
+
+void Comm::Error(int Errno, const char *Description)
+{
+	std::ostringstream ss;
+	ss << tr(Error::StrError(Errno)).toStdString();
+	if (Description) {
+		ss << " (" << tr(Description).toStdString() << ")";
+	}
+	switch (Errno) {
+	case Error::PING:
+	case Error::PONG:
+	case Error::INFO:
+	case Error::OK:
+		emit Status(ss.str().c_str());
+		break;
+	default:
+		emit Status(ss.str().c_str(), true);
+	}
+
+//	ui.Status->setText(ss.str().c_str());
+	ss << std::endl;
+
+	emit UpdateData(ss.str().c_str(), DataKind::ErrorOutput);
 }
