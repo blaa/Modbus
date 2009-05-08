@@ -19,7 +19,7 @@
 #include "Utils/Error.h"
 #include "Lowlevel.h"
 #include "SerialLinux.h"
-
+#include "Safe.h"
 
 namespace Unix {
 #include <signal.h>
@@ -32,33 +32,27 @@ namespace Unix {
 };
 
 
-namespace Mutex {
-	/*@{Safe area locking */
-	volatile char SerialLock, SerialEvent;
-	/*@}*/
-}
-
 /* Hide this functions */
-namespace {
+//namespace {
 	int fd;
 	Serial::Callback *CurrentCB;
-}
 
-void SerialSignalHandler(int a)
-{
-	/* Signal execution locked - called inside a safe section */
-	if (Mutex::SerialLock) {
-		Mutex::SerialEvent = 1;
-		return;
-	}
+	void SerialSignalHandler(int a)
+	{
+		/* Enter safe section - no send will be queued this way
+		 * and we will wait until some send finish if in progress */
+//		Mutex::Safe();
 
-	char Ch;
-	if (CurrentCB == NULL || fd <= 0)
-		return;
-	while (1 == read(fd, &Ch, 1)) {
-		CurrentCB->ReceivedByte(Ch);
+		char Ch;
+		if (CurrentCB == NULL || fd <= 0)
+			return;
+		while (1 == read(fd, &Ch, 1)) {
+			CurrentCB->ReceivedByte(Ch);
+		}
+
+//		Mutex::Unsafe();
 	}
-}
+//}
 
 Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	       enum Config::StopBits SB, enum Config::CharSize CS,

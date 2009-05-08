@@ -42,6 +42,8 @@ namespace DataKind {
 	};
 };
 
+extern QMutex SafeMutex;
+
 class Comm : public QThread, public Protocol::Callback
 {
 	Q_OBJECT

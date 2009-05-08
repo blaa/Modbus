@@ -189,147 +189,59 @@ void ModbusFrame::ConfigEnableUpdate()
 
 void ModbusFrame::MiddleSend()
 {
-/*	Mutex::Safe();
+	std::cerr << "MiddleSend Lock" << std::endl;
+	Mutex::Safe();
 	try {
-		CurrentProtocol->SendMessage(
+		System.CurrentProtocol->SendMessage(
 			ParseEscapes(
 				ui.SendData->text().toStdString()
 				),
 			ui.SendAddress->value(),
 			ui.SendFunction->value());
 	} catch (Error::Exception &e) {
-		StatusError("Lowlevel error: " + tr(e.GetHeader())
-			    + tr(e.GetDesc()));
+		Status("Lowlevel error: " + tr(e.GetHeader())
+		       + tr(e.GetDesc()), true);
 		Stop();
 	} catch (...) {
-		StatusError(tr("Unknown error"));
+		Status(tr("Unknown error"), true);
 	}
-	Mutex::Unsafe();*/
+	std::cerr << "MiddleSend Unlock" << std::endl;
+	Mutex::Unsafe();
 }
 
 void ModbusFrame::TerminatedPing()
 {
-/*
-	Terminated *T = dynamic_cast<Terminated *>(this->CurrentProtocol);
+	Mutex::Safe();
+	Terminated *T = dynamic_cast<Terminated *>(this->System.CurrentProtocol);
 	if (T) {
-		Mutex::Safe();
 		T->Ping();
-		Mutex::Unsafe();
-		}*/
+	}
+	Mutex::Unsafe();
 }
 
 void ModbusFrame::LowSend()
 {
-/*
 	Mutex::Safe();
 	try {
-		CurrentLowlevel->SendString(
+		System.CurrentLowlevel->SendString(
 			ParseEscapes(
 				ui.LowSendData->text().toStdString()
 				)
 			);
 	} catch (Error::Exception &e) {
-		StatusError(QString("Lowlevel error: ") + tr(e.GetHeader())
-				   + tr(e.GetDesc()));
+		Status(QString("Lowlevel error: ") + tr(e.GetHeader())
+		       + tr(e.GetDesc()), true);
 		Stop();
 	} catch (...) {
-		StatusError(tr("Unknown error"));
+		Status(tr("Unknown error"), true);
 	}
 	Mutex::Unsafe();
-*/
 }
-
-
-/******************************
- * Callback implementation 
- *****************************/
-/*
-void ModbusFrame::ReceivedByte(char Byte)
-{
-	LowlevelInput += ToVisible(Byte);
-	ScheduleRefresh();
-}
-
-void ModbusFrame::SentByte(char Byte)
-{
-	LowlevelOutput += ToVisible(Byte);
-
-	ScheduleRefresh();
-}
-
-void ModbusFrame::ReceivedMessage(const std::string &Msg, int Address, int Function)
-{
-	std::ostringstream ss;
-	if (!CurrentTerminated) {
-		ss << "Addr=" 
-		   << Address
-		   << " Fun="
-		   << Function
-		   << " ";
-	}
-	ss << "Data='"
-	   << Msg
-	   << "'"
-	   << std::endl;
-
-	MiddleInput += ss.str().c_str();
-	ScheduleRefresh();
-
-//	ui.Status->setText(("Recv: " + ss.str()).c_str());
-}
-
-void ModbusFrame::SentMessage(const std::string &Msg, int Address, int Function)
-{
-	std::ostringstream ss;
-	if (!CurrentTerminated) {
-		ss << "Addr=" 
-		   << Address
-		   << " Fun="
-		   << Function
-		   << " ";
-	}
-
-	ss << "Data='"
-	   << Msg
-	   << "'"
-	   << std::endl;
-
-	MiddleOutput += ss.str().c_str();
-	ScheduleRefresh();
-
-//	ui.Status->setText(("Sent: " + ss.str()).c_str());
-}
-
-
-void ModbusFrame::Error(int Errno, const char *Description)
-{
-	std::ostringstream ss;
-	ss << tr(Error::StrError(Errno)).toStdString();
-	if (Description) {
-		ss << " (" << tr(Description).toStdString() << ")";
-	}
-	switch (Errno) {
-	case Error::PING:
-	case Error::PONG:
-	case Error::INFO:
-	case Error::OK:
-		StatusInfo(ss.str().c_str());
-		break;
-	default:
-		StatusError(ss.str().c_str());
-	}
-
-//	ui.Status->setText(ss.str().c_str());
-	ss << std::endl;
-	
-	ErrorLog += ss.str().c_str();
-	ScheduleRefresh();
-}
-*/
 
 /** Update interface! */
 void ModbusFrame::UpdateData(const QString &Data, int DK)
 {
+	std::cerr << "Update data signal" << std::endl;
 	switch (DK) {
 	case DataKind::MiddleInput:
 		ui.MiddleInput->moveCursor(QTextCursor::End);
@@ -403,9 +315,9 @@ void Comm::ScheduleShutdown()
 
 void Comm::run()
 {
-	std::cerr << "Running" << std::endl;
+	std::cerr << "Thread running" << std::endl;
 	forever {
-		std::cerr << "thread" << std::endl;
+		std::cerr << "Thread Loop" << std::endl;
 
 		Mutex.lock();
 		if (DoAbort) {
@@ -752,3 +664,6 @@ void Comm::Error(int Errno, const char *Description)
 
 	emit UpdateData(ss.str().c_str(), DataKind::ErrorOutput);
 }
+
+
+QMutex SafeMutex;

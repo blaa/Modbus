@@ -21,12 +21,6 @@
 
 #include "Lowlevel.h"
 
-
-namespace Mutex {
-	/** Used by safe/unsafe for locking */
-	extern volatile char NetworkLock, NetworkEvent;
-}
-
 //#define SIGNAL_ID	SIGRTMIN	/* Required for TCP/IP */
 #define SIGNAL_ID	SIGIO
 /** Base class for implementing networking */

@@ -20,6 +20,7 @@
 
 #include "Utils/Error.h"
 #include "Network.h"
+#include "Safe.h"
 
 /* POSIX headers */
 #include <signal.h>
@@ -31,22 +32,16 @@
 #include <signal.h>
 #include <fcntl.h>
 
-Network *CurrentNet;
 
-namespace Mutex {
-	/**@{Used by safe/unsafe locking */
-	volatile char NetworkLock, NetworkEvent;
-	/*@}*/
-}
+
+Network *CurrentNet;
 
 /** Handle network 'interrupt' - call current network implementation */
 void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 {
-	/* Signal execution locked - called inside a safe section */
-	if (Mutex::NetworkLock) {
-		Mutex::NetworkEvent = 1;
-		return;
-	}
+	/* Enter safe section - no send will be queued this way
+	 * and we will wait until some send finish if in progress */
+	Mutex::Safe();
 
 	if (!CurrentNet) {
 		std::cerr << "Got network signal but no handler installed - ignoring" 
@@ -58,6 +53,8 @@ void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 		CurrentNet->SignalHandler(sigi->si_fd);
 	else
 		CurrentNet->SignalHandler(-1);
+
+	Mutex::Unsafe();
 }
 
 /*****************************

@@ -10,15 +10,31 @@
  * See Docs/LICENSE
  *********************/
 
-#ifndef _SAFE_H_
-#define _SAFE_H_
+#include <iostream>
+#include "Safe.h"
+
+#if QT_INTERFACE
+#include <QtCore/QMutex>
+extern QMutex SafeMutex;
+#endif
 
 namespace Mutex {
 	/** Enable safe mode */
-	extern void Safe();
+	void Safe()
+	{
+#if QT_INTERFACE
+		std::cerr << "Locking safe" << std::endl;
+		SafeMutex.lock();
+#endif
+	}
 
 	/** Disable safe mode */
-	extern void Unsafe();
-};
-
+	void Unsafe()
+	{
+#if QT_INTERFACE
+		std::cerr << "Unlocking safe" << std::endl;
+		SafeMutex.unlock();
 #endif
+	}
+
+};
