@@ -70,6 +70,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 
 	CurrentCB = HigherCB = NULL;
 
+	/* Set handler first */
 	sa.sa_handler = SerialSignalHandler;
 	sa.sa_restorer = NULL;
 	Unix::sigemptyset(&sa.sa_mask);
@@ -80,7 +81,8 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		throw Error::Exception("Serial, sigaction: ", strerror(errno));
 	}
 
-	this->fd = Unix::open(Device, O_RDWR | O_NOCTTY);
+	/* Then open serial device in nonblocking/async mode */
+	this->fd = Unix::open(Device, O_RDWR | O_NOCTTY | O_NONBLOCK | O_ASYNC);
 
 	if (this->fd < 0) {
 		std::cerr << "Unable to open " << Device << std::endl;
@@ -88,6 +90,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		throw Error::Exception("Error while opening serial: ", strerror(errno));
 	}
 
+	/* And configure it */
 	Unix::speed_t Speed;
 	switch (BR) {
 	case Config::BR150: Speed = B150; break;
@@ -123,9 +126,16 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	newtio.c_iflag = 0;
 	newtio.c_oflag = 0;
 
-	newtio.c_cflag = Speed | CREAD;
+	/* Return immediately returning what you have */
+	newtio.c_cc[VMIN] = newtio.c_cc[VTIME] = 0;
 
+
+	/* Speed + enable receiver */
+	newtio.c_cflag = Speed | CREAD;
 	Unix::cfsetispeed(&newtio, Speed);
+	Unix::cfsetospeed(&newtio, Speed);
+
+	/* Set character size */
 	switch (CS) {
 	case Config::CharSize5:
 		newtio.c_cflag |= CS5;
@@ -145,12 +155,21 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		break;
 	}
 
-	if (P == Config::EVEN)
-		newtio.c_cflag |= PARENB;
+	/* Set parity */
+	switch (P) {
+	case Config::EVEN:
+		newtio.c_cflag |= INPCK | PARENB; break;
+	case Config::ODD:
+		newtio.c_cflag |= INPCK | PARENB | PARODD; break;
+	default:
+		break;
+	}
 
+	/* Two stopbits instead of one? */
 	if (SB == Config::DOUBLE)
 		newtio.c_cflag |= CSTOPB;
 
+	/* Flow control */
 	switch (FC) {
         case Config::RTSCTS:
 		newtio.c_cflag |= CRTSCTS;
@@ -160,6 +179,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		break;
 	default:
 	case Config::FLOWNONE:
+		newtio.c_cflag |= CLOCAL; /* Ignore control lines */
 		break;
 	};
     
