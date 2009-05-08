@@ -86,7 +86,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	sigprocmask(SIG_UNBLOCK, &ss, NULL);
 
 	/* Then open serial device in nonblocking/async mode */
-	this->fd = open(Device, O_RDWR | O_NOCTTY | O_NONBLOCK | O_ASYNC);
+	this->fd = open(Device, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
 	if (this->fd < 0) {
 		std::cerr << "Unable to open " << Device << std::endl;
