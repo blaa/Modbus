@@ -15,6 +15,8 @@
 #include <string>
 
 #include <QtCore/QSemaphore>
+#include <QtCore/QThread>
+#include <QtCore/QMutex>
 
 #include "Lowlevel/Lowlevel.h"
 #include "Protocol/Protocol.h"
@@ -32,18 +34,9 @@
 
 
 /** Class implementing actions of main window GUI */
-class ModbusFrame : public QMainWindow, public Protocol::Callback
+class ModbusFrame : public QMainWindow
 {
 	Q_OBJECT
-
-	/**@{ Elements of running communication system */
-	Lowlevel *CurrentLowlevel;
-	/** Protocol with which we talk. Master/slave or terminated */
-	Protocol *CurrentProtocol;
-	/** Hidden underlying protocol: modbus ascii, 
-	 *  modbus rtu or null (if terminated enabled) */
-	Protocol *CurrentTempProtocol;
-	/*@} */
 
 	/** Stop previous communication system */
 	void Stop();
@@ -68,24 +61,12 @@ class ModbusFrame : public QMainWindow, public Protocol::Callback
 		LowlevelOutput, ErrorLog;
 	/*@}*/
 
-	QTimer UpdateTimer;
 	QSemaphore Scheduled;
-	void ScheduleRefresh();
-
 
 public:
 	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
 	~ModbusFrame();
-
-	/**@{ Protocol callback interface */
-	virtual void ReceivedByte(char Byte);
-	virtual void SentByte(char Byte);
-	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
-	virtual void SentMessage(const std::string &Msg, int Address, int Function);
-	virtual void Error(int Errno, const char *Description);
-	/* @} */
-			
 
 private slots:
 	/** Recreate all objects - initialize interfaces and communication */
@@ -107,5 +88,41 @@ private:
 	/** Main window definition created with designer */
 	Ui::ModbusFrame ui;
 };
+
+
+class Comm : public QThread, public Protocol::Callback
+{
+	Q_OBJECT
+
+	/**@{ Elements of running communication system */
+	Lowlevel *CurrentLowlevel;
+	/** Protocol with which we talk. Master/slave or terminated */
+	Protocol *CurrentProtocol;
+	/** Hidden underlying protocol: modbus ascii,
+	 *  modbus rtu or null (if terminated enabled) */
+	Protocol *CurrentTempProtocol;
+	/*@} */
+
+	QMutex mutex;
+	bool Abort;
+protected:
+	const ModbusFrame &MF; /* Used for initialization only */
+	void run();
+
+public:
+	Comm(QObject *parent, const ModbusFrame &MF);
+	~Comm();
+
+	/**@{ Protocol callback interface */
+	virtual void ReceivedByte(char Byte);
+	virtual void SentByte(char Byte);
+	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
+	virtual void SentMessage(const std::string &Msg, int Address, int Function);
+	virtual void Error(int Errno, const char *Description);
+	/* @} */
+signals:
+	void UpdateData();
+};
+
 
 #endif
