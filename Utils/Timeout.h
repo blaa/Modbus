@@ -28,6 +28,8 @@ class Timeout : private QTimer
 {
 	Q_OBJECT
 
+	void RunWrapper();
+
 public:
 	/** Inictialize timeout */
 	Timeout();

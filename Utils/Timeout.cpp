@@ -134,7 +134,13 @@ void Wait()
 Timeout::Timeout() : QTimer()
 {
 	setSingleShot(true);
-	connect(this, SIGNAL(timeout()), this, SLOT(Run()));
+	connect(this, SIGNAL(timeout()), this, SLOT(RunWrapper()));
+}
+
+void Timeout::RunWrapper()
+{
+	/* Add mutex security */
+	Run();
 }
 
 void Timeout::Schedule(long MSec, bool Periodic)
@@ -143,7 +149,8 @@ void Timeout::Schedule(long MSec, bool Periodic)
 		setSingleShot(false);
 	else
 		setSingleShot(true);
-	start(MSec);
+	start(MSec); /* This has to be run in GUI thread where we have
+		      * an event loop */
 }
 
 void Timeout::StopTime()

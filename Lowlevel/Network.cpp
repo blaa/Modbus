@@ -98,6 +98,14 @@ Network::Network()
 		throw Error::Exception("Network, sigaction (sigpipe): ", strerror(errno));
 	}
 
+	/* Unblock SIGIO and SIGRTMIN */
+	sigset_t ss;
+	sigemptyset(&ss);
+	sigaddset(&ss, SIGIO);
+	sigaddset(&ss, SIGRTMIN);
+	sigprocmask(SIG_UNBLOCK, &ss, NULL);
+
+
 	/* Change to asynchronous */
 //	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
 //	fcntl(Socket, F_SETOWN, getpid());

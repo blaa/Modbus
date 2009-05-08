@@ -21,7 +21,10 @@
 
 #include <netdb.h> /* Resolver */
 
+namespace Unix {
 #include <sys/syscall.h>
+}
+
 #include "Utils/Error.h"
 #include "NetworkUDP.h"
 

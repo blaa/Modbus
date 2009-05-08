@@ -30,17 +30,24 @@ ModbusFrame::ModbusFrame(QWidget *parent)
 {
 	ui.setupUi(this);
 
-//	qRegisterMetaType<Comm::DataKind>("Comm::DataKind");
+	/** Connect signals comming from thread */
 	connect(&System, SIGNAL(UpdateData(const QString &, int)),
 		this, SLOT(UpdateData(const QString &, int)));
 
 	connect(&System, SIGNAL(Status(const QString &, bool)),
 		this, SLOT(Status(const QString &, bool)));
 
+	/* Block SIGIO and SIGRTMIN signals by default! */
+	sigset_t ss;
+	sigemptyset(&ss);
+	sigaddset(&ss, SIGIO);
+	sigaddset(&ss, SIGRTMIN);
+	sigprocmask(SIG_SETMASK, &ss, NULL);
 }
 
 ModbusFrame::~ModbusFrame()
 {
+	/* Schedule thread stop */
 	Stop();
 }
 
@@ -113,17 +120,14 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 
 void ModbusFrame::Start()
 {
-	/* Block SIGIO signal here! */
-	sigset_t ss;
-	sigemptyset(&ss);
-	sigaddset(&ss, SIGIO);
-	sigaddset(&ss, SIGRTMIN);
-	sigprocmask(SIG_SETMASK, &ss, NULL);
-
-	std::cerr << "Scheduling initialize and masking signal in tid " << syscall(SYS_gettid) << std::endl;
+	/** This could be done with QWaitCondition instead */
+	std::cerr << "Scheduling initialize..." << std::endl;
+	System.UIMutex.lock();
 	System.ScheduleInitialize();
 
-
+	/* Wait for process to finish touching UI and initializing */
+	System.UIMutex.lock();
+	System.UIMutex.unlock();
 }
 
 void ModbusFrame::Stop()
@@ -183,6 +187,7 @@ void ModbusFrame::ConfigEnableUpdate()
 		ui.ModbusAddress->setEnabled(false);
 		ui.ModbusMaster->setChecked(true);
 		break;
+
 	default:
 		ui.TerminatedSelected->setEnabled(false);
 		ui.TerminatedCustom->setEnabled(false);
@@ -195,13 +200,10 @@ void ModbusFrame::ConfigEnableUpdate()
 		ui.ModbusAddress->setEnabled(true);
 		break;
 	}
-	
 }
-
 
 void ModbusFrame::MiddleSend()
 {
-	std::cerr << "MiddleSend Lock" << std::endl;
 	Mutex::Safe();
 	try {
 		System.CurrentProtocol->SendMessage(
@@ -217,7 +219,6 @@ void ModbusFrame::MiddleSend()
 	} catch (...) {
 		Status(tr("Unknown error"), true);
 	}
-	std::cerr << "MiddleSend Unlock" << std::endl;
 	Mutex::Unsafe();
 }
 
@@ -250,7 +251,6 @@ void ModbusFrame::LowSend()
 	Mutex::Unsafe();
 }
 
-/** Update interface! */
 void ModbusFrame::UpdateData(const QString &Data, int DK)
 {
 	switch (DK) {
@@ -323,10 +323,8 @@ void Comm::ScheduleShutdown()
 	Mutex.unlock();
 }
 
-
 void Comm::run()
 {
-	std::cerr << "Thread running" << std::endl;
 	forever {
 		std::cerr << "Thread Loop" << std::endl;
 
@@ -344,7 +342,7 @@ void Comm::run()
 			DoShutdown = false;
 			this->Shutdown();
 		}
-
+		/* Sleep waiting for GUI thread to schedule some action */
 		WaitCondition.wait(&Mutex);
 		Mutex.unlock();
 	}
@@ -355,7 +353,7 @@ Comm::~Comm()
 	std::cerr << "Destroying thread" << std::endl;
 
 	ScheduleAbort();
-	/* Tell main thread loop what to do and restart */
+
 	/* Wait for run() to finish */
 	QThread::wait();
 }
@@ -381,7 +379,7 @@ QString Comm::ToVisible(char Byte)
 
 bool Comm::Initialize()
 {
-	std::cout << "Building interface!" << std::endl;
+	std::cout << "Building comm system ";
 	std::cerr << "in tid " << syscall(SYS_gettid) << std::endl;
 
 	/* Gather some basic info */
@@ -445,6 +443,7 @@ bool Comm::Initialize()
 	case Custom: FinalTerminator = CustomTerminator; break;
 	case None: break;
 	}
+
 	const bool TerminatedEcho = ui.TerminatedEcho->isChecked();
 
 	const int ReceiveTimeout = ui.MiddleTimeout->value();
@@ -470,35 +469,37 @@ bool Comm::Initialize()
 
 	if (Protocol == ModeTerminated && Terminator == Custom
 	    && CustomTerminator.size() == 0) {
+		UIMutex.unlock();
 		emit Status(tr("Custom terminator can't be null"), true);
 		return false;
 	}
 
-	if (CharSize == Config::CharSize7 && Protocol != ModeASCII) {
-		/* FIXME: Shall we keep it? */
+/*	if (CharSize == Config::CharSize7 && Protocol != ModeASCII) {
+		UIMutex.unlock();
 		emit Status(tr("Character size smaller than 8 bits allowed only with modbus ascii"), true);
 		return false;
-	}
+	} */
 
+	/** Turn off previous comm system if any */
 	Shutdown();
 
 	/* Gather configuration variables and create comm system */
 	if (ui.SerialSelected->isChecked()) {
-
 		/* Create device */
 		try {
 			CurrentLowlevel = new Serial(BaudRate, Parity, StopBits,
 						     CharSize, FlowControl,
 						     SerialDevice.c_str());
 		} catch (Error::Exception &e) {
+			UIMutex.unlock();
 			emit Status(tr("Serial error: ") +
 				    tr(e.GetHeader()) + tr(e.GetDesc()), true);
 			return false;
 		} catch (...) {
+			UIMutex.unlock();
 			emit Status(tr("Unknown error while opening serial device"), true);
 			return false;
 		}
-
 	} else {
 		/* Network */
 		const std::string Host = ui.NetworkHost->text().toStdString();
@@ -529,16 +530,18 @@ bool Comm::Initialize()
 				}
 			}
 		} catch (Error::Exception &e) {
+			UIMutex.unlock();
 			emit Status(tr("Network error: ") + tr(e.GetHeader())
 				    + tr(e.GetDesc()), true);
 			return false;
 		} catch (...) {
+			UIMutex.unlock();
 			emit Status(tr("Error: Unable to open network connection"), true);
 			return false;
 		}
 	}
 
-	/** Read data about middle protocol configuration */
+	/** Lowlevel done - now create "lower middle level" layer */
 
 	switch (Protocol) {
 	case ModeASCII:
@@ -579,6 +582,8 @@ bool Comm::Initialize()
 	/* Enable interface buttons (disabled in Stop()) */
 	ui.MiddleSend->setEnabled(true);
 	ui.LowSend->setEnabled(true);
+
+	UIMutex.unlock();
 
 	if (Protocol == ModeTerminated)
 		emit Status(tr("Terminated communication started"));

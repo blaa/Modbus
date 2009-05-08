@@ -23,6 +23,7 @@
 
 namespace Unix {
 #include <signal.h>
+#include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -59,24 +60,33 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	       enum Config::FlowControl FC,
 	       const char *Device)
 {
-	struct Unix::termios newtio;
-	struct Unix::sigaction sa;
+	using namespace Unix;
+
+	struct termios newtio;
+	struct sigaction sa;
 
 	CurrentCB = HigherCB = NULL;
 
 	/* Set handler first */
 	sa.sa_handler = SerialSignalHandler;
 	sa.sa_restorer = NULL;
-	Unix::sigemptyset(&sa.sa_mask);
+	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 
-	if (Unix::sigaction(SIGIO, &sa, NULL) != 0) {
+	if (sigaction(SIGIO, &sa, NULL) != 0) {
 		std::cerr << "sigaction: " << strerror(errno);
 		throw Error::Exception("Serial, sigaction: ", strerror(errno));
 	}
 
+	/* Unblock SIGIO and SIGRTMIN */
+	sigset_t ss;
+	sigemptyset(&ss);
+	sigaddset(&ss, SIGIO);
+	sigaddset(&ss, SIGRTMIN);
+	sigprocmask(SIG_UNBLOCK, &ss, NULL);
+
 	/* Then open serial device in nonblocking/async mode */
-	this->fd = Unix::open(Device, O_RDWR | O_NOCTTY | O_NONBLOCK | O_ASYNC);
+	this->fd = open(Device, O_RDWR | O_NOCTTY | O_NONBLOCK | O_ASYNC);
 
 	if (this->fd < 0) {
 		std::cerr << "Unable to open " << Device << std::endl;
@@ -85,7 +95,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	}
 
 	/* And configure it */
-	Unix::speed_t Speed;
+	speed_t Speed;
 	switch (BR) {
 	case Config::BR150: Speed = B150; break;
 	case Config::BR200: Speed = B200; break;
@@ -108,7 +118,7 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		throw Error::Exception("Internal error while selecting serial speed");
 	}
 
-	if (Unix::tcgetattr(this->fd, &newtio) != 0) {
+	if (tcgetattr(this->fd, &newtio) != 0) {
 		std::cerr << "tcgetattr: " << strerror(errno);
 		close(this->fd);
 		throw Error::Exception("Error while reading serial attributes", strerror(errno));
@@ -125,8 +135,8 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 
 	/* Speed + enable receiver */
 	newtio.c_cflag = Speed | CREAD;
-	Unix::cfsetispeed(&newtio, Speed);
-	Unix::cfsetospeed(&newtio, Speed);
+	cfsetispeed(&newtio, Speed);
+	cfsetospeed(&newtio, Speed);
 
 	/* Set character size */
 	switch (CS) {
@@ -176,13 +186,13 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 		break;
 	};
     
-	if (Unix::tcflush(this->fd, TCIOFLUSH) != 0) {
+	if (tcflush(this->fd, TCIOFLUSH) != 0) {
 		std::cerr << "tcflush: " << strerror(errno);
 		close(this->fd);
 		throw Error::Exception("Error while flushing serial device", strerror(errno));
 	}
 
-	if (Unix::tcsetattr(this->fd, TCSANOW, &newtio) != 0) {
+	if (tcsetattr(this->fd, TCSANOW, &newtio) != 0) {
 		std::cerr << "tcsetattr: " << strerror(errno);
 		close(this->fd);
 		throw Error::Exception("Error while setting serial attributes", strerror(errno));
@@ -192,8 +202,8 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 
 	fsync(this->fd);
 
-	Unix::fcntl(this->fd, F_SETOWN, getpid());
-	Unix::fcntl(this->fd, F_SETFL, O_ASYNC);
+	fcntl(this->fd, F_SETOWN, syscall(SYS_gettid));
+	fcntl(this->fd, F_SETFL, O_ASYNC);
 }
 
 Serial::~Serial()
