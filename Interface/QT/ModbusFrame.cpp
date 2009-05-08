@@ -17,6 +17,7 @@
 #include <ctype.h>
 #include <cerrno>
 
+#include <sys/syscall.h>
 #include <QtCore/QString>
 #include <QtGui/QMessageBox>
 
@@ -113,19 +114,13 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 void ModbusFrame::Start()
 {
 	/* Block SIGIO signal here! */
-	struct sigaction sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.sa_sigaction = NULL;
-	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
-	sigaddset(&sa.sa_mask, SIGIO);
+	sigset_t ss;
+	sigemptyset(&ss);
+	sigaddset(&ss, SIGIO);
+	sigaddset(&ss, SIGRTMIN);
+	sigprocmask(SIG_SETMASK, &ss, NULL);
 
-	if (sigaction(SIGNAL_ID, &sa, NULL) < 0) {
-		std::cerr << "GUI sigaction: " << strerror(errno)
-			  << std::endl;
-	}
-
-
+	std::cerr << "Scheduling initialize and masking signal in tid " << syscall(SYS_gettid) << std::endl;
 	System.ScheduleInitialize();
 
 
@@ -206,8 +201,8 @@ void ModbusFrame::ConfigEnableUpdate()
 
 void ModbusFrame::MiddleSend()
 {
-//	std::cerr << "MiddleSend Lock" << std::endl;
-//	Mutex::Safe();
+	std::cerr << "MiddleSend Lock" << std::endl;
+	Mutex::Safe();
 	try {
 		System.CurrentProtocol->SendMessage(
 			ParseEscapes(
@@ -222,8 +217,8 @@ void ModbusFrame::MiddleSend()
 	} catch (...) {
 		Status(tr("Unknown error"), true);
 	}
-//	std::cerr << "MiddleSend Unlock" << std::endl;
-//	Mutex::Unsafe();
+	std::cerr << "MiddleSend Unlock" << std::endl;
+	Mutex::Unsafe();
 }
 
 void ModbusFrame::TerminatedPing()
@@ -258,7 +253,6 @@ void ModbusFrame::LowSend()
 /** Update interface! */
 void ModbusFrame::UpdateData(const QString &Data, int DK)
 {
-	std::cerr << "Update data signal" << std::endl;
 	switch (DK) {
 	case DataKind::MiddleInput:
 		ui.MiddleInput->moveCursor(QTextCursor::End);
@@ -388,6 +382,8 @@ QString Comm::ToVisible(char Byte)
 bool Comm::Initialize()
 {
 	std::cout << "Building interface!" << std::endl;
+	std::cerr << "in tid " << syscall(SYS_gettid) << std::endl;
+
 	/* Gather some basic info */
 	/* Serial */
 	const std::string &SerialDevice = ui.SerialDevice->text().toStdString();
@@ -608,16 +604,12 @@ void Comm::Shutdown()
 
 void Comm::ReceivedByte(char Byte)
 {
-	std::cerr << "Emiting for receivedbyte ";
 	emit UpdateData(ToVisible(Byte), DataKind::LowlevelInput);
-	std::cerr << "OK" << std::endl;
 }
 
 void Comm::SentByte(char Byte)
 {
-	std::cerr << "Emiting for receivedbyte ";
 	emit UpdateData(ToVisible(Byte), DataKind::LowlevelOutput);
-	std::cerr << "OK" << std::endl;
 }
 
 void Comm::ReceivedMessage(const std::string &Msg, int Address, int Function)

@@ -21,6 +21,7 @@
 
 #include <netdb.h> /* Resolver */
 
+#include <sys/syscall.h>
 #include "Utils/Error.h"
 #include "NetworkUDP.h"
 
@@ -103,7 +104,7 @@ NetworkUDPServer::NetworkUDPServer(int Port)
 
 	/* Change to asynchronous */
 	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
-	fcntl(Socket, F_SETOWN, getpid());
+	fcntl(Socket, F_SETOWN, syscall(SYS_gettid));
 	fcntl(Socket, F_SETSIG, SIGNAL_ID); /* Dont't send SIGIO, but SIGRTMIN */
 }
 
@@ -210,7 +211,7 @@ NetworkUDPClient::NetworkUDPClient(const char *Host, int Port)
 
 	/* Change to asynchronous */
 	fcntl(Socket, F_SETFL, O_ASYNC | O_NONBLOCK);
-	fcntl(Socket, F_SETOWN, getpid());
+	fcntl(Socket, F_SETOWN, syscall(SYS_gettid));
 	fcntl(Socket, F_SETSIG, SIGNAL_ID); /* Dont't send SIGIO, but SIGRTMIN */
 	
 	/* This tells master that we are listening */
