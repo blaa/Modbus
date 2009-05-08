@@ -15,6 +15,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ctype.h>
+#include <cerrno>
 
 #include <QtCore/QString>
 #include <QtGui/QMessageBox>
@@ -111,7 +112,23 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 
 void ModbusFrame::Start()
 {
+	/* Block SIGIO signal here! */
+	struct sigaction sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_sigaction = NULL;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGIO);
+
+	if (sigaction(SIGNAL_ID, &sa, NULL) < 0) {
+		std::cerr << "GUI sigaction: " << strerror(errno)
+			  << std::endl;
+	}
+
+
 	System.ScheduleInitialize();
+
+
 }
 
 void ModbusFrame::Stop()
@@ -189,8 +206,8 @@ void ModbusFrame::ConfigEnableUpdate()
 
 void ModbusFrame::MiddleSend()
 {
-	std::cerr << "MiddleSend Lock" << std::endl;
-	Mutex::Safe();
+//	std::cerr << "MiddleSend Lock" << std::endl;
+//	Mutex::Safe();
 	try {
 		System.CurrentProtocol->SendMessage(
 			ParseEscapes(
@@ -205,8 +222,8 @@ void ModbusFrame::MiddleSend()
 	} catch (...) {
 		Status(tr("Unknown error"), true);
 	}
-	std::cerr << "MiddleSend Unlock" << std::endl;
-	Mutex::Unsafe();
+//	std::cerr << "MiddleSend Unlock" << std::endl;
+//	Mutex::Unsafe();
 }
 
 void ModbusFrame::TerminatedPing()
@@ -591,12 +608,16 @@ void Comm::Shutdown()
 
 void Comm::ReceivedByte(char Byte)
 {
+	std::cerr << "Emiting for receivedbyte ";
 	emit UpdateData(ToVisible(Byte), DataKind::LowlevelInput);
+	std::cerr << "OK" << std::endl;
 }
 
 void Comm::SentByte(char Byte)
 {
+	std::cerr << "Emiting for receivedbyte ";
 	emit UpdateData(ToVisible(Byte), DataKind::LowlevelOutput);
+	std::cerr << "OK" << std::endl;
 }
 
 void Comm::ReceivedMessage(const std::string &Msg, int Address, int Function)
