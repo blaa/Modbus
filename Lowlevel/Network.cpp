@@ -33,12 +33,19 @@
 #include <fcntl.h>
 
 
+#if QT_INTERFACE
+#include "Interface/QT/ModbusFrame.h"
+#endif
 
 Network *CurrentNet;
 
 /** Handle network 'interrupt' - call current network implementation */
 void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 {
+#if QT_INTERFACE
+	// QThread::currentThread()
+
+#else
 	/* Enter safe section - no send will be queued this way
 	 * and we will wait until some send finish if in progress */
 	if (!CurrentNet) {
@@ -48,7 +55,6 @@ void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 	}
 
 	std::cerr << "Network locking safe" << std::endl;
-	Mutex::Safe();
 
 	if (sigi)
 		CurrentNet->SignalHandler(sigi->si_fd);
@@ -56,7 +62,7 @@ void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 		CurrentNet->SignalHandler(-1);
 
 	std::cerr << "Network unlocking" << std::endl;
-	Mutex::Unsafe();
+#endif
 }
 
 /*****************************
