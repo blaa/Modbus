@@ -129,7 +129,6 @@ Serial::Serial(enum Config::BaudRate BR, enum Config::Parity P,
 	/* Return immediately returning what you have */
 	newtio.c_cc[VMIN] = newtio.c_cc[VTIME] = 0;
 
-
 	/* Speed + enable receiver */
 	newtio.c_cflag = Speed | CREAD;
 	Unix::cfsetispeed(&newtio, Speed);
