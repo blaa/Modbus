@@ -12,8 +12,11 @@
 
 #include <iostream>
 
+
 #include "Config.h"
 #include "Timeout.h"
+#include "Utils/Error.h"
+#include "Lowlevel/Safe.h"
 
 #if SYS_LINUX
 #	include <cstdlib>
@@ -23,7 +26,9 @@
 #	include <sys/time.h>
 #endif
 
-#if SYS_LINUX && !QT_INTERFACE
+
+#if 0 /* OLD Linux signal-based timeout! */
+#if SYS_LINUX
 
 /** Callback which will be called */
 Callback *CurrentCB;
@@ -39,14 +44,14 @@ public:
 	volatile unsigned char Set;
 
 	MiliCallback() : Set(0)
-		{
-		}
+	{
+	}
 
 	/** Just mark that it's ready */
 	virtual void Run()
-		{
-			Set = 1;
-		}
+	{
+		Set = 1;
+	}
 };
 
 /** Linux Signal handler */
@@ -125,42 +130,99 @@ void Wait()
 	while (Notice == 0);
 }
 
-#endif
-
-
+#endif /* SYS_LINUX */
+#endif /* 0 */
 
 #if QT_INTERFACE
+#include "Interface/QT/ModbusFrame.h"
 
-Timeout::Timeout() : QTimer()
+Timeout::Timeout()
 {
-	setSingleShot(true);
-	connect(this, SIGNAL(timeout()), this, SLOT(RunWrapper()));
+	std::cerr << "Timeout::Timeout ";
+	C = dynamic_cast<Comm *>(QThread::currentThread());
+	std::cerr << " C= " << C;
+	if (!C) {
+		std::cerr << "What did you do to the currentThread?!"
+			  << std::endl;
+		throw Error::Exception("Trying to create timeout outside of Comm thread");
+	}
+	TimerID = C->TimerRegister(this);
+	std::cerr << " Got TimerID " << TimerID << std::endl;
+	Active = false;
+}
+
+Timeout::~Timeout()
+{
+	std::cerr << "Timeout::~Timeout " << TimerID << std::endl;
+/*	Comm *C = dynamic_cast<Comm *>(QThread::currentThread());
+	if (!C) {
+		std::cerr << "What did you do to the currentThread?!"
+			  << std::endl;
+		throw Error::Exception("Trying to create timeout outside of Comm thread");
+		} */
+//	C->TimerFree(TimerID);
 }
 
 void Timeout::RunWrapper()
 {
 	/* Add mutex security */
+	std::cerr << "Timeout::RunWrapper " << TimerID 
+		  << " " << Active << std::endl;
+	Mutex::Safe();
+	if (!Active) { /** This is mystery. - Qt Queue loop problem? */
+		std::cerr << "Timeout::RunWrapper - NOT ACTIVE! END!" << std::endl; 
+		Mutex::Unsafe();
+		return;
+	}
+	Active = false;
 	Run();
+	std::cerr << "Timeout::RunWrapper " << TimerID << " END" << std::endl;
+	Mutex::Unsafe();
 }
 
-void Timeout::Schedule(long MSec, bool Periodic)
+void Timeout::Schedule(long MSec)
 {
-	if (Periodic)
-		setSingleShot(false);
-	else
-		setSingleShot(true);
-	start(MSec); /* This has to be run in GUI thread where we have
-		      * an event loop */
+	std::cout << "Timeout::Schedule " << TimerID;
+	Active = true;
+	Comm *C = dynamic_cast<Comm *>(QThread::currentThread());
+	if (!C) {
+		if (!this->C) {
+			std::cerr << "OK!!! THAT'S ENOUGH!"<< std::endl;
+			(void) *((char*)0);
+		}
+		/* Ok, we are called from GUI thread*/
+		std::cout << " from GUI thread" << std::endl;
+		this->C->TimerStartSlot(TimerID, MSec);
+		return;
+/*		std::cerr << "What did you do to the currentThread?!"
+			  << std::endl;
+			  throw Error::Exception("Trying to create timeout outside of Comm thread"); */
+	}
+	std::cout << " from worker thread" << std::endl;
+	C->TimerStart(TimerID, MSec);
 }
 
 void Timeout::StopTime()
 {
-	stop();
+	std::cout << "Timeout::StopTime" << std::endl;
+	if (!Active) {
+		std::cout << "Already stopped!" << std::endl;
+		return;
+	}
+
+	Comm *C = dynamic_cast<Comm *>(QThread::currentThread());
+	if (!C) {
+		std::cerr << "What did you do to the currentThread?!"
+			  << std::endl;
+		throw Error::Exception("Trying to create timeout outside of Comm thread");
+	}
+	C->TimerStop(TimerID);
+	Active = false;
 }
 
 bool Timeout::IsActive()
 {
-	return isActive();
+	return Active;
 }
 
 /** For a certain, locked x miliseconds wait time */
@@ -176,9 +238,9 @@ public:
 
 	/** Just mark that it's ready */
 	virtual void Run()
-		{
-			Set = 1;
-		}
+	{
+		Set = 1;
+	}
 };
 
 

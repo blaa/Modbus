@@ -23,33 +23,49 @@
  * in future - OS dependant */
 
 	/** Timeout callback class */
-#if QT_INTERFACE
-class Timeout : private QTimer
-{
-	Q_OBJECT
+#ifdef QT_INTERFACE
 
+/** Timeout class done with QT Interface 
+ * \brief
+ * It wraps QTimers which must run in main thread,
+ * not worker - posix signal - thread.
+ * Functions of this class musn't be run in main GUI 
+ * thread - this can be fixed, but isn't required currently 
+ */
+
+class Comm;
+
+class Timeout
+{
+	int TimerID;
+	bool Active;
+	Comm *C;
 public:
 	/** Inictialize timeout */
 	Timeout();
 	
-	/** Virtual destructor */
-	virtual ~Timeout() {}
+	/** Virtual destructor - might be called 
+	 * while GUI thread is locked and cannot handle 
+	 * signals */
+	virtual ~Timeout();
 
 	/** Call Run() after MSec miliseconds */
-	void Schedule(long MSec, bool Periodic = false);
+	void Schedule(long MSec);
 
 	/** Disable current timeout */
 	void StopTime();
 
 	/** Checks if timeout is active */
 	bool IsActive();
-public slots:
-	/** Called when timeout occurs */
+
 	virtual void Run() = 0;
+
+public:
+	/** Called when timeout occurs */
 	void RunWrapper();
 };
 
-#else
+#else /* QT_INTERFACE */
 
 class Timeout
 {
@@ -63,9 +79,10 @@ public:
 	/** Called when timeout occurs */
 	virtual void Run() = 0;
 };
-#endif
+#endif /* QT_INTERFACE */
 
 /** Call before using timeout. Might be required in DOS */
 void TimeoutInit();
 
-#endif
+
+#endif /* _TIMEOUT_H_ */

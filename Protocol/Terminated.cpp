@@ -130,7 +130,7 @@ void Terminated::ReceivedByte(char Byte)
 	if (HigherCB)
 		HigherCB->ReceivedByte(Byte);
 
-	Timeout::Schedule(this->Timeout);
+	Schedule(this->Timeout);
 
 	Buffer += Byte;
 	Received++;

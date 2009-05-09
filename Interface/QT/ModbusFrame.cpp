@@ -30,6 +30,8 @@ ModbusFrame::ModbusFrame(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	qRegisterMetaType<QTimer *>("QTimer *");
+
 	/** Connect signals comming from thread */
 	connect(&System, SIGNAL(UpdateData(const QString &, int)),
 		this, SLOT(UpdateData(const QString &, int)));
@@ -281,7 +283,6 @@ void ModbusFrame::UpdateData(const QString &Data, int DK)
 	}
 }
 
-
 /******************************
  * Signal thread implementation
  *****************************/
@@ -292,9 +293,27 @@ Comm::Comm(QObject *parent, const Ui::ModbusFrame &ui)
 
 	DoAbort = DoInitialize = DoShutdown = false;
 
+	/** Initialize all timers - must be called in GUI thread */
+	for (int i=0; i<Timers; i++) {
+		TimerUsed[i] = false;
+		TimerConnected[i] = NULL;
+		TimerPool[i].setSingleShot(true);
+		connect(&TimerPool[i], SIGNAL(timeout()), this, SLOT(TimerTimeout()));
+	}
+
 	CurrentLowlevel = NULL;
 	CurrentProtocol = NULL;
 	CurrentTempProtocol = NULL;
+	CurrentTerminated = false;
+
+	connect(this, SIGNAL(_TimerStart(int, long)),
+		this, SLOT(TimerStartSlot(int, long)));
+
+	connect(this, SIGNAL(_TimerStop(int)),
+		this, SLOT(TimerStopSlot(int)));
+
+
+
 
 	start(LowPriority);
 }
@@ -310,6 +329,10 @@ void Comm::ScheduleAbort()
 void Comm::ScheduleInitialize()
 {
 	Mutex.lock();
+
+	/** Deregister all timers by hand! */
+	TimerInit();
+
 	DoInitialize = true;
 	WaitCondition.wakeOne();
 	Mutex.unlock();
@@ -318,6 +341,10 @@ void Comm::ScheduleInitialize()
 void Comm::ScheduleShutdown()
 {
 	Mutex.lock();
+
+	/** Deregister all timers by hand! */
+	TimerInit();
+
 	DoShutdown = true;
 	WaitCondition.wakeOne();
 	Mutex.unlock();
@@ -379,6 +406,13 @@ QString Comm::ToVisible(char Byte)
 
 bool Comm::Initialize()
 {
+	/** When entering this function
+	 * our previous timers are already dead, so stop 
+	 * whole communication system _now_ */
+
+	/** Turn off previous comm system if any */
+	Shutdown();
+
 	std::cout << "Building comm system ";
 	std::cerr << "in tid " << syscall(SYS_gettid) << std::endl;
 
@@ -479,9 +513,6 @@ bool Comm::Initialize()
 		emit Status(tr("Character size smaller than 8 bits allowed only with modbus ascii"), true);
 		return false;
 	} */
-
-	/** Turn off previous comm system if any */
-	Shutdown();
 
 	/* Gather configuration variables and create comm system */
 	if (ui.SerialSelected->isChecked()) {
@@ -600,6 +631,7 @@ void Comm::Shutdown()
 		delete CurrentTempProtocol, CurrentTempProtocol = NULL;
 	if (CurrentLowlevel)
 		delete CurrentLowlevel, CurrentLowlevel = NULL;
+	CurrentTerminated = false;
 }
 
 
@@ -655,7 +687,7 @@ void Comm::SentMessage(const std::string &Msg, int Address, int Function)
 	   << std::endl;
 
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleOutput);
-
+	
 //	ui.Status->setText(("Sent: " + ss.str()).c_str());
 }
 
@@ -681,6 +713,86 @@ void Comm::Error(int Errno, const char *Description)
 	ss << std::endl;
 
 	emit UpdateData(ss.str().c_str(), DataKind::ErrorOutput);
+}
+
+/**************
+ * Functions used inside the thread
+ * to support timers 
+ *************/
+
+void Comm::TimerInit()
+{
+	for (int i=0; i<Timers; i++) {
+		TimerPool[i].stop();
+		TimerUsed[i] = false;
+		TimerConnected[i] = NULL;
+	}
+}
+
+/* Signal wrappers */
+void Comm::TimerStart(int TimerID, long MSec)
+{
+	emit _TimerStart(TimerID, MSec);
+}
+
+void Comm::TimerStop(int TimerID)
+{
+	emit _TimerStop(TimerID);
+}
+
+int Comm::TimerRegister(Timeout *T)
+{
+	for (int i=0; i<Timers; i++) {
+		if (!TimerUsed[i]) {
+			TimerUsed[i] = true;
+			TimerConnected[i] = T;
+			return i;
+		}
+	}
+	/* Ok, that's bad */
+	std::cerr << "You've run out of timers! Increase pool or debug freeing them"
+		  << std::endl;
+
+	(void) *((char*)0);
+	return NULL;
+}
+
+void Comm::TimerFree(int TimerID)
+{
+	TimerUsed[TimerID] = false;
+	TimerConnected[TimerID] = NULL;
+}
+
+/* Slot catching timeouts() */
+void Comm::TimerTimeout()
+{
+	QTimer *T = dynamic_cast<QTimer *>(sender());
+	if (!T) {
+		std::cerr << "Something is VERY bad. Check me."
+			  << std::endl;
+	}
+
+	/* Find in table, and call good function */
+	for (int i=0; i<Timers; i++) {
+		if (&TimerPool[i] == T) {
+			TimerConnected[i]->RunWrapper();
+		}
+	}
+}
+
+void Comm::TimerStartSlot(int TimerID, long MSec)
+{
+	std::cerr << "From main thread - starting timeout " 
+		  << TimerID << " << - in "
+		  << MSec << " miliseconds" << std::endl;
+	TimerPool[TimerID].start(MSec);
+}
+
+void Comm::TimerStopSlot(int TimerID)
+{
+	std::cerr << "From main thread - stopping timeout " << TimerID << std::endl;
+
+	TimerPool[TimerID].stop();
 }
 
 

@@ -67,9 +67,6 @@ void ModbusGeneric<LRC, true>::SendMessage(const std::string &Msg, int Address, 
 	Frame << std::setw(2) << (unsigned int)(unsigned char)Hash.Get();
 	Frame << "\r\n";
 
-	std::cerr << "DEBUG, SendMessage ASCII: "
-		  << Frame.str() << std::endl;
-
 	/* TODO: We can send this data completely with
 	 * interrupts but this would make Serial a bit 
 	 * harder to write */
@@ -108,11 +105,9 @@ void ModbusGeneric<CRC16, false>::SendMessage(const std::string &Msg, int Addres
 	Frame << (unsigned char)(CRC & 0x00FF);
 	Frame << (unsigned char)(CRC>>8);
 
-	std::cerr << "DEBUG, SendMessage RTU: "
-		  << Frame.str() << std::endl;
-
 	Lower.SendString(Frame.str());
 
+	std::cerr << "Scheduling RTU timeout!" << std::endl;
 	RTUTimeout.Schedule(Timeout * 3.5);
 
 	/* Enabling this timeout will cause testcase to fail

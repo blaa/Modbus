@@ -26,10 +26,13 @@
 #include "Lowlevel/NetworkUDP.h"
 #include "Lowlevel/Serial.h"
 
-#include "Protocol/MasterSlave.h"
-#include "Protocol/Modbus.h"
-#include "Protocol/Terminated.h"
 #include "Utils/Timeout.h"
+#include "Protocol/Terminated.h"
+#include "Protocol/Modbus.h"
+#include "Protocol/MasterSlave.h"
+
+
+
 
 #include "ui_ModbusFrame.h"
 
@@ -96,6 +99,16 @@ class Comm : public QThread, public Protocol::Callback
 	/** Secure access to ui */
 	QMutex UIMutex;
 
+	/**@{Timer pool */
+	static const int Timers = 10;
+	QTimer TimerPool[Timers];
+	Timeout *TimerConnected[Timers];
+	bool TimerUsed[Timers];
+
+	/** Initialize timers - must be called by GUI thread */
+	void TimerInit();
+	/*@}*/
+
 protected:
 	void run();
 
@@ -111,14 +124,31 @@ public:
 	virtual void Error(int Errno, const char *Description);
 	/* @} */
 
-	friend class ModbusFrame;
+	/** Start timeout in main GUI thread */
+	void TimerStart(int TimerID, long MSec);
+	void TimerStop(int TimerID);
+	/** Connects timeout with timer and returns timer ID */
+	int TimerRegister(Timeout *Timeout);
+	void TimerFree(int TimerID);
 
+	friend class ModbusFrame;
 signals:
 	/** Update data in main window */
 	void UpdateData(const QString &Data, int DK);
 
 	/** Set status in main window */
 	void Status(const QString &Str, bool Error = false);
+
+	/* Pass timer to GUI thread which starts it. */
+	void _TimerStart(int TimerID, long MSec);
+
+	/* Stop timer with specified ID */
+	void _TimerStop(int TimerID);
+
+public slots:
+	void TimerTimeout();
+	void TimerStartSlot(int TimerID, long MSec);
+	void TimerStopSlot(int TimerID);
 };
 
 
@@ -142,7 +172,6 @@ public:
 	/** Create GUI */
 	ModbusFrame(QWidget *parent = NULL);
 	~ModbusFrame();
-
 
 private slots:
 	/** Recreate all objects - initialize interfaces and communication */

@@ -23,7 +23,6 @@ namespace Mutex {
 	void Safe()
 	{
 #if QT_INTERFACE
-		std::cerr << "Locking safe" << std::endl;
 		SafeMutex.lock();
 #endif
 	}
@@ -32,7 +31,6 @@ namespace Mutex {
 	void Unsafe()
 	{
 #if QT_INTERFACE
-		std::cerr << "Unlocking safe" << std::endl;
 		SafeMutex.unlock();
 #endif
 	}
