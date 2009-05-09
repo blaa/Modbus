@@ -189,6 +189,7 @@ void Timeout::Schedule(long MSec)
 		if (!this->C) {
 			std::cerr << "OK!!! THAT'S ENOUGH!"<< std::endl;
 			(void) *((char*)0);
+			throw Error::Exception("That shouldn't happen! FIXME! It happened once!");
 		}
 		/* Ok, we are called from GUI thread*/
 		std::cout << " from GUI thread" << std::endl;
