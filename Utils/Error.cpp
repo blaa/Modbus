@@ -25,7 +25,7 @@ const char *Error::StrError(int Errno)
 	case INFO: return "Information";
 	case ILBYTE: return "Illegal byte passed to serial device";
 		/* Master / Slave errors */
-	case TRANSACTION: return "Transaction timed out after retries";
+	case TRANSACTION: return "Transaction timed out";
 	case RESPONSE: return "Illegal slave response for master query";
 	default: return "Unknown error";
 	}

@@ -49,23 +49,9 @@ void MasterSlave::RegisterCallback(Protocol::Callback *HigherCB)
 
 void MasterSlave::RaiseError(int Errno, const char *Additional) const
 {
-	std::ostringstream ss;
-
-	if (Additional)
-		ss << "Master/Slave Error: " << Additional;
-
-	std::cerr << Errno /* FIXME: Remove this cerr */
-		  << " : "
-		  << Error::StrError(Errno)
-		  << std::endl;
-
-	if (Additional) {
-		std::cerr << Additional << std::endl;
-	}
-
 	if (HigherCB) {
 		if (Additional)
-			HigherCB->Error(Errno, ss.str().c_str());
+			HigherCB->Error(Errno, Additional);
 		else
 			HigherCB->Error(Errno, NULL);
 	}
@@ -75,21 +61,17 @@ void MasterSlave::RaiseError(int Errno, const char *Additional) const
  * Callbacks for lowlevel interface
  * and for timeout.
  ************************************/
-
-
 void MasterSlave::ReceivedByte(char Byte)
 {
 	if (HigherCB)
 		HigherCB->ReceivedByte(Byte);
 }
 
-
 void MasterSlave::SentByte(char Byte)
 {
 	if (HigherCB)
 		HigherCB->SentByte(Byte);
 }
-
 
 void MasterSlave::SentMessage(const std::string &Msg, int Address, int Function)
 {
@@ -157,7 +139,7 @@ void Master::Run()
 		return;
 
 	/* Ok. Transaction timed out. */
-	if (TransactionRetries == 0) {
+	if (TransactionRetries <= 0) {
 		Transaction = false;
 		RaiseError(Error::TRANSACTION);
 		return;
@@ -182,7 +164,7 @@ Slave::Slave(Protocol::Callback *HigherCB,
 
 void Slave::SendMessage(const std::string &Msg, int Address, int Function)
 {
-	Lower.SendMessage(Msg, Address, Function);
+	Lower.SendMessage(Msg, this->Address, Function);
 }
 
 void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)

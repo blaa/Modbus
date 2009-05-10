@@ -153,19 +153,12 @@ unsigned char ModbusGeneric<HashType, ASCII>::HexConvert(unsigned char A, unsign
 template<typename HashType, bool ASCII>
 void ModbusGeneric<HashType, ASCII>::RaiseError(int Errno, const char *Additional) const
 {
-	std::ostringstream ss;
-
 	if (!HigherCB)
 		return;
 
 	/* TODO: Turn this debug off finally */
-	if (ASCII && Additional) 
-		ss << "MODBUS ASCII Error: " << Additional;
-	else if (Additional)
-		ss << "MODBUS RTU Error: " << Additional;
-
 	if (Additional)
-		HigherCB->Error(Errno, ss.str().c_str());
+		HigherCB->Error(Errno, Additional);
 	else
 		HigherCB->Error(Errno, NULL);
 }

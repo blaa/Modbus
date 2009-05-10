@@ -39,6 +39,9 @@ ModbusFrame::ModbusFrame(QWidget *parent)
 	connect(&System, SIGNAL(Status(const QString &, bool)),
 		this, SLOT(Status(const QString &, bool)));
 
+	connect(&System, SIGNAL(UpdateError(int, const char *)),
+		this, SLOT(UpdateError(int, const char *)));
+
 	/* Block SIGIO and SIGRTMIN signals by default! */
 	sigset_t ss;
 	sigemptyset(&ss);
@@ -251,6 +254,33 @@ void ModbusFrame::LowSend()
 		Status(tr("Unknown error"), true);
 	}
 	Mutex::Unsafe();
+}
+
+void ModbusFrame::UpdateError(int Errno, const char *Description)
+{
+	std::ostringstream ss;
+	ss << tr(Error::StrError(Errno)).toStdString();
+	if (Description) {
+		ss << " (" << tr(Description).toStdString() << ")";
+	}
+	std::cerr << "Desc: = " << Description
+		  << " Translated = "
+		  << tr("Input high level data").toStdString();
+	switch (Errno) {
+	case Error::PING:
+	case Error::PONG:
+	case Error::INFO:
+	case Error::OK:
+		Status(ss.str().c_str());
+		break;
+	default:
+		Status(ss.str().c_str(), true);
+	}
+
+	ss << std::endl;
+
+	UpdateData(ss.str().c_str(), DataKind::ErrorOutput);
+
 }
 
 void ModbusFrame::UpdateData(const QString &Data, int DK)
@@ -678,7 +708,6 @@ void Comm::ReceivedMessage(const std::string &Msg, int Address, int Function)
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleInput);
 
 	/* Update status? */
-//	Status("Recv: " + ss.str());
 	emit Status(tr("Recv: ") + ss.str().c_str());
 }
 
@@ -699,32 +728,14 @@ void Comm::SentMessage(const std::string &Msg, int Address, int Function)
 	   << std::endl;
 
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleOutput);
-	
 	emit Status(tr("Sent: ") + ss.str().c_str());
 }
 
 void Comm::Error(int Errno, const char *Description)
 {
-	std::ostringstream ss;
-	ss << tr(Error::StrError(Errno)).toStdString();
-	if (Description) {
-		ss << " (" << tr(Description).toStdString() << ")";
-	}
-	switch (Errno) {
-	case Error::PING:
-	case Error::PONG:
-	case Error::INFO:
-	case Error::OK:
-		emit Status(ss.str().c_str());
-		break;
-	default:
-		emit Status(ss.str().c_str(), true);
-	}
-
-//	ui.Status->setText(ss.str().c_str());
-	ss << std::endl;
-
-	emit UpdateData(ss.str().c_str(), DataKind::ErrorOutput);
+	emit UpdateError(Errno, Description);
+	
+	
 }
 
 /**************

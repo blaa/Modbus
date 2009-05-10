@@ -136,6 +136,9 @@ signals:
 	/** Update data in main window */
 	void UpdateData(const QString &Data, int DK);
 
+	/** Update error in main window */
+	void UpdateError(int Errno, const char *Description);
+
 	/** Set status in main window */
 	void Status(const QString &Str, bool Error = false);
 
@@ -193,6 +196,9 @@ public slots:
 
 	/** Update display */
 	void UpdateData(const QString &Data, int DK);
+
+	/** Update error display */
+	void UpdateError(int Errno, const char *Description);
 
 private:
 	/** Main window definition created with designer */
