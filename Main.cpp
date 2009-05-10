@@ -23,11 +23,25 @@
 #include "Protocol/Protocol.h"
 #include "Protocol/Modbus.h"
 
+/** \mainpage Layered serial communication system
+ *
+ * This is a documentation for a program implementing set of 
+ * serial protocols working over set of lowlevel communication mediums.
+ *
+ * Implemented protocols are:
+ * - Modbus ASCII
+ * - Modbus RTU 
+ * - Simple line-based terminated protocol.
+ *
+ * Implemented lowlevel communication mediums:
+ * - Serial device
+ * - UDP/IP Network
+ */
 
+/** Namespace full of early tests; */
 namespace Testcase {
 	/** Excessive debug */
 	const bool ED = true;
-
 
 	/** Class simulating a working lowlevel implementation
 	 * for testing middle and interface layers */
