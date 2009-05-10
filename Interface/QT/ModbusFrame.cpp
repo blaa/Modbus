@@ -258,28 +258,28 @@ void ModbusFrame::LowSend()
 
 void ModbusFrame::UpdateError(int Errno, const char *Description)
 {
-	std::ostringstream ss;
-	ss << tr(Error::StrError(Errno)).toStdString();
+	QString ss;
+	ss += tr(Error::StrError(Errno));
 	if (Description) {
-		ss << " (" << tr(Description).toStdString() << ")";
+		ss += " (";
+		ss += tr(Description);
+		ss += ")";
 	}
-	std::cerr << "Desc: = " << Description
-		  << " Translated = "
-		  << tr("Input high level data").toStdString();
+
 	switch (Errno) {
 	case Error::PING:
 	case Error::PONG:
 	case Error::INFO:
 	case Error::OK:
-		Status(ss.str().c_str());
+		Status(ss);
 		break;
 	default:
-		Status(ss.str().c_str(), true);
+		Status(ss, true);
 	}
 
-	ss << std::endl;
+	ss += "\n";
 
-	UpdateData(ss.str().c_str(), DataKind::ErrorOutput);
+	UpdateData(ss, DataKind::ErrorOutput);
 
 }
 
@@ -708,7 +708,7 @@ void Comm::ReceivedMessage(const std::string &Msg, int Address, int Function)
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleInput);
 
 	/* Update status? */
-	emit Status(tr("Recv: ") + ss.str().c_str());
+	emit Status(QString("Recv: ") + ss.str().c_str());
 }
 
 void Comm::SentMessage(const std::string &Msg, int Address, int Function)
@@ -728,7 +728,7 @@ void Comm::SentMessage(const std::string &Msg, int Address, int Function)
 	   << std::endl;
 
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleOutput);
-	emit Status(tr("Sent: ") + ss.str().c_str());
+	emit Status(QString("Sent: ") + ss.str().c_str());
 }
 
 void Comm::Error(int Errno, const char *Description)
