@@ -106,14 +106,18 @@ Master::Master(Protocol::Callback *HigherCB,
 
 void Master::SendMessage(const std::string &Msg, int Address, int Function)
 {
-	Transaction = true;
-	TransactionBody = Msg;
-	TransactionAddress = Address;
-	TransactionFunction = Function;
-	TransactionRetries = Retries - 1;
+	if (Address != 0) {
+		Transaction = true;
+		TransactionBody = Msg;
+		TransactionAddress = Address;
+		TransactionFunction = Function;
+		TransactionRetries = Retries - 1;
+	}
 
 	Lower.SendMessage(Msg, Address, Function);
-	Schedule(TransactionTimeout);
+
+	if (Address != 0)
+		Schedule(TransactionTimeout);
 }
 
 

@@ -213,6 +213,16 @@ void Timeout::StopTime()
 
 	Comm *C = dynamic_cast<Comm *>(QThread::currentThread());
 	if (!C) {
+		if (!this->C) {
+			std::cerr << "OK!!! THAT'S ENOUGH2!"<< std::endl;
+			(void) *((char*)0);
+			throw Error::Exception("That shouldn't happen2! FIXME! It happened once!");
+		}
+		/* Ok, we are called from GUI thread*/
+		std::cout << " from GUI thread" << std::endl;
+		this->C->TimerStopSlot(TimerID);
+		return;
+
 		std::cerr << "What did you do to the currentThread?!"
 			  << std::endl;
 		throw Error::Exception("Trying to create timeout outside of Comm thread");

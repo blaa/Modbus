@@ -213,7 +213,7 @@ void ModbusFrame::MiddleSend()
 	try {
 		System.CurrentProtocol->SendMessage(
 			ParseEscapes(
-				ui.SendData->text().toStdString()
+				ui.SendData->text().toLocal8Bit().data()
 				),
 			ui.SendAddress->value(),
 			ui.SendFunction->value());
@@ -243,7 +243,7 @@ void ModbusFrame::LowSend()
 	try {
 		System.CurrentLowlevel->SendString(
 			ParseEscapes(
-				ui.LowSendData->text().toStdString()
+				ui.LowSendData->text().toLocal8Bit().data()
 				)
 			);
 	} catch (Error::Exception &e) {

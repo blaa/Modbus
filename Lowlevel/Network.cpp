@@ -43,10 +43,6 @@ Network *CurrentNet;
 /** Handle network 'interrupt' - call current network implementation */
 void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 {
-//#if QT_INTERFACE
-	// QThread::currentThread()
-
-//#else
 	/* Enter safe section - no send will be queued this way
 	 * and we will wait until some send finish if in progress */
 	if (!CurrentNet) {
@@ -55,17 +51,14 @@ void NetworkSignalHandler(int sig, siginfo_t *sigi, void *arg)
 		return;
 	}
 
-	std::cerr << "Network trying locking safe in tid " << syscall(SYS_gettid) << std::endl;
 	Mutex::Safe();
-	std::cerr << "Network locked" << std::endl;
+
 	if (sigi)
 		CurrentNet->SignalHandler(sigi->si_fd);
 	else
 		CurrentNet->SignalHandler(-1);
 
-	std::cerr << "Network unlocking" << std::endl;
 	Mutex::Unsafe();
-//#endif
 }
 
 /*****************************
