@@ -116,6 +116,7 @@ namespace Testcase {
 	class InterfaceCallback : public Protocol::Callback
 	{
 	public:
+		
 		volatile unsigned char Received;
 		volatile unsigned char Timeout;
 

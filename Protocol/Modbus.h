@@ -55,8 +55,13 @@ private:
 protected:
 	/** Message structure used for scheduling messages */
 	struct Message {
+		/** Message arguments - body */
 		std::string Msg;
+
+		/** Slave address */
 		int Address;
+
+		/** Called function */
 		int Function;
 	};
 
@@ -75,6 +80,8 @@ protected:
 		virtual ~RTUTimeout();
 	public:
 		virtual void Run();
+
+		/** Store message in a queue */
 		void ScheduleMessage(const std::string &Msg, int Address, int Function);
 
 		friend class ModbusGeneric<HashType, ASCII>;

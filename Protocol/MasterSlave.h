@@ -72,7 +72,7 @@ public:
 	/**@}*/
 };
 
-
+/** Class implementing Master behaviour: Transaction and their retries */
 class Master : public MasterSlave, public Timeout
 {
 	/** Number of retries until giving up */
@@ -96,7 +96,10 @@ class Master : public MasterSlave, public Timeout
 	/*@}*/
 
 public:
+	/** Initialize master layer and configure it with given number of retries
+	 * and retry timeout. Also register in lower layer. */ 
 	Master(Protocol::Callback *HigherCB, Protocol &Lower, int Retries = 0, long TransactionTimeout = 0);
+
 	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 
@@ -104,11 +107,14 @@ public:
 	virtual void Run();
 };
 
+/** Class implementing example slave behaviour:
+ * Few built-in functions, replies and address filtering. */
 class Slave : public MasterSlave
 {
+	/** Slave address */
 	int Address;
 
-	/**@{ Function parameters */
+	/**@{ Function parameters - numbers and arguments */
 	int FunEcho;
 	int FunTime;
 	int FunText;
@@ -117,11 +123,18 @@ class Slave : public MasterSlave
 	std::string Cmd;
 	/*@} */
 
+	/** Built-in function returning current time */
 	void TimeFunction();
+
+	/** Built-in function executing specified command */
 	void ExecFunction();
 
 public:
+	/** Initialize slave layer with given address and register it 
+	 * in the lower layer 
+	 */
 	Slave(Protocol::Callback *HigherCB, Protocol &Lower, int Address);
+
 	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 

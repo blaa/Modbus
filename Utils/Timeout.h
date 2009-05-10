@@ -73,7 +73,10 @@ public:
 	/** Virtual destructor */
 	virtual ~Timeout() {}
 
+	/** Call Run() after MSec miliseconds */
 	void Schedule(long MSec);
+	
+	/** Stop scheduled timeout */
 	void StopTime();
 
 	/** Called when timeout occurs */

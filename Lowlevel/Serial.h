@@ -12,11 +12,6 @@
 #ifndef _SERIAL_H_
 #define _SERIAL_H_
 
-/** Used by Safe/Unsafe muteces*/
-namespace Mutex {
-	extern volatile char SerialLock, SerialEvent;
-}
-
 #include <Lowlevel/SerialLinux.h>
 #include <Lowlevel/SerialDOS.h>
 

@@ -47,6 +47,9 @@ namespace DataKind {
 
 extern QMutex SafeMutex;
 
+/** Thread running communication system allowing reentrant-safe
+ * reception of signals
+ */
 class Comm : public QThread, public Protocol::Callback
 {
 	Q_OBJECT
@@ -110,6 +113,7 @@ class Comm : public QThread, public Protocol::Callback
 	/*@}*/
 
 protected:
+	/** Thread main-loop implementation */
 	void run();
 
 public:
@@ -124,11 +128,15 @@ public:
 	virtual void Error(int Errno, const char *Description);
 	/* @} */
 
-	/** Start timeout in main GUI thread */
+	/** Wrapper emitting _TimerStart signal */
 	void TimerStart(int TimerID, long MSec);
+	/** Wrapper emitting _TimerStop signal */
 	void TimerStop(int TimerID);
+
 	/** Connects timeout with timer and returns timer ID */
 	int TimerRegister(Timeout *Timeout);
+
+	/** Frees TimerID for future use */
 	void TimerFree(int TimerID);
 
 	friend class ModbusFrame;
@@ -142,15 +150,20 @@ signals:
 	/** Set status in main window */
 	void Status(const QString &Str, bool Error = false);
 
-	/* Pass timer to GUI thread which starts it. */
+	/** Pass timer to GUI thread which starts it. */
 	void _TimerStart(int TimerID, long MSec);
 
-	/* Stop timer with specified ID */
+	/** Stop timer with specified ID */
 	void _TimerStop(int TimerID);
 
 public slots:
+	/** Slot called when any of scheduled timers timeouts */
 	void TimerTimeout();
+
+	/** Function which starts given timeout */
 	void TimerStartSlot(int TimerID, long MSec);
+
+	/** Function stopping given timeout */
 	void TimerStopSlot(int TimerID);
 };
 
@@ -165,8 +178,6 @@ class ModbusFrame : public QMainWindow
 
 	/** Convert \xXX \n \r into real characters and \\ into \ */
 	const std::string ParseEscapes(const std::string &Str);
-
-	QSemaphore Scheduled;
 
 	/** Current communication system */
 	Comm System;

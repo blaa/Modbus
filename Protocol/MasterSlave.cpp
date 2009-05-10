@@ -229,9 +229,10 @@ void Slave::ExecFunction()
 	if (fgets(Buffer, sizeof(Buffer), f) <= 0) {
 		strcpy(Buffer, "Read error");
 		Lower.SendMessage(Buffer, Address, FunTime);
+		fclose(f);
 		return;
 	}
-	
+	fclose(f);
 	Lower.SendMessage(Buffer, Address, FunExec);
 }
 
