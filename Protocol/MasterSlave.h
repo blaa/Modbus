@@ -75,29 +75,28 @@ public:
 
 class Master : public MasterSlave, public Timeout
 {
-	/** Transaction timeout */
-	class TimeoutCB : public Timeout
-	{
-		/** Master instance which needs to be informed */
-		Master &M;
-
-		/** Set to 1 after timeout */
-		volatile unsigned char Notice;
-
-		/* Private constructor like with LL callback */
-		TimeoutCB(Master &M);
-	public:
-
-
-		friend class Master;
-	};
-
-//	TimeoutCB TimeoutCB;
-
+	/** Number of retries until giving up */
 	int Retries;
-	int TransactionTimeout;
+	/** Timeout in miliseconds before giving up */
+	long TransactionTimeout;
+
+	/**@{Transaction variables */
+	/** True if there a transaction in progress */
+	bool Transaction;
+
+	/** How many tries should we wait still */
+	int TransactionRetries;
+
+	/** Waiting for reply from what slave */
+	int TransactionAddress;
+	/** Transaction function */
+	int TransactionFunction;
+	/** Message of transaction */
+	std::string TransactionBody;
+	/*@}*/
+
 public:
-	Master(Protocol::Callback *HigherCB, Protocol &Lower, int Retries = 0, int TransactionTimeout = 0);
+	Master(Protocol::Callback *HigherCB, Protocol &Lower, int Retries = 0, long TransactionTimeout = 0);
 	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
 
@@ -109,10 +108,31 @@ class Slave : public MasterSlave
 {
 	int Address;
 
+	/**@{ Function parameters */
+	int FunEcho;
+	int FunTime;
+	int FunText;
+	int FunExec;
+	std::string Reply;
+	std::string Cmd;
+	/*@} */
+
+	void TimeFunction();
+	void ExecFunction();
+
 public:
 	Slave(Protocol::Callback *HigherCB, Protocol &Lower, int Address);
 	virtual void ReceivedMessage(const std::string &Msg, int Address, int Function);
 	virtual void SendMessage(const std::string &Msg, int Address = 0, int Function = 0);
+
+	/** Enable echo reply from slave */
+	void EnableEcho(int Function = 1);
+	/** Enable current time reply */
+	void EnableTime(int Function = 2);
+	/** Enable time reply */
+	void EnableText(int Function = 3, const std::string &Reply = "Hello world");
+	/** Enable slave function which executes program and replies output */
+	void EnableExec(int Function = 4, const std::string &Cmd = "uname -a");
 };
 
 

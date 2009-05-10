@@ -13,10 +13,17 @@
 #include <iomanip>
 #include <sstream>
 #include <cctype>
+#include <cerrno>
 #include "Utils/Error.h"
 #include "Utils/Hash.h"
 #include "Protocol.h"
 #include "MasterSlave.h"
+
+#if SYS_LINUX
+/* For some slave functions */
+#include <time.h> /* Time functions */
+#include <stdio.h> /* popen */
+#endif
 
 /************************************
  * General master/slave functions
@@ -108,46 +115,69 @@ void MasterSlave::Error(int Errno, const char *Description)
 Master::Master(Protocol::Callback *HigherCB,
 	       Protocol &Lower, 
 	       int Retries,
-	       int TransactionTimeout)
+	       long TransactionTimeout)
 	: MasterSlave(HigherCB, Lower), Retries(Retries), TransactionTimeout(TransactionTimeout)
 {
+	Transaction = false;
+	TransactionRetries = 0;
 }
 
 void Master::SendMessage(const std::string &Msg, int Address, int Function)
 {
+	Transaction = true;
+	TransactionBody = Msg;
+	TransactionAddress = Address;
+	TransactionFunction = Function;
+	TransactionRetries = Retries - 1;
+
 	Lower.SendMessage(Msg, Address, Function);
+	Schedule(TransactionTimeout);
 }
 
 
 void Master::ReceivedMessage(const std::string &Msg, int Address, int Function)
 {
-/*	if (Address != this->Address && Address != 0) {
-		std::ostringstream ss;
-		ss << "Got message for " << Address
-		   << " our is " << this->Address
-		   << " ignoring";
-		RaiseError(Error::ADDRESS, ss.str().c_str());
-		return;
-		} */
-
 	if (HigherCB)
 		HigherCB->ReceivedMessage(Msg, Address, Function);
+
+	if (Transaction) {
+		Transaction = false;
+		if (Address == TransactionAddress) {
+			/* Got reply! */
+			StopTime();
+		} else {
+			RaiseError(Error::RESPONSE, "Wrong slave address");
+		}
+	}
 }
 
 void Master::Run()
 {
-	std::cerr << "Unimplemented" << std::endl;
+	if (!Transaction)
+		return;
+
+	/* Ok. Transaction timed out. */
+	if (TransactionRetries == 0) {
+		Transaction = false;
+		RaiseError(Error::TRANSACTION);
+		return;
+	}
+	TransactionRetries--;
+	Lower.SendMessage(TransactionBody, TransactionAddress, TransactionFunction);
+	Schedule(TransactionTimeout);
 }
+
 
 /****************************
  * Slave implementation 
  ***************************/
-
 Slave::Slave(Protocol::Callback *HigherCB,
 	     Protocol &Lower, 
 	     int Address)
 	: MasterSlave(HigherCB, Lower), Address(Address)
 {
+	/* Turn off functions */
+	FunEcho = FunTime = FunText = FunExec = -1;
 }
 
 void Slave::SendMessage(const std::string &Msg, int Address, int Function)
@@ -168,25 +198,76 @@ void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 
 	if (HigherCB)
 		HigherCB->ReceivedMessage(Msg, Address, Function);
+
+	/* This return value; execute only if not broadcasted! */
+	if (Address == 0)
+		return;
+	
+	if (Function == FunEcho) {
+		Lower.SendMessage(Msg, Address, Function);
+	} else if (Function == FunTime) {
+		TimeFunction();
+	} else if (Function == FunText) {
+		Lower.SendMessage(this->Reply, Address, Function);
+	} else if (Function == FunExec) {
+		ExecFunction();
+	}
 }
 
-
-
-
-
-/****************************
- * Timeout callback implementation 
- ***************************/
-/*
-MasterSlave::TimeoutCB::TimeoutCB(MasterSlave &MM) : M(MM)
+void Slave::TimeFunction()
 {
+	char Buffer[100];
+	time_t t;
+	struct tm *tmp;
+	t = time(NULL);
+	tmp = localtime(&t);
+	if (!tmp) { 
+		strncpy(Buffer, strerror(errno), sizeof(Buffer));
+	} else
+		if (strftime(Buffer, sizeof(Buffer), "%F %T", tmp) <= 0) {
+			strncpy(Buffer, strerror(errno), sizeof(Buffer));
+		}
+	Lower.SendMessage(Buffer, Address, FunTime);
 }
 
-
-void MasterSlave::TimeoutCB::Run()
+void Slave::ExecFunction()
 {
-	Notice = 1;
-	std::cout << "Not implemented" << std::endl;
+	char Buffer[300];
+	FILE *f = popen(this->Cmd.c_str(), "r");
+	if (!f) {
+		strcpy(Buffer, "Execution error");
+		Lower.SendMessage(Buffer, Address, FunTime);
+		return;
+	}
+	
+	if (fgets(Buffer, sizeof(Buffer), f) <= 0) {
+		strcpy(Buffer, "Read error");
+		Lower.SendMessage(Buffer, Address, FunTime);
+		return;
+	}
+	
+	Lower.SendMessage(Buffer, Address, FunExec);
 }
 
-*/
+
+void Slave::EnableEcho(int Function)
+{
+	FunEcho = Function;
+}
+
+void Slave::EnableTime(int Function)
+{
+	FunTime = Function;
+}
+
+void Slave::EnableText(int Function, const std::string &Reply)
+{
+	FunText = Function;
+	this->Reply = Reply;
+}
+
+void Slave::EnableExec(int Function, const std::string &Cmd)
+{
+	FunExec = Function;
+	this->Cmd = Cmd;
+}

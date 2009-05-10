@@ -605,6 +605,17 @@ bool Comm::Initialize()
 			Slave *S = new Slave(this, *CurrentTempProtocol,
 						    SlaveAddress);
 
+			if (ui.ModbusFunEcho->isChecked())
+				S->EnableEcho(ui.ModbusFunEchoNum->value());
+			if (ui.ModbusFunTime->isChecked())
+				S->EnableTime(ui.ModbusFunTimeNum->value());
+			if (ui.ModbusFunText->isChecked())
+				S->EnableText(ui.ModbusFunTextNum->value(),
+					      ui.ModbusFunTextArgs->text().toStdString());
+			if (ui.ModbusFunProgram->isChecked())
+				S->EnableExec(ui.ModbusFunProgramNum->value(),
+					      ui.ModbusFunProgramArgs->text().toStdString());
+
 			CurrentProtocol = S;
 			ui.SendFunction->setEnabled(true);
 		}
@@ -667,7 +678,8 @@ void Comm::ReceivedMessage(const std::string &Msg, int Address, int Function)
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleInput);
 
 	/* Update status? */
-//	ui.Status->setText(("Recv: " + ss.str()).c_str());
+//	Status("Recv: " + ss.str());
+	emit Status(tr("Recv: ") + ss.str().c_str());
 }
 
 void Comm::SentMessage(const std::string &Msg, int Address, int Function)
@@ -688,7 +700,7 @@ void Comm::SentMessage(const std::string &Msg, int Address, int Function)
 
 	emit UpdateData(ss.str().c_str(), DataKind::MiddleOutput);
 	
-//	ui.Status->setText(("Sent: " + ss.str()).c_str());
+	emit Status(tr("Sent: ") + ss.str().c_str());
 }
 
 void Comm::Error(int Errno, const char *Description)

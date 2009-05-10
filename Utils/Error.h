@@ -43,6 +43,14 @@ namespace Error {
 		/** Illegal byte passed to lowlevel (eg. > 7 bits when
 		 * 7 bit communication selected) */
 		ILBYTE,
+
+		/* Master / slave errors */
+
+		/** Transaction timed out after retries */
+		TRANSACTION,
+
+		/** Response error - illegal address */
+		RESPONSE,
 	};
 
 	/** Convert error code into description string */
