@@ -6,42 +6,42 @@
     <message>
         <location filename="ModbusFrame.cpp" line="593"/>
         <source>Slave function numbers must differ</source>
-        <translation type="unfinished">Numery funkcji Slave muszą być różne</translation>
+        <translation>Numery funkcji Slave muszą być różne</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="605"/>
         <source>Custom terminator can&apos;t be null</source>
-        <translation type="unfinished">Znacznik niestandardowy nie może być pusty</translation>
+        <translation>Znacznik niestandardowy nie może być pusty</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="618"/>
         <source>Serial error: </source>
-        <translation type="unfinished">Błąd urządzenia szeregowego:</translation>
+        <translation>Błąd urządzenia szeregowego:</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="623"/>
         <source>Unknown error while opening serial device</source>
-        <translation type="unfinished">Nieznany błąd podczas łączenia z urządzeniem szeregowym</translation>
+        <translation>Nieznany błąd podczas łączenia z urządzeniem szeregowym</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="657"/>
         <source>Network error: </source>
-        <translation type="unfinished">Błąd sieci:</translation>
+        <translation>Błąd sieci:</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="662"/>
         <source>Error: Unable to open network connection</source>
-        <translation type="unfinished">Błąd: Nie udało się otworzyć połączenia sieciowego</translation>
+        <translation>Błąd: Nie udało się otworzyć połączenia sieciowego</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="725"/>
         <source>Terminated communication started</source>
-        <translation type="unfinished">Rozpoczęto komunikację ze znacznikiem końca łańcucha</translation>
+        <translation>Rozpoczęto komunikację ze znacznikiem końca łańcucha</translation>
     </message>
     <message>
         <location filename="ModbusFrame.cpp" line="727"/>
         <source>Modbus communication started</source>
-        <translation type="unfinished">Rozpoczeto komunikację Modbus</translation>
+        <translation>Rozpoczeto komunikację Modbus</translation>
     </message>
 </context>
 <context>
@@ -172,7 +172,7 @@
         <location filename="ui_ModbusFrame.h" line="1071"/>
         <location filename="ModbusFrame.ui" line="1241"/>
         <source>Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Dziennik</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="985"/>
@@ -240,7 +240,7 @@
         <location filename="ui_ModbusFrame.h" line="1038"/>
         <location filename="ModbusFrame.ui" line="826"/>
         <source>Enable string receive</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz odbiór tekstu</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1039"/>
@@ -450,7 +450,7 @@
         <location filename="ui_ModbusFrame.h" line="959"/>
         <location filename="ModbusFrame.ui" line="26"/>
         <source>Communication framework</source>
-        <translation type="unfinished"></translation>
+        <translation>Komunikacja przez port znakowy</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1017"/>
@@ -476,7 +476,7 @@
         <location filename="ModbusFrame.ui" line="513"/>
         <location filename="ModbusFrame.ui" line="574"/>
         <source>ms</source>
-        <translation type="unfinished"></translation>
+        <translation>ms</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1022"/>
@@ -552,13 +552,13 @@
         <location filename="ui_ModbusFrame.h" line="1029"/>
         <location filename="ModbusFrame.ui" line="678"/>
         <source>Enable echo reply</source>
-        <translation type="unfinished"></translation>
+        <translation>Włącz odpowiedź echo</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1034"/>
         <location filename="ModbusFrame.ui" line="773"/>
         <source>Function number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Numer funkcji</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1058"/>
@@ -711,6 +711,18 @@
     <message>
         <source>Timeout while receiving a frame</source>
         <translation>Przekroczono limit czasu podczas oczekiwania na ramkę</translation>
+    </message>
+    <message>
+        <source>Transaction timed out</source>
+        <translation>Przekroczono limit czasu podczas oczekiwania na odpowiedź Slave</translation>
+    </message>
+    <message>
+        <source>Frame error</source>
+        <translation>Błąd ramki</translation>
+    </message>
+    <message>
+        <source>Timeout error</source>
+        <translation>Przekroczono limit czasu podczas odbioru ramki</translation>
     </message>
 </context>
 </TS>
