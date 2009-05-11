@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
-    <height>670</height>
+    <width>590</width>
+    <height>675</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,12 +18,12 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>560</width>
+    <width>590</width>
     <height>700</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Modbus</string>
+   <string>Communication framework</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -443,8 +443,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>477</width>
-                 <height>473</height>
+                 <width>507</width>
+                 <height>478</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -509,6 +509,9 @@
                   </item>
                   <item row="0" column="3">
                    <widget class="QSpinBox" name="MiddleTimeout">
+                    <property name="suffix">
+                     <string>ms</string>
+                    </property>
                     <property name="minimum">
                      <number>1</number>
                     </property>
@@ -567,10 +570,16 @@
                        </item>
                        <item>
                         <widget class="QSpinBox" name="ModbusTimeout">
+                         <property name="suffix">
+                          <string>ms</string>
+                         </property>
                          <property name="maximum">
                           <number>10000</number>
                          </property>
                          <property name="singleStep">
+                          <number>100</number>
+                         </property>
+                         <property name="value">
                           <number>100</number>
                          </property>
                         </widget>
@@ -666,7 +675,7 @@
                         <bool>false</bool>
                        </property>
                        <property name="text">
-                        <string>Enable echo</string>
+                        <string>Enable echo reply</string>
                        </property>
                        <property name="checked">
                         <bool>false</bool>
@@ -686,7 +695,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0">
+                     <item row="4" column="0">
                       <widget class="QCheckBox" name="ModbusFunText">
                        <property name="enabled">
                         <bool>false</bool>
@@ -728,7 +737,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="1">
+                     <item row="4" column="1">
                       <widget class="QSpinBox" name="ModbusFunTextNum">
                        <property name="enabled">
                         <bool>false</bool>
@@ -737,11 +746,11 @@
                         <number>255</number>
                        </property>
                        <property name="value">
-                        <number>3</number>
+                        <number>4</number>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="2">
+                     <item row="4" column="2">
                       <widget class="QLineEdit" name="ModbusFunTextArgs">
                        <property name="enabled">
                         <bool>false</bool>
@@ -761,7 +770,7 @@
                      <item row="0" column="1">
                       <widget class="QLabel" name="label_23">
                        <property name="text">
-                        <string>Number:</string>
+                        <string>Function number:</string>
                        </property>
                       </widget>
                      </item>
@@ -772,7 +781,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="0">
+                     <item row="5" column="0">
                       <widget class="QCheckBox" name="ModbusFunProgram">
                        <property name="enabled">
                         <bool>false</bool>
@@ -782,7 +791,7 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="1">
+                     <item row="5" column="1">
                       <widget class="QSpinBox" name="ModbusFunProgramNum">
                        <property name="enabled">
                         <bool>false</bool>
@@ -791,17 +800,40 @@
                         <number>255</number>
                        </property>
                        <property name="value">
-                        <number>4</number>
+                        <number>5</number>
                        </property>
                       </widget>
                      </item>
-                     <item row="4" column="2">
+                     <item row="5" column="2">
                       <widget class="QLineEdit" name="ModbusFunProgramArgs">
                        <property name="enabled">
                         <bool>false</bool>
                        </property>
                        <property name="text">
                         <string>uname -a</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QCheckBox" name="ModbusFunString">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="text">
+                        <string>Enable string receive</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QSpinBox" name="ModbusFunStringNum">
+                       <property name="enabled">
+                        <bool>false</bool>
+                       </property>
+                       <property name="maximum">
+                        <number>255</number>
+                       </property>
+                       <property name="value">
+                        <number>3</number>
                        </property>
                       </widget>
                      </item>
@@ -1200,7 +1232,7 @@
       </widget>
       <widget class="QWidget" name="TabError">
        <attribute name="title">
-        <string>Error log</string>
+        <string>Log</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
@@ -1264,7 +1296,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>560</width>
+     <width>590</width>
      <height>25</height>
     </rect>
    </property>
@@ -1710,64 +1742,48 @@
   <connection>
    <sender>ModbusSlave</sender>
    <signal>toggled(bool)</signal>
-   <receiver>ModbusFunEcho</receiver>
-   <slot>setEnabled(bool)</slot>
+   <receiver>ModbusFrame</receiver>
+   <slot>ConfigEnableUpdate()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>54</x>
-     <y>182</y>
+     <x>68</x>
+     <y>188</y>
     </hint>
     <hint type="destinationlabel">
-     <x>56</x>
-     <y>236</y>
+     <x>3</x>
+     <y>187</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ModbusSlave</sender>
+   <sender>ModbusMaster</sender>
    <signal>toggled(bool)</signal>
-   <receiver>ModbusFunTime</receiver>
+   <receiver>ModbusTimeout</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>191</y>
+     <x>88</x>
+     <y>161</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>272</y>
+     <x>300</x>
+     <y>158</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>ModbusSlave</sender>
+   <sender>ModbusMaster</sender>
    <signal>toggled(bool)</signal>
-   <receiver>ModbusFunText</receiver>
+   <receiver>ModbusRetries</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>191</y>
+     <x>98</x>
+     <y>159</y>
     </hint>
     <hint type="destinationlabel">
-     <x>74</x>
-     <y>292</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusSlave</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunProgram</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>85</x>
-     <y>190</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>86</x>
-     <y>320</y>
+     <x>451</x>
+     <y>162</y>
     </hint>
    </hints>
   </connection>
@@ -1778,12 +1794,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>186</x>
+     <x>101</x>
      <y>236</y>
     </hint>
     <hint type="destinationlabel">
-     <x>214</x>
-     <y>239</y>
+     <x>243</x>
+     <y>238</y>
     </hint>
    </hints>
   </connection>
@@ -1795,11 +1811,27 @@
    <hints>
     <hint type="sourcelabel">
      <x>138</x>
-     <y>264</y>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>230</x>
-     <y>265</y>
+     <x>233</x>
+     <y>266</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ModbusFunString</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ModbusFunStringNum</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>293</y>
     </hint>
    </hints>
   </connection>
@@ -1810,12 +1842,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>288</y>
+     <x>120</x>
+     <y>325</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>294</y>
+     <x>238</x>
+     <y>323</y>
     </hint>
    </hints>
   </connection>
@@ -1826,28 +1858,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>321</y>
+     <x>128</x>
+     <y>352</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>321</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModbusFunProgram</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ModbusFunProgramArgs</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>112</x>
-     <y>323</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>348</x>
-     <y>325</y>
+     <x>236</x>
+     <y>348</y>
     </hint>
    </hints>
   </connection>
@@ -1859,11 +1875,27 @@
    <hints>
     <hint type="sourcelabel">
      <x>108</x>
-     <y>292</y>
+     <y>317</y>
     </hint>
     <hint type="destinationlabel">
-     <x>343</x>
-     <y>294</y>
+     <x>322</x>
+     <y>318</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ModbusFunProgram</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ModbusFunProgramArgs</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>103</x>
+     <y>342</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>346</x>
+     <y>345</y>
     </hint>
    </hints>
   </connection>

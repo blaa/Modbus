@@ -178,31 +178,74 @@ void ModbusFrame::ConfigEnableUpdate()
 		ModeTerminated,
 	} Protocol = Proto(ui.MiddleProtocol->currentIndex());
 
+	/* Disable all */
+	
+	ui.TerminatedSelected->setEnabled(false);
+	ui.TerminatedCustom->setEnabled(false);
+	ui.TerminatedEcho->setEnabled(false);
+
+	ui.ModbusMaster->setEnabled(false);
+	ui.ModbusSlave->setEnabled(false);
+	ui.ModbusTimeout->setEnabled(false);
+	ui.ModbusRetries->setEnabled(false);
+	ui.ModbusAddress->setEnabled(false);
+
+	ui.ModbusFunEchoNum->setEnabled(false);
+	ui.ModbusFunTimeNum->setEnabled(false);
+	ui.ModbusFunStringNum->setEnabled(false);
+	ui.ModbusFunTextNum->setEnabled(false);
+	ui.ModbusFunProgramNum->setEnabled(false);
+
+	ui.ModbusFunTextArgs->setEnabled(false);
+	ui.ModbusFunProgramArgs->setEnabled(false);
+
+	ui.ModbusFunEcho->setEnabled(false);
+	ui.ModbusFunTime->setEnabled(false);
+	ui.ModbusFunString->setEnabled(false);
+	ui.ModbusFunText->setEnabled(false);
+	ui.ModbusFunProgram->setEnabled(false);
+
 	switch (Protocol)
 	{
 	case ModeTerminated:
 		ui.TerminatedSelected->setEnabled(true);
 		ui.TerminatedCustom->setEnabled(true);
 		ui.TerminatedEcho->setEnabled(true);
-
-		ui.ModbusMaster->setEnabled(false);
-		ui.ModbusSlave->setEnabled(false);
-		ui.ModbusTimeout->setEnabled(false);
-		ui.ModbusRetries->setEnabled(false);
-		ui.ModbusAddress->setEnabled(false);
-		ui.ModbusMaster->setChecked(true);
 		break;
 
 	default:
-		ui.TerminatedSelected->setEnabled(false);
-		ui.TerminatedCustom->setEnabled(false);
-		ui.TerminatedEcho->setEnabled(false);
-
 		ui.ModbusMaster->setEnabled(true);
 		ui.ModbusSlave->setEnabled(true);
-		ui.ModbusTimeout->setEnabled(true);
-		ui.ModbusRetries->setEnabled(true);
-		ui.ModbusAddress->setEnabled(true);
+
+		if (ui.ModbusMaster->isChecked()) {
+			ui.ModbusTimeout->setEnabled(true);
+			ui.ModbusRetries->setEnabled(true);
+		} else {
+			ui.ModbusAddress->setEnabled(true);
+
+			/* Functions */
+			ui.ModbusFunEcho->setEnabled(true);
+			ui.ModbusFunTime->setEnabled(true);
+			ui.ModbusFunString->setEnabled(true);
+			ui.ModbusFunText->setEnabled(true);
+			ui.ModbusFunProgram->setEnabled(true);
+
+			if (ui.ModbusFunEcho->isChecked())
+				ui.ModbusFunEchoNum->setEnabled(true);
+			if (ui.ModbusFunTime->isChecked())
+				ui.ModbusFunTimeNum->setEnabled(true);
+			if (ui.ModbusFunString->isChecked())
+				ui.ModbusFunStringNum->setEnabled(true);
+			if (ui.ModbusFunText->isChecked()) {
+				ui.ModbusFunTextArgs->setEnabled(true);
+				ui.ModbusFunTextNum->setEnabled(true);
+			}
+
+			if (ui.ModbusFunProgram->isChecked()) {
+				ui.ModbusFunProgramNum->setEnabled(true);
+				ui.ModbusFunProgramArgs->setEnabled(true);
+			}
+		}
 		break;
 	}
 }
@@ -519,15 +562,33 @@ bool Comm::Initialize()
 	/* Validate configuration */
 	if (ui.ModbusSlave->isChecked()) {
 		/* Check addresses of functions */
-		const int A1 = ui.ModbusFunEchoNum->value();
-		const int A2 = ui.ModbusFunTimeNum->value();
-		const int A3 = ui.ModbusFunTextNum->value();
-		const int A4 = ui.ModbusFunProgramNum->value();
-		if (A1 == A2 || A1 == A3 || A1 == A4
-		    || A2 == A3 || A2 == A4
-		    || A3 == A4) {
-			emit Status(tr("Slave function numbers must differ"), true);
-			return false;
+		int F[10];
+		int cnt = 0;
+		
+		if (ui.ModbusFunEcho->isChecked())
+			F[cnt++] = ui.ModbusFunEchoNum->value();
+
+		if (ui.ModbusFunTime->isChecked())
+			F[cnt++] = ui.ModbusFunTimeNum->value();
+
+		if (ui.ModbusFunString->isChecked())
+			F[cnt++] = ui.ModbusFunStringNum->value();
+
+		if (ui.ModbusFunText->isChecked())
+			F[cnt++] = ui.ModbusFunTextNum->value();
+		
+		if (ui.ModbusFunProgram->isChecked())
+			F[cnt++] = ui.ModbusFunProgramNum->value();
+
+		for (int i = 0; i<cnt; i++) {
+			for (int y = i+1; y < cnt; y++) {
+				if (F[i] == F[y]) {
+					emit Status(tr("Slave function numbers must differ"), true);
+					UIMutex.unlock();
+					return false;
+
+				}
+			}
 		}
 	}
 
@@ -537,12 +598,6 @@ bool Comm::Initialize()
 		emit Status(tr("Custom terminator can't be null"), true);
 		return false;
 	}
-
-/*	if (CharSize == Config::CharSize7 && Protocol != ModeASCII) {
-		UIMutex.unlock();
-		emit Status(tr("Character size smaller than 8 bits allowed only with modbus ascii"), true);
-		return false;
-	} */
 
 	/* Gather configuration variables and create comm system */
 	if (ui.SerialSelected->isChecked()) {
@@ -661,6 +716,7 @@ bool Comm::Initialize()
 		emit Status(tr("Terminated communication started"));
 	else
 		emit Status(tr("Modbus communication started"));
+
 	return true;
 }
 
