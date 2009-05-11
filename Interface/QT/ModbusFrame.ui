@@ -678,7 +678,7 @@
                         <string>Enable echo reply</string>
                        </property>
                        <property name="checked">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -691,7 +691,7 @@
                         <string>Enable time reply</string>
                        </property>
                        <property name="checked">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -707,7 +707,7 @@
                         <bool>true</bool>
                        </property>
                        <property name="checked">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -789,6 +789,9 @@
                        <property name="text">
                         <string>Enable program reply</string>
                        </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
                       </widget>
                      </item>
                      <item row="5" column="1">
@@ -821,6 +824,9 @@
                        </property>
                        <property name="text">
                         <string>Enable string receive</string>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>

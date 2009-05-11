@@ -52,6 +52,9 @@ namespace Error {
 		/** Transaction timed out after retries */
 		TRANSACTION,
 
+		/** Slave returned error */
+		SLAVE_ERROR,
+
 		/** Response error - illegal address */
 		RESPONSE,
 	};

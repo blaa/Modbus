@@ -144,8 +144,8 @@ signals:
 	/** Update data in main window */
 	void UpdateData(const QString &Data, int DK);
 
-	/** Update error in main window */
-	void UpdateError(int Errno, const char *Description);
+	/** Update error in main window - must copy the string passed */
+	void UpdateError(int Errno, const QString Description);
 
 	/** Set status in main window */
 	void Status(const QString &Str, bool Error = false);
@@ -209,7 +209,7 @@ public slots:
 	void UpdateData(const QString &Data, int DK);
 
 	/** Update error display */
-	void UpdateError(int Errno, const char *Description);
+	void UpdateError(int Errno, const QString Description);
 
 private:
 	/** Main window definition created with designer */

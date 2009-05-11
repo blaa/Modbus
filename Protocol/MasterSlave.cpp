@@ -128,9 +128,14 @@ void Master::ReceivedMessage(const std::string &Msg, int Address, int Function)
 
 	if (Transaction) {
 		Transaction = false;
+		StopTime();
+
 		if (Address == TransactionAddress) {
 			/* Got reply! */
-			StopTime();
+			if (Function & 0x01) {
+				/* Error from slave */
+				RaiseError(Error::SLAVE_ERROR, Msg.c_str());
+			}
 		} else {
 			RaiseError(Error::RESPONSE, "Wrong slave address");
 		}
@@ -195,11 +200,11 @@ void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 		return;
 	
 	if (Function == FunEcho) {
-		Lower.SendMessage(Msg, Address, Function);
+		Lower.SendMessage(Msg, Address, Function & 0xFE);
 	} else if (Function == FunTime) {
 		TimeFunction();
 	} else if (Function == FunText) {
-		Lower.SendMessage(this->Reply, Address, Function);
+		Lower.SendMessage(this->Reply, Address, Function & 0xFE);
 	} else if (Function == FunExec) {
 		ExecFunction();
 	}
@@ -212,7 +217,11 @@ void Slave::StringFunction(const std::string &Msg, int Address)
 		Lower.SendMessage("", this->Address, FunString & 0xFE);
 	}
 
+	/** That's not an error - Inform UI about string */
 	RaiseError(Error::STRINGFUN, Msg.c_str());
+	std::cerr << "Raised STRINGFUN with " <<
+		Msg.c_str()
+		  << std::endl;
 }
 
 void Slave::TimeFunction()
@@ -251,6 +260,7 @@ void Slave::ExecFunction()
 		fclose(f);
 		return;
 	}
+
 	fclose(f);
 	Lower.SendMessage(Buffer, Address, FunExec & 0xFE);
 }

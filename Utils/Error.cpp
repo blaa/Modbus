@@ -14,20 +14,22 @@
 const char *Error::StrError(int Errno)
 {
 	switch (Errno) {
-	case OK: return "No error";
-	case HASH: return "Hash (CRC/LRC) error";
-	case FRAME: return "Frame error";
-	case TIMEOUT: return "Timeout error";
-	case ADDRESS: return "Wrong frame address";
-	case PING: return "Ping received";
-	case PONG: return "Pong received";
-	case WARNING: return "Warning";
-	case INFO: return "Information";
-	case ILBYTE: return "Illegal byte passed to serial device";
+	case OK:	return "No error";
+	case HASH:	return "Hash (CRC/LRC) error";
+	case FRAME:	return "Frame error";
+	case TIMEOUT:	return "Timeout error";
+	case ADDRESS:	return "Wrong frame address";
+	case PING:	return "Ping received";
+	case PONG:	return "Pong received";
+	case WARNING:	return "Warning";
+	case INFO:	return "Information";
+	case ILBYTE:	return "Illegal byte passed to serial device";
 		/* Master / Slave errors */
 	case TRANSACTION: return "Transaction timed out";
-	case RESPONSE: return "Illegal slave response for master query";
-	default: return "Unknown error";
+	case RESPONSE:	return "Illegal slave response for master query";
+	case STRINGFUN:	return "Received string from master";
+	case SLAVE_ERROR: return "Slave returned error reponse";
+	default:	return "Unknown error";
 	}
 }
 

@@ -39,8 +39,8 @@ ModbusFrame::ModbusFrame(QWidget *parent)
 	connect(&System, SIGNAL(Status(const QString &, bool)),
 		this, SLOT(Status(const QString &, bool)));
 
-	connect(&System, SIGNAL(UpdateError(int, const char *)),
-		this, SLOT(UpdateError(int, const char *)));
+	connect(&System, SIGNAL(UpdateError(int, const QString)),
+		this, SLOT(UpdateError(int, const QString)));
 
 	/* Block SIGIO and SIGRTMIN signals by default! */
 	sigset_t ss;
@@ -299,13 +299,19 @@ void ModbusFrame::LowSend()
 	Mutex::Unsafe();
 }
 
-void ModbusFrame::UpdateError(int Errno, const char *Description)
+void ModbusFrame::UpdateError(int Errno, const QString Description)
 {
 	QString ss;
+
 	ss += tr(Error::StrError(Errno));
-	if (Description) {
+	
+	if (Description.size() > 0) {
 		ss += " (";
-		ss += tr(Description);
+		/* Don't translate master strings */
+		if (Errno != Error::STRINGFUN)
+			ss += tr(Description.toAscii());
+		else
+			ss += Description;
 		ss += ")";
 	}
 
@@ -314,6 +320,7 @@ void ModbusFrame::UpdateError(int Errno, const char *Description)
 	case Error::PONG:
 	case Error::INFO:
 	case Error::OK:
+	case Error::STRINGFUN:
 		Status(ss);
 		break;
 	default:
@@ -791,9 +798,12 @@ void Comm::SentMessage(const std::string &Msg, int Address, int Function)
 
 void Comm::Error(int Errno, const char *Description)
 {
-	emit UpdateError(Errno, Description);
-	
-	
+	QString tmp;
+	if (Description)
+		tmp = Description;
+	else 
+		tmp = "";
+	emit UpdateError(Errno, tmp);
 }
 
 /**************
