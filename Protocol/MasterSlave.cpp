@@ -163,7 +163,7 @@ Slave::Slave(Protocol::Callback *HigherCB,
 	: MasterSlave(HigherCB, Lower), Address(Address)
 {
 	/* Turn off functions */
-	FunEcho = FunTime = FunText = FunExec = -1;
+	FunEcho = FunTime = FunText = FunExec = FunString = -1;
 }
 
 void Slave::SendMessage(const std::string &Msg, int Address, int Function)
@@ -185,6 +185,11 @@ void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 	if (HigherCB)
 		HigherCB->ReceivedMessage(Msg, Address, Function);
 
+	if (Function == FunString) {
+		StringFunction(Msg, Address);
+		return;
+	}
+
 	/* This return value; execute only if not broadcasted! */
 	if (Address == 0)
 		return;
@@ -200,20 +205,34 @@ void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 	}
 }
 
+void Slave::StringFunction(const std::string &Msg, int Address)
+{
+	if (Address == this->Address) {
+		/* Not broadcast */
+		Lower.SendMessage("", this->Address, FunString & 0xFE);
+	}
+
+	RaiseError(Error::STRINGFUN, Msg.c_str());
+}
+
 void Slave::TimeFunction()
 {
 	char Buffer[100];
 	time_t t;
 	struct tm *tmp;
+	int Function = FunTime;
 	t = time(NULL);
 	tmp = localtime(&t);
 	if (!tmp) { 
 		strncpy(Buffer, strerror(errno), sizeof(Buffer));
-	} else
+		Function |= 0x01;
+	} else {
 		if (strftime(Buffer, sizeof(Buffer), "%F %T", tmp) <= 0) {
 			strncpy(Buffer, strerror(errno), sizeof(Buffer));
 		}
-	Lower.SendMessage(Buffer, Address, FunTime);
+		Function &= 0xFE;
+	}
+	Lower.SendMessage(Buffer, Address, Function);
 }
 
 void Slave::ExecFunction()
@@ -222,20 +241,19 @@ void Slave::ExecFunction()
 	FILE *f = popen(this->Cmd.c_str(), "r");
 	if (!f) {
 		strcpy(Buffer, "Execution error");
-		Lower.SendMessage(Buffer, Address, FunTime);
+		Lower.SendMessage(Buffer, Address, FunExec | 0x01);
 		return;
 	}
 	
 	if (fgets(Buffer, sizeof(Buffer), f) <= 0) {
 		strcpy(Buffer, "Read error");
-		Lower.SendMessage(Buffer, Address, FunTime);
+		Lower.SendMessage(Buffer, Address, FunExec | 0x01);
 		fclose(f);
 		return;
 	}
 	fclose(f);
-	Lower.SendMessage(Buffer, Address, FunExec);
+	Lower.SendMessage(Buffer, Address, FunExec & 0xFE);
 }
-
 
 void Slave::EnableEcho(int Function)
 {
@@ -245,6 +263,11 @@ void Slave::EnableEcho(int Function)
 void Slave::EnableTime(int Function)
 {
 	FunTime = Function;
+}
+
+void Slave::EnableString(int Function)
+{
+	FunString = Function;
 }
 
 void Slave::EnableText(int Function, const std::string &Reply)

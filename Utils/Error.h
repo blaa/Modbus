@@ -23,6 +23,9 @@ namespace Error {
 		ERROR,		/* General error */
 
 		HASH,		/* Hash error = CRC/LRC */
+		
+		/** Modbus slave function which shows received string */
+		STRINGFUN,
 
 		/* Frame error - e.g. not beginning with ':' 
 		 * Or not ending with CR LF in MODBUS ASCII */

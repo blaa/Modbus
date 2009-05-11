@@ -700,6 +700,8 @@ bool Comm::Initialize()
 			if (ui.ModbusFunProgram->isChecked())
 				S->EnableExec(ui.ModbusFunProgramNum->value(),
 					      ui.ModbusFunProgramArgs->text().toStdString());
+			if (ui.ModbusFunString->isChecked())
+				S->EnableString(ui.ModbusFunStringNum->value());
 
 			CurrentProtocol = S;
 			ui.SendFunction->setEnabled(true);

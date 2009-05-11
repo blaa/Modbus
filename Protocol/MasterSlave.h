@@ -117,11 +117,15 @@ class Slave : public MasterSlave
 	/**@{ Function parameters - numbers and arguments */
 	int FunEcho;
 	int FunTime;
+	int FunString;
 	int FunText;
 	int FunExec;
 	std::string Reply;
 	std::string Cmd;
 	/*@} */
+
+	/** Built-in function displaying string */
+	void StringFunction(const std::string &Msg, int Address);
 
 	/** Built-in function returning current time */
 	void TimeFunction();
@@ -142,10 +146,12 @@ public:
 	void EnableEcho(int Function = 1);
 	/** Enable current time reply */
 	void EnableTime(int Function = 2);
+	/** Enable current time reply */
+	void EnableString(int Function = 3);
 	/** Enable time reply */
-	void EnableText(int Function = 3, const std::string &Reply = "Hello world");
+	void EnableText(int Function = 4, const std::string &Reply = "Hello world");
 	/** Enable slave function which executes program and replies output */
-	void EnableExec(int Function = 4, const std::string &Cmd = "uname -a");
+	void EnableExec(int Function = 5, const std::string &Cmd = "uname -a");
 };
 
 
