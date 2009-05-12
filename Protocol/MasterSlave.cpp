@@ -132,7 +132,7 @@ void Master::ReceivedMessage(const std::string &Msg, int Address, int Function)
 
 		if (Address == TransactionAddress) {
 			/* Got reply! */
-			if (Function & 0x01) {
+			if (Function & 0x80) {
 				/* Error from slave */
 				RaiseError(Error::SLAVE_ERROR, Msg.c_str());
 			}
@@ -200,11 +200,11 @@ void Slave::ReceivedMessage(const std::string &Msg, int Address, int Function)
 		return;
 	
 	if (Function == FunEcho) {
-		Lower.SendMessage(Msg, Address, Function & 0xFE);
+		Lower.SendMessage(Msg, Address, Function & 0x7F);
 	} else if (Function == FunTime) {
 		TimeFunction();
 	} else if (Function == FunText) {
-		Lower.SendMessage(this->Reply, Address, Function & 0xFE);
+		Lower.SendMessage(this->Reply, Address, Function & 0x7F);
 	} else if (Function == FunExec) {
 		ExecFunction();
 	}
@@ -214,7 +214,7 @@ void Slave::StringFunction(const std::string &Msg, int Address)
 {
 	if (Address == this->Address) {
 		/* Not broadcast */
-		Lower.SendMessage("", this->Address, FunString & 0xFE);
+		Lower.SendMessage("", this->Address, FunString & 0x7F);
 	}
 
 	/** That's not an error - Inform UI about string */
@@ -234,12 +234,12 @@ void Slave::TimeFunction()
 	tmp = localtime(&t);
 	if (!tmp) { 
 		strncpy(Buffer, strerror(errno), sizeof(Buffer));
-		Function |= 0x01;
+		Function |= 0x80;
 	} else {
 		if (strftime(Buffer, sizeof(Buffer), "%F %T", tmp) <= 0) {
 			strncpy(Buffer, strerror(errno), sizeof(Buffer));
 		}
-		Function &= 0xFE;
+		Function &= 0x7F;
 	}
 	Lower.SendMessage(Buffer, Address, Function);
 }
@@ -250,19 +250,19 @@ void Slave::ExecFunction()
 	FILE *f = popen(this->Cmd.c_str(), "r");
 	if (!f) {
 		strcpy(Buffer, "Execution error");
-		Lower.SendMessage(Buffer, Address, FunExec | 0x01);
+		Lower.SendMessage(Buffer, Address, FunExec | 0x80);
 		return;
 	}
 	
 	if (fgets(Buffer, sizeof(Buffer), f) <= 0) {
 		strcpy(Buffer, "Read error");
-		Lower.SendMessage(Buffer, Address, FunExec | 0x01);
+		Lower.SendMessage(Buffer, Address, FunExec | 0x80);
 		fclose(f);
 		return;
 	}
 
 	fclose(f);
-	Lower.SendMessage(Buffer, Address, FunExec & 0xFE);
+	Lower.SendMessage(Buffer, Address, FunExec & 0x7F);
 }
 
 void Slave::EnableEcho(int Function)
