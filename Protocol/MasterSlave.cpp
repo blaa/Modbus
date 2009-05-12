@@ -11,6 +11,7 @@
  *********************/
 #include <iostream>
 #include <iomanip>
+#include <cstdio>
 #include <sstream>
 #include <cctype>
 #include <cerrno>
