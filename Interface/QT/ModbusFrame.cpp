@@ -126,6 +126,7 @@ const std::string ModbusFrame::ParseEscapes(const std::string &Str)
 void ModbusFrame::Start()
 {
 	/** This could be done with QWaitCondition instead */
+	Stop();
 	std::cerr << "Scheduling initialize..." << std::endl;
 	System.UIMutex.lock();
 	System.ScheduleInitialize();
