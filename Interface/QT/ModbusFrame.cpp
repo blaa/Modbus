@@ -127,7 +127,6 @@ void ModbusFrame::Start()
 {
 	/** This could be done with QWaitCondition instead */
 	Stop();
-	std::cerr << "Scheduling initialize..." << std::endl;
 	System.UIMutex.lock();
 	System.ScheduleInitialize();
 
@@ -370,8 +369,6 @@ void ModbusFrame::UpdateData(const QString &Data, int DK)
 Comm::Comm(QObject *parent, const Ui::ModbusFrame &ui)
 	: QThread(parent), ui(ui)
 {
-	std::cerr << "Creating thread" << std::endl;
-
 	DoAbort = DoInitialize = DoShutdown = false;
 
 	/** Initialize all timers - must be called in GUI thread */
@@ -434,8 +431,6 @@ void Comm::ScheduleShutdown()
 void Comm::run()
 {
 	forever {
-		std::cerr << "Thread Loop" << std::endl;
-
 		Mutex.lock();
 		if (DoAbort) {
 			Mutex.unlock();
@@ -458,8 +453,6 @@ void Comm::run()
 
 Comm::~Comm()
 {
-	std::cerr << "Destroying thread" << std::endl;
-
 	ScheduleAbort();
 
 	/* Wait for run() to finish */
@@ -493,9 +486,6 @@ bool Comm::Initialize()
 
 	/** Turn off previous comm system if any */
 	Shutdown();
-
-	std::cout << "Building comm system ";
-	std::cerr << "in tid " << syscall(SYS_gettid) << std::endl;
 
 	/* Gather some basic info */
 	/* Serial */
@@ -874,18 +864,12 @@ void Comm::TimerTimeout()
 
 void Comm::TimerStartSlot(int TimerID, long MSec)
 {
-	std::cerr << "From main thread - starting timeout " 
-		  << TimerID << " << - in "
-		  << MSec << " miliseconds" << std::endl;
 	TimerPool[TimerID].start(MSec);
 }
 
 void Comm::TimerStopSlot(int TimerID)
 {
-	std::cerr << "From main thread - stopping timeout " << TimerID << std::endl;
-
 	TimerPool[TimerID].stop();
 }
-
 
 QMutex SafeMutex;

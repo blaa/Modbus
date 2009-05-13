@@ -450,6 +450,7 @@ namespace Testcase {
 #include <QtCore/QTranslator>
 #include "Interface/QT/ModbusFrame.h"
 
+/** Initialize Qt Interface - start main loop */
 void QTInterface(int argc, char **argv)
 {
 	using namespace Qt;
@@ -470,20 +471,27 @@ void QTInterface(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	std::cout
+	<< "Comm  Copyright (C) 2009 Tomasz bla Fortuna <bla@thera.be>" << std::endl
+	<< "This program comes with ABSOLUTELY NO WARRANTY" << std::endl
+	<< "This is free software, and you are welcome to redistribute it" << std::endl
+	<< "under certain conditions; See Docs/LICENSE for details." << std::endl;
+
+
 	/* Initialize timeout interrupt/signal */
 	TimeoutInit();
 
 	/* Test middle-level protocol */
-//	Testcase::Middle();
+/*
+	Testcase::Middle();
 
-//	Testcase::Lowlevel();
-//	Testcase::Network();
+/	Testcase::Lowlevel();
+	Testcase::Network();
 
-	/* Test timeout */
-//	Testcase::Timeout();
+	Testcase::Timeout();
 
-//	Testcase::NetworkUDP();
-
+	Testcase::NetworkUDP();
+*/
 #ifdef QT_INTERFACE
 	QTInterface(argc, argv);
 #endif
