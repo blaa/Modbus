@@ -516,7 +516,7 @@ Licencja: GPL3+ (Zobacz Docs/LICENSE)&lt;br&gt;
     <message>
         <location filename="ui_ModbusFrame.h" line="1043"/>
         <source>Function number:</source>
-        <translation>Numer funkcji</translation>
+        <translation>Numer funkcji:</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1067"/>
