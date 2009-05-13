@@ -671,5 +671,9 @@ Andrzej Grzbiela&lt;br&gt;</translation>
         <source>Received string from master</source>
         <translation>Odebrałem ciąg znaków od stacji Master</translation>
     </message>
+    <message>
+	<source>Pong received</source>
+	<translation>Odebrano odpowiedź na ping</translation>
+    </message>
 </context>
 </TS>

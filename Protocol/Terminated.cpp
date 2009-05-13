@@ -76,20 +76,10 @@ void Terminated::Reset()
 
 void Terminated::RaiseError(int Errno, const char *Additional) const
 {
-	std::ostringstream ss;
 	if (!HigherCB)
 		return;
 
-	/* TODO: Turn this debug off finally */
-	if (Additional)
-		ss << "Terminated Error: " << Additional;
-
-	std::cerr << ss.str() << std::endl;
-
-	if (Additional)
-		HigherCB->Error(Errno, ss.str().c_str());
-	else
-		HigherCB->Error(Errno, NULL);
+	HigherCB->Error(Errno, Additional);
 }
 
 void Terminated::Accept()
