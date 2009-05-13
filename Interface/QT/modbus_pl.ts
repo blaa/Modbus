@@ -724,5 +724,13 @@
         <source>Timeout error</source>
         <translation>Przekroczono limit czasu podczas odbioru ramki</translation>
     </message>
+    <message>
+        <source>Slave returned error reponse</source>
+        <translation>Slave zwrócił błędną odpowiedź</translation>
+    </message>
+    <message>
+        <source>Received string from master</source>
+        <translation>Odebrałem ciąg znaków od stacji Master</translation>
+    </message>
 </context>
 </TS>
