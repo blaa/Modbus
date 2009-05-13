@@ -65,7 +65,6 @@ void NetworkUDPServer::SignalHandler(int Value)
 		int i = 0;
 		if (!Found) {
 			Clients.push_back(sa);
-
 			/* Omit first byte sent by a new client if it's equal 0x00 */
 			if (Buff[0] == 0x00)
 				i++;

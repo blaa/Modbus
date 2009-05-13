@@ -377,7 +377,7 @@ void ModbusGeneric<HashType, ASCII>::Run()
 		 * Or we inform higher layer about correct frame 
 		 */
 		if (Hash.IsCorrect()) {
-			Buffer.erase(Buffer.length()-2, Buffer.length()-1);
+			Buffer.erase(Buffer.length()-2, Buffer.length());
 			if (HigherCB) {
 				HigherCB->ReceivedMessage(Buffer, Address, Function);
 			}
