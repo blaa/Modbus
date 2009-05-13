@@ -665,7 +665,7 @@ Andrzej Grzbiela&lt;br&gt;</translation>
     </message>
     <message>
         <source>Slave returned error reponse</source>
-        <translation>Slave zwrócił błędną odpowiedź</translation>
+        <translation>Slave zwrócił informację o błędzie</translation>
     </message>
     <message>
         <source>Received string from master</source>
@@ -674,6 +674,10 @@ Andrzej Grzbiela&lt;br&gt;</translation>
     <message>
 	<source>Pong received</source>
 	<translation>Odebrano odpowiedź na ping</translation>
+    </message>
+    <message>
+	<source>Illegal slave response for master query</source>
+	<translation>Błędna odpowiedź slave</translation>
     </message>
 </context>
 </TS>
