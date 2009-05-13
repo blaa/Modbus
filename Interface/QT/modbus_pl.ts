@@ -649,7 +649,7 @@ Licencja: GPL3+ (Zobacz Docs/LICENSE)&lt;br&gt;
     </message>
     <message>
         <source>Timeout while waiting for ping reply</source>
-        <translation>Przekroczony limit czasu podczas oczekiwania odpowiedzi na ping</translation>
+        <translation>Upłynął limit czasu oczekiwania na odpowiedź</translation>
     </message>
     <message>
         <source>Timeout while receiving a frame</source>
@@ -665,7 +665,7 @@ Licencja: GPL3+ (Zobacz Docs/LICENSE)&lt;br&gt;
     </message>
     <message>
         <source>Timeout error</source>
-        <translation>Przekroczono limit czasu podczas odbioru ramki</translation>
+        <translation>Przekroczono limit czasu</translation>
     </message>
     <message>
         <source>Slave returned error reponse</source>

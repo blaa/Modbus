@@ -99,7 +99,7 @@ void Terminated::Accept()
 
 		/* Raise error to inform about ping */
 		if (Buffer == "PING") {
-			RaiseError(Error::PONG, "Got ping reply");
+			RaiseError(Error::PONG);
 		} else {
 			RaiseError(Error::FRAME, "Illegal ping reply");
 		}
