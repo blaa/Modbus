@@ -169,19 +169,23 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more information see Docs/LICENSE&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">Autorzy:&lt;br&gt;
-Tomasz Fortuna&lt;br&gt;
-Michał Sawicki&lt;br&gt;
-Piotr Dudzic&lt;br&gt;
-Nycz Monika&lt;br&gt;
-Michał Szlosar&lt;br&gt;
-Bartłomiej Trela&lt;br&gt;
-Mirosław Borowiecki&lt;br&gt;
-Tomasz Chaja&lt;br&gt;
-Krzysztof Sobień&lt;br&gt;
-Łukasz Roguski&lt;br&gt;
-Jarosław Granat&lt;br&gt;
-Andrzej Grzbiela&lt;br&gt;</translation>
+        <translation>Skład sekcji:&lt;br&gt;
+Borowiecki Mirosław&lt;br&gt;
+Chaja Tomasz&lt;br&gt;
+Dudzic Piotr&lt;br&gt;
+Fortuna Tomasz&lt;br&gt;
+Granat Jarosław&lt;br&gt;
+Grzbiela Andrzej&lt;br&gt;
+Monika Nycz&lt;br&gt;
+Roguski Łukasz&lt;br&gt;
+Sawicki Michał&lt;br&gt;
+Sobień Krzysztof&lt;br&gt;
+Szlosar Michał&lt;br&gt;
+Trela Bartłomiej&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+Licencja: GPL3+ (Zobacz Docs/LICENSE)&lt;br&gt;
+</translation>
     </message>
     <message>
         <location filename="ui_ModbusFrame.h" line="1096"/>
@@ -672,12 +676,12 @@ Andrzej Grzbiela&lt;br&gt;</translation>
         <translation>Odebrałem ciąg znaków od stacji Master</translation>
     </message>
     <message>
-	<source>Pong received</source>
-	<translation>Odebrano odpowiedź na ping</translation>
+        <source>Pong received</source>
+        <translation>Odebrano odpowiedź na ping</translation>
     </message>
     <message>
-	<source>Illegal slave response for master query</source>
-	<translation>Błędna odpowiedź slave</translation>
+        <source>Illegal slave response for master query</source>
+        <translation>Błędna odpowiedź slave</translation>
     </message>
 </context>
 </TS>
