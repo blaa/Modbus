@@ -16,7 +16,7 @@
 #include "Utils/Error.h"
 
 #include "Lowlevel/Lowlevel.h"
-#include "Lowlevel/Serial.h"
+#include "Lowlevel/SerialLinux.h"
 #include "Lowlevel/NetworkTCP.h"
 #include "Lowlevel/NetworkUDP.h"
 

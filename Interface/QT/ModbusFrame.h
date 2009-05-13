@@ -24,7 +24,7 @@
 
 #include "Lowlevel/NetworkTCP.h"
 #include "Lowlevel/NetworkUDP.h"
-#include "Lowlevel/Serial.h"
+#include "Lowlevel/SerialLinux.h"
 
 #include "Utils/Timeout.h"
 #include "Protocol/Terminated.h"
