@@ -448,7 +448,7 @@ namespace Testcase {
 #ifdef QT_INTERFACE
 #include <QtGui/QApplication>
 #include <QtCore/QTranslator>
-#include "Interface/QT/ModbusFrame.h"
+#include "Interface/ModbusFrame.h"
 
 /** Initialize Qt Interface - start main loop */
 void QTInterface(int argc, char **argv)

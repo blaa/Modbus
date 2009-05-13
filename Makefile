@@ -34,8 +34,7 @@ SOURCES=Main.cpp Config.cpp Utils/Error.cpp Utils/Timeout.cpp \
 ##
 ifeq ($(QT), 1)
 CFLAGS+=-DQT_INTERFACE -I$(QTINC)
-SOURCES+=Interface/QT/ModbusFrame.cpp Interface/QT/moc_ModbusFrame.cpp \
-	Utils/moc_Timeout.cpp
+SOURCES+=Interface/ModbusFrame.cpp Interface/moc_ModbusFrame.cpp 
 LDFLAGS+=-L$(QTLIB) -lQtGui
 endif
 
@@ -68,16 +67,16 @@ docs:
 ##
 
 ifeq "$(QT)" "1"
-Interface/QT/ui_ModbusFrame.h: Interface/QT/ModbusFrame.ui
+Interface/ui_ModbusFrame.h: Interface/ModbusFrame.ui
 	$(UIC) -o $@ $<
 
-Interface/QT/moc_ModbusFrame.cpp: Interface/QT/ModbusFrame.h Interface/QT/ui_ModbusFrame.h
+Interface/moc_ModbusFrame.cpp: Interface/ModbusFrame.h Interface/ui_ModbusFrame.h
 	$(MOC) -DQT_INTERFACE=1 $< > $@
 
-Utils/moc_Timeout.cpp: Utils/Timeout.h
-	$(MOC) -DQT_INTERFACE=1 $< > $@
+#Utils/moc_Timeout.cpp: Utils/Timeout.h
+#	$(MOC) -DQT_INTERFACE=1 $< > $@
 
-Inteface/QT/ModbusFrame.cpp: Interface/QT/ModbusFrame.h
+Inteface/ModbusFrame.cpp: Interface/ModbusFrame.h
 	$(CC) -c $(CFLAGS) -o $@ $<
 endif
 
@@ -90,7 +89,7 @@ endif
 
 clean:
 	rm -f $(OBJECTS) $(DEPS) $(EXE) 
-	rm -f Interface/QT/moc_ModbusFrame.cpp Interface/QT/ui_ModbusFrame.h
+	rm -f Interface/moc_ModbusFrame.cpp Interface/ui_ModbusFrame.h
 	find . -type f -name "*.d.[0-9]*" -exec rm -f {} \;
 
 distclean: clean

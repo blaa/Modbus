@@ -49,7 +49,7 @@
   '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Interface/QT/ModbusFrame.h"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Interface/ModbusFrame.h"
   "ModbusFrame.h"
   'c++-mode
   '(abbrev-mode)
@@ -60,7 +60,7 @@
   '((indent-tabs-mode . t) (buffer-file-coding-system . undecided-unix)))
 
 (desktop-create-buffer 206
-  "/home/bla/my_projects/my_school/UZK1/trunk/Interface/QT/ModbusFrame.cpp"
+  "/home/bla/my_projects/my_school/UZK1/trunk/Interface/ModbusFrame.cpp"
   "ModbusFrame.cpp"
   'c++-mode
   '(abbrev-mode)

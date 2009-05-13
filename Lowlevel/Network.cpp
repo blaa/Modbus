@@ -35,7 +35,7 @@
 
 #if QT_INTERFACE
 #include <sys/syscall.h>
-#include "Interface/QT/ModbusFrame.h"
+#include "Interface/ModbusFrame.h"
 #endif
 
 Network *CurrentNet;

@@ -132,7 +132,7 @@ void Wait()
 #endif /* 0 */
 
 #if QT_INTERFACE
-#include "Interface/QT/ModbusFrame.h"
+#include "Interface/ModbusFrame.h"
 
 Timeout::Timeout()
 {
