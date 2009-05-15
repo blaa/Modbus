@@ -431,8 +431,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>501</width>
-                 <height>433</height>
+                 <width>507</width>
+                 <height>478</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -1271,35 +1271,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab">
-       <attribute name="title">
-        <string>About</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <widget class="QTextEdit" name="textEdit">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-          <property name="html">
-           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Comm - a modbus communication framework&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Copyright (C) 2009 by Tomasz bla Fortuna &amp;lt;bla@thera.be&amp;gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program comes with ABSOLUTELY NO WARRANTY.&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more information see Docs/LICENSE&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
     <item>
@@ -1323,11 +1294,23 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>590</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>NetworkMode</tabstop>
@@ -1372,8 +1355,8 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>487</x>
-     <y>568</y>
+     <x>483</x>
+     <y>577</y>
     </hint>
     <hint type="destinationlabel">
      <x>568</x>
@@ -1648,8 +1631,8 @@ p, li { white-space: pre-wrap; }
      <y>606</y>
     </hint>
     <hint type="destinationlabel">
-     <x>44</x>
-     <y>630</y>
+     <x>53</x>
+     <y>645</y>
     </hint>
    </hints>
   </connection>
@@ -1664,8 +1647,8 @@ p, li { white-space: pre-wrap; }
      <y>606</y>
     </hint>
     <hint type="destinationlabel">
-     <x>61</x>
-     <y>630</y>
+     <x>70</x>
+     <y>645</y>
     </hint>
    </hints>
   </connection>
@@ -1680,8 +1663,8 @@ p, li { white-space: pre-wrap; }
      <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>208</x>
-     <y>190</y>
+     <x>272</x>
+     <y>180</y>
     </hint>
    </hints>
   </connection>
@@ -1696,8 +1679,8 @@ p, li { white-space: pre-wrap; }
      <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>533</x>
-     <y>161</y>
+     <x>536</x>
+     <y>153</y>
     </hint>
    </hints>
   </connection>
@@ -1712,8 +1695,8 @@ p, li { white-space: pre-wrap; }
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
-     <x>533</x>
-     <y>191</y>
+     <x>536</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -1725,7 +1708,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>139</x>
-     <y>116</y>
+     <y>115</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -1925,6 +1908,22 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionAbout</sender>
+   <signal>triggered()</signal>
+   <receiver>ModbusFrame</receiver>
+   <slot>About()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>337</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>Start()</slot>
@@ -1933,5 +1932,6 @@ p, li { white-space: pre-wrap; }
   <slot>TerminatedPing()</slot>
   <slot>Finish()</slot>
   <slot>ConfigEnableUpdate()</slot>
+  <slot>About()</slot>
  </slots>
 </ui>

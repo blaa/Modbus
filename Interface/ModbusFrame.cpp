@@ -250,6 +250,25 @@ void ModbusFrame::ConfigEnableUpdate()
 	}
 }
 
+void ModbusFrame::About()
+{
+	QMessageBox Box;
+	Box.setText(tr(
+			    "Comm - a modbus communication framework<br>"
+			    "Copyright (C) 2009 by Tomasz bla Fortuna &lt;bla@thera.be&gt;<br><br>"
+
+			    "This program comes with ABSOLUTELY NO WARRANTY.<br><br>"
+
+			    "This program is free software: you can redistribute it"
+			    "and/or modify it under the terms of the GNU General Public License"
+			    " as published by the Free Software Foundation, either version 3 of"
+			    " the License, or any later version.<br><br>"
+			    
+			    "For more information see Docs/LICENSE<br>"
+			    ));
+	Box.exec();
+}
+
 void ModbusFrame::MiddleSend()
 {
 	Mutex::Safe();

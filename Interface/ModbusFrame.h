@@ -201,6 +201,9 @@ private slots:
 	/** Enable/disable some configuration fields */
 	void ConfigEnableUpdate();
 
+	/** Display About dialog */
+	void About();
+
 public slots:
 	/** Display status information */
 	void Status(const QString &Str, bool Error = false);
