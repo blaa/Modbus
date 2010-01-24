@@ -55,9 +55,9 @@ all: $(EXE)
 ##
 $(EXE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $@ $(OBJECTS)
-ifeq ($(UBUNTU), 0)
-	/sbin/paxctl -pemrxs $(EXE)
-endif
+#ifeq ($(UBUNTU), 0)
+#	/sbin/paxctl -pemrxs $(EXE)
+#endif
 
 docs:
 	doxygen
